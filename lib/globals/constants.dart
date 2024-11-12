@@ -87,9 +87,9 @@ class Constants {
   static const stripePublishKey =
       "pk_test_51OPA9vFADW7E0h2nTBSBK8M5mcd3tzH95OBq2iai2giwxO451syaJQFZzCBqrNKsj3bVvmfgQu5JcwmOYrZMDF1G00ZxUjs6Rj";
   static const String APP_NAME = "Otobucks";
-  static String strTokenType = "Bearer";
+  static String strTokenType = "Bearer";//AIzaSyBNkH8Ao7AnpIBenPfKDZtMYSvyTuV7nJ8
   static String STATUS = "STATUS";
-  static String STR_GOOGLE_API_KEY = 'AIzaSyAcg4t_7-h6LvAaYz80KlTCrKtWhfsVCm0';
+  static String STR_GOOGLE_API_KEY = 'AIzaSyCBDzA1PUvLkPkX9sTP_Br3gVPI8SzsL2Q';
 
   static const String STR_PLATFORM_ANDROID = "Android",
       STR_PLATFORM_IOS = "IOS";
