@@ -294,13 +294,16 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                   behavior:
                                                       HitTestBehavior.opaque,
                                                   onTap: () {
-                                                    Get.to(VideoView(
-                                                      url: chatController
-                                                              .chatDataModel
-                                                              .value
-                                                              ?.messageData ??
-                                                          '',
-                                                    ));
+                                                    Get.to(
+                                                      VideoView(
+                                                        url: chatController
+                                                                .chatDataModel
+                                                                .value
+                                                                ?.messageData ??
+                                                            '',
+
+                                                      ),
+                                                    );
                                                   },
                                                   child: ClipRRect(
                                                     borderRadius:
@@ -547,7 +550,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                           child: Padding(
                                                             padding:
                                                                 const EdgeInsets
-                                                                    .all(8.0),
+                                                                    .all(10.0),
                                                             child: Text(
                                                               chat.messageData ??
                                                                   "",

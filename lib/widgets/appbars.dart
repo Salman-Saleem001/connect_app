@@ -62,7 +62,7 @@ PreferredSize customAppBar(
                       Text(
                         title,
                         style: headingText(
-                            size: 20,
+                            size: 26,
                             color: titleColor ?? AppColors.textPrimary),
                       ),
                 ),

@@ -6,6 +6,7 @@ import 'package:connect_app/utils/app_colors.dart';
 class AppTheme {
   static ThemeData data() => ThemeData(
         primaryColor: AppColors.primaryColor,
+
         // textTheme: _textTheme(),
         // useMaterial3: true,a
         appBarTheme: AppBarTheme(
@@ -19,8 +20,10 @@ class AppTheme {
 
         splashColor: Colors.grey.shade400,
         highlightColor: Colors.blueGrey[200]?.withOpacity(.25),
-        datePickerTheme:
-            DatePickerThemeData(headerBackgroundColor: AppColors.primaryColor),
+        datePickerTheme: DatePickerThemeData(
+          headerBackgroundColor: AppColors.primaryColor,
+          todayBorder: BorderSide.none
+        ),
         textButtonTheme: _textButtonTheme(),
         outlinedButtonTheme: _outlinedButtonThemeData(),
         canvasColor:

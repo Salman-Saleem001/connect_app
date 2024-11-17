@@ -101,6 +101,7 @@ flutter:
     - assets/audio/
     - assets/json/
     - assets/fonts/
+    - assets/video/
 
 flutter_native_splash:
   color: "#FFFFFF"

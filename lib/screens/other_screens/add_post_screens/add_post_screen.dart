@@ -37,34 +37,34 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   late TextEditingController controller;
   late TextEditingController controller1;
   late List<RadioButtonTile<String>> tiles;
-  List<String> expiry=['1 hour', '6 Days', '1 week','1 month','2 month','3 month'];
-  int selectedExpiry=0;
+  DateTime? selectedExpiry;
   @override
   void initState() {
     // TODO: implement initState
     controller = TextEditingController();
     controller1 = TextEditingController();
-    tags=[];
-    tiles=[];
+    tags = [];
+    tiles = [];
     setListOfTags();
+    selectedExpiry = DateTime.now();
     super.initState();
   }
-  
-  setListOfTags()async{
+
+  setListOfTags() async {
     await getController.getLocation();
     await getController.getTags();
-    getController.tags?.forEach((element){
+    getController.tags?.forEach((element) {
       tiles.add(RadioButtonTile(title: element, value: element));
     });
     for (var val in tiles) {
       debugPrint('val==>${val.value} and Title====> ${val.title}');
     }
-   setState(() {});
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    if(getController.addresses.isEmpty){
+    if (getController.addresses.isEmpty) {
       getController.getLocation();
     }
     return Scaffold(
@@ -80,10 +80,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     height: ht(400),
                     child: widget.isVideo
                         ? VideoView(
-                      isLocal: true,
-                      url: widget.filePath,
-                      isContained: true,
-                    )
+                            isLocal: true,
+                            url: widget.filePath,
+                            isContained: true,
+                          )
                         : Image.file(File(widget.filePath))),
                 Expanded(
                   child: ListView(
@@ -104,28 +104,28 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       ),
                       20.hp,
                       Consumer<HomeProvider>(
-                      builder: (context,homeProvider,_) {
+                          builder: (context, homeProvider, _) {
                         return GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: (){
-                          Get.to(()=> GoogleMapScreen(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            Get.to(() => GoogleMapScreen(
                                   selectedLocation: LatLng(
                                       homeProvider.startLocation.latitude,
                                       homeProvider.startLocation.longitude),
                                 ));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Add Location',
-                              style: subHeadingText(size: 16),
-                            ),
-                            const Icon(Icons.arrow_forward_ios)],
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Add Location',
+                                style: subHeadingText(size: 16),
+                              ),
+                              const Icon(Icons.arrow_forward_ios)
+                            ],
                           ),
-                          );
-                        }
-                      ),
+                        );
+                      }),
                       20.hp,
                       _preferences(),
                       20.hp,
@@ -134,26 +134,53 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         style: subHeadingText(size: 16),
                       ),
                       10.hp,
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 30,
-                        children: expiry.asMap().entries.map((element){
-                          return GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: (){
-                              setState(() {
-                                selectedExpiry= element.key;
-                              });
-                            },
-                            child: DecoratedBox(decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(20),
-                              border: selectedExpiry==element.key? null :Border.all(),
-                              color: selectedExpiry==element.key? AppColors.primaryColor: AppColors.white,
+                      GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          showDatePicker(
+                            context: context,
+                            firstDate:  DateTime.now(),
+                            lastDate: DateTime.now().add(Duration(days: 90)),
+                            builder: (context, child){
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  colorScheme: ColorScheme.light(
+                                    primary: AppColors.primaryColor, // <-- SEE HERE
+                                    onPrimary: AppColors.white, // <-- SEE HERE
+                                    onSurface: Colors.grey, // <-- SEE HERE
+                                    onInverseSurface: AppColors.primaryColor,
+                                    // inverseSurface: AppColors.primaryColor
+                                  ),
+                                  textButtonTheme: TextButtonThemeData(
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppColors.primaryColor, // Button text color
+                                    ),
+                                  ),
+                                ),
+
+                                child: child!,
+                              );
+                            }
+                          ).then((value){
+                            setState(() {
+                              selectedExpiry= value;
+                            });
+                          });
+                        },
+                        child: Row(
+                          // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Icon(Icons.calendar_month),
+                            10.wp,
+                            Text(
+                              selectedExpiry?.toIso8601String().substring(0,10)??'',
+                              style: subHeadingText(size: 16, color: Colors.grey),
                             ),
-                            child: Text(element.value, style: TextStyle(color: selectedExpiry==element.key?  AppColors.white: null ), ).paddingSymmetric(horizontal: 10,vertical: 8)),
-                          );
-                        }).toList(),
-                      ),
+                            Spacer(),
+                            Icon(Icons.arrow_forward_ios_rounded)
+                          ],
+                        ),
+                      )
                     ],
                   ),
                 ),
@@ -165,27 +192,27 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   child: PrimaryButton(
                     label: 'Post',
                     onPress: () {
-                      var data= getController.addresses.first;
+                      var data = getController.addresses.first;
                       getController
                           .setPost(
-                              title: '',
-                              video: File(widget.filePath),
-                              info: controller.text,
-                              lat: getController.position?.latitude??0.0,
-                              lng: getController.position?.longitude??0.0,
-                              city: data.subAdministrativeArea??'',
-                              state: data.administrativeArea??'',
-                              country: data.country??'',
-                              tags: tags,
-                              expiryDate: getExpiryDate(),
-                              )
+                        title: '',
+                        video: File(widget.filePath),
+                        info: controller.text,
+                        lat: getController.position?.latitude ?? 0.0,
+                        lng: getController.position?.longitude ?? 0.0,
+                        city: data.subAdministrativeArea ?? '',
+                        state: data.administrativeArea ?? '',
+                        country: data.country ?? '',
+                        tags: tags,
+                        expiryDate: selectedExpiry?.toIso8601String() ??
+                            DateTime.now().toIso8601String(),
+                      )
                           .then((val) {
                         if (val) {
                           Get.off(() => const SuccessUploaded());
                           debugPrint("val====>$val");
                         }
                       });
-
                     },
                   ),
                 ),
@@ -236,8 +263,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             ),
           ),
           hint: 'Search',
-          onchange: (String? val){
-            if(val?.length==1||val?.isEmpty==true){
+          onchange: (String? val) {
+            if (val?.length == 1 || val?.isEmpty == true) {
               setState(() {});
             }
           },
@@ -245,14 +272,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         SizedBox(
           height: ht(12),
         ),
-        if(controller1.text.isNotEmpty)...[
+        if (controller1.text.isNotEmpty) ...[
           PrimaryButton(
             label: 'add Tag',
-            onPress: () async{
-              String val= '#${controller1.text.capitalizeText()}';
+            onPress: () async {
+              String val = '#${controller1.text.capitalizeText()}';
               tiles.add(RadioButtonTile(title: val, value: val));
-              await getController.sendTags(val).then((val){
-                if(val){
+              await getController.sendTags(val).then((val) {
+                if (val) {
                   debugPrint("Tags added");
                 }
               });
@@ -262,58 +289,32 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ),
           25.hp,
         ],
-
-        if(tiles.isNotEmpty)
-        RadioButtonTileGroup<String>(
-          selectedValues: [tiles.first.title],
-          onChanged: (newValues) {
-            tags = [];
-            for (var val in newValues) {
-              tags.add(val);
-              debugPrint(val);
-            }
-
-          },
-          selectedTileColor: AppColors.primaryColorBottom,
-          // Customize selected tile color
-          borderWidth: 1.0,
-          // Customize border width
-          borderRadius: 100,
-          // Customize border radius
-          tilesPerRow: 4,
-          // Set number of tiles per row
-          tiles: tiles,
-        ),
+        if (tiles.isNotEmpty)
+          RadioButtonTileGroup<String>(
+            selectedValues: [tiles.first.title],
+            onChanged: (newValues) {
+              tags = [];
+              for (var val in newValues) {
+                tags.add(val);
+                debugPrint(val);
+              }
+            },
+            selectedTileColor: AppColors.primaryColorBottom,
+            // Customize selected tile color
+            borderWidth: 1.0,
+            // Customize border width
+            borderRadius: 100,
+            // Customize border radius
+            tilesPerRow: 4,
+            // Set number of tiles per row
+            tiles: tiles,
+          ),
         const SizedBox(
           height: 10,
         ),
       ],
     );
   }
-
- String getExpiryDate(){
-    int? numberOfDays;
-    switch (selectedExpiry){
-      case 1:
-        numberOfDays= 6;
-        break;
-      case 2:
-        numberOfDays= 8;
-        break;
-      case 3:
-        numberOfDays= 30;
-        break;
-      case 4:
-        numberOfDays= 60;
-        break;
-      case 5:
-        numberOfDays= 90;
-        break;
-      default:
-        numberOfDays= 0;
-    }
-    return DateTime.now().add(Duration(days: numberOfDays)).toString().substring(0,10);
- }
 
   @override
   void dispose() {

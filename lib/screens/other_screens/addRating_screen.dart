@@ -34,8 +34,8 @@ class RatingScreen extends StatelessWidget {
                     210, // Adjust this value to control the background image height
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/bg_image1.png'),
-                    fit: BoxFit.cover,
+                    image: AssetImage('assets/images/bg_image_small.jpeg'),
+                    fit: BoxFit.fill,
                   ),
                 ),
               ),

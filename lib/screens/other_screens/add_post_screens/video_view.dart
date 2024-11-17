@@ -8,8 +8,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 class VideoView extends StatefulWidget {
   final bool isLocal;
   final String url;
-  const VideoView({Key? key, this.isLocal = false, this.url = ''})
-      : super(key: key);
+  const VideoView({super.key, this.isLocal = false, this.url = ''});
 
   @override
   State<VideoView> createState() => _VideoViewState();
@@ -79,7 +78,7 @@ class _VideoViewState extends State<VideoView> {
                         ),
                       ),
                       if (!_controller.value.isPlaying)
-                        Container(
+                        SizedBox(
                           height: double.infinity,
                           width: double.infinity,
                           child: Center(
@@ -92,7 +91,7 @@ class _VideoViewState extends State<VideoView> {
                         )
                     ],
                   )
-                : Container(),
+                : SizedBox(),
           ),
         ),
       ),

@@ -200,8 +200,8 @@ class _CameraScreenState extends State<CameraScreen>
                       )),
                   if(!_isRecording)
                   Positioned(
-                    bottom: 150,
-                    left: 185,
+                    bottom: 45,
+                    left: 40,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: AppColors.white.withOpacity(.25),

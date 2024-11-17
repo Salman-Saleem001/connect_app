@@ -19,13 +19,12 @@ class VideoView extends StatefulWidget {
   final BoxFit? fit;
   final int? id;
   const VideoView(
-      {Key? key,
+      {super.key,
       this.isContained = false,
       this.isLocal = false,
       this.url = '',
       this.isAsset = false,
-      this.isFullScreen = false, this.country, this.id, this.fit, })
-      : super(key: key);
+      this.isFullScreen = false, this.country, this.id, this.fit, });
 
   @override
   State<VideoView> createState() => _VideoViewState();
@@ -161,7 +160,7 @@ class _VideoViewState extends State<VideoView> {
                         )
                     ],
                   )
-                : Container(),
+                : SizedBox(),
           ),
         ),
       ),
