@@ -60,7 +60,7 @@ class GoogleMapScreenProvider extends ChangeNotifier{
           debugPrint("SEARCHED LOCATION===========>${googleMapLatLongModel.results?.first.formattedAddress ?? ""}");
           debugPrint("SEARCHED LOCATION stored===========>${searchTC.text}");
           update();
-          Loader.dismiss();
+          // Loader.dismiss();
         },
         onError: (e) {
           log(e.toString());
@@ -79,7 +79,7 @@ class GoogleMapScreenProvider extends ChangeNotifier{
 
     startLocation = lt.LatLng(currentLocation.latitude!, currentLocation.longitude!);
     log("Success fully get the start location from google map screen provider");
-    Loader.dismiss();
+    // Loader.dismiss();
     await getAddress(currentLocation.latitude!, currentLocation.longitude!);
   }
 
