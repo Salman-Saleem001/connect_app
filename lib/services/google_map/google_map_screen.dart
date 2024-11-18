@@ -261,6 +261,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                         GoogleMapPredict(
                           address: (addrs) async {
                             googleMapProvider.locationData = addrs;
+                            googleMapProvider.update();
                             googleMapProvider.searchTC.text = addrs.streetAddress ?? "";
 
                             //set the lat lng

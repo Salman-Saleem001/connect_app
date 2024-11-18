@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-
 import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_flutter_platform_interface/src/types/location.dart' as lt;
@@ -11,7 +10,7 @@ import 'package:connect_app/services/google_map/google_map_functions.dart';
 import 'package:connect_app/services/google_map/google_map_lat_long_model.dart';
 import 'package:connect_app/services/google_map/map_key.dart';
 import 'package:connect_app/widgets/loader.dart';
-
+import 'package:collection/collection.dart';
 
 class GoogleMapScreenProvider extends ChangeNotifier{
   GoogleMapController? mapsController;
@@ -51,10 +50,15 @@ class GoogleMapScreenProvider extends ChangeNotifier{
               geohash: "",
               lat: googleMapLatLongModel.results?.first.geometry?.location?.lat?.toDouble() ?? 0,
               lng: googleMapLatLongModel.results?.first.geometry?.location?.lng?.toDouble() ?? 0,
-              country: "",
-              city: "",
-              state: "",
-              streetAddress: "");
+              country: googleMapLatLongModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("country"))?.longName ?? "",
+              city: googleMapLatLongModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("administrative_area_level_2"))?.longName ?? "",
+              state: googleMapLatLongModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("administrative_area_level_1"))?.longName ?? "",
+              zipCode: googleMapLatLongModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("postal_code"))?.longName ?? "",
+          streetAddress: googleMapLatLongModel.results?.first.formattedAddress ?? "",);
          searchTC.text = googleMapLatLongModel.results?.first.formattedAddress ?? "";
           update();
           debugPrint("SEARCHED LOCATION===========>${googleMapLatLongModel.results?.first.formattedAddress ?? ""}");

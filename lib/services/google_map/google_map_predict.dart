@@ -1,13 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:connect_app/services/google_map/api_service.dart';
 import 'package:connect_app/services/google_map/map_key.dart';
-
 import 'address_model.dart';
 import 'google_address_model.dart';
 import 'google_map_functions.dart';
+import 'package:collection/collection.dart';
 
 class GoogleMapPredict extends StatefulWidget {
   final ValueChanged<PickLocationData>? address;
@@ -30,11 +29,15 @@ class _GoogleMapPredictState extends State<GoogleMapPredict> {
           widget.address!(PickLocationData(
               lat: googleAddressModel.results?.first.geometry?.location?.lat?.toDouble() ?? 0,
               lng: googleAddressModel.results?.first.geometry?.location?.lng?.toDouble() ?? 0,
-              country:"",
-              city: "",
-              state:"",
-              zipCode:"",
-          streetAddress: googleAddressModel.results?.first.formattedAddress ?? "",));
+              country: googleAddressModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("country"))?.longName ?? "",
+              city: googleAddressModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("administrative_area_level_2"))?.longName ?? "",
+              state: googleAddressModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("administrative_area_level_1"))?.longName ?? "",
+              streetAddress: googleAddressModel.results?.first.formattedAddress ?? "",
+              zipCode: googleAddressModel.results?.first.addressComponents?.firstWhereOrNull(
+                      (element) => element.types!.contains("postal_code"))?.longName ?? ""));
           // setState(() {});
         },
         onError: (e) {

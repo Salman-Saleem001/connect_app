@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connect_app/services/google_map/google_map_screen_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -113,7 +114,10 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                   selectedLocation: LatLng(
                                       homeProvider.startLocation.latitude,
                                       homeProvider.startLocation.longitude),
-                                ));
+                                ))?.then((v){
+                                  setState(() {});
+                              context.read<GoogleMapScreenProvider>().update();
+                            });
                           },
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,7 +197,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                   child: PrimaryButton(
                     label: 'Post',
                     onPress: () {
-                      var data = getController.addresses.first;
                       if(controller.text.isEmpty){
                         Global.showToastAlert(
                             context: Get.overlayContext!,
@@ -201,6 +204,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             strMsg: 'Please Enter the Info',
                             toastType: TOAST_TYPE.toastError);
                       }
+                      debugPrint("setPost===>${
+                           File(widget.filePath)}${ controller.text}${getController.position?.latitude ?? 0.0}${getController.position?.longitude ?? 0.0},${context.read<GoogleMapScreenProvider>().locationData?.city ?? ''},${context.read<GoogleMapScreenProvider>().locationData?.state ?? ''},${context.read<GoogleMapScreenProvider>().locationData?.country ?? ''}",);
                       getController
                           .setPost(
                         title: '',
@@ -208,9 +213,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                         info: controller.text,
                         lat: getController.position?.latitude ?? 0.0,
                         lng: getController.position?.longitude ?? 0.0,
-                        city: data.subAdministrativeArea ?? '',
-                        state: data.administrativeArea ?? '',
-                        country: data.country ?? '',
+                        city: context.read<GoogleMapScreenProvider>().locationData?.city ?? '',
+                        state:  context.read<GoogleMapScreenProvider>().locationData?.state ?? '',
+                        country:  context.read<GoogleMapScreenProvider>().locationData?.country ?? '',
                         tags: tags,
                         expiryDate: selectedExpiry?.toIso8601String() ??
                             DateTime.now().toIso8601String(),

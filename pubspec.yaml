@@ -70,6 +70,7 @@ dependencies:
   timeago: ^3.7.0
   blur: ^4.0.0
   flutter_rating_bar: ^4.0.1
+  collection:
 
 
 dev_dependencies:
