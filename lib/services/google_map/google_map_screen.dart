@@ -9,6 +9,8 @@ import 'package:connect_app/services/google_map/google_map_screen_provider.dart'
 import 'package:connect_app/services/google_map/home_provider.dart';
 import 'package:connect_app/utils/app_colors.dart';
 
+import '../../utils/text_styles.dart';
+import '../../widgets/appbars.dart';
 import '../../widgets/primary_button.dart';
 import 'google_map_functions.dart';
 import 'google_map_predict.dart';
@@ -28,7 +30,7 @@ class GoogleMapScreen extends StatefulWidget {
 }
 
 class _GoogleMapScreenState extends State<GoogleMapScreen> {
-  var provider;
+  late dynamic provider;
 
   Future<void> setCurrentLocation() async {
     provider.startLocation = widget.selectedLocation;
@@ -105,11 +107,13 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                     );
                     homeProvider.homeScreenMapController?.animateCamera(
                         CameraUpdate.newCameraPosition(CameraPosition(
-                          target: homeProvider.startLocation!,
+                          target: homeProvider.startLocation,
                           zoom: 14,
                         )));
                     homeProvider.update();
-                    Navigator.pop(context);
+                    if(context.mounted) {
+                      Navigator.pop(context);
+                    }
                   }else{
                     Global.showToastAlert(
                         context: Get.overlayContext!,
@@ -160,182 +164,133 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                       initialCameraPosition: CameraPosition(
                           target: googleMapProvider.startLocation!, zoom: 18),
                     ),
-                    Container(
-                      padding: const EdgeInsets.only(top: 16, bottom: 12),
-                      color: AppColors.white,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                  },
-                                child: Container(
-                                  width: 40,
-                                  height: 40,
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  decoration:  BoxDecoration(
-                                    color: AppColors.white,
-                                    borderRadius: const BorderRadius.all(
-                                      Radius.circular(10),
-                                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        10.hp,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pop(context);
+                              },
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                margin: const EdgeInsets.symmetric(
+                                    horizontal: 10),
+                                decoration:  BoxDecoration(
+                                  color: AppColors.white,
+                                  borderRadius: const BorderRadius.all(
+                                    Radius.circular(100),
                                   ),
-                                  child:  Icon(
-                                    Icons.arrow_back_outlined,
-                                    color: AppColors.lightColorBlue,
-                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.arrow_back_ios_new,
+                                  size: 20,
+                                  color: AppColors.primaryIconColor,
                                 ),
                               ),
-                              Expanded(
-                                child: SizedBox(
-                                  // height: 40,
-                                  child: TextFormField(
-                                    readOnly: false,
-                                    controller: googleMapProvider.searchTC,
-                                    onChanged: ((value) {
-                                      if (value.isNotEmpty) {
-                                        GoogleMapFunctions.predict(value);
-                                      }
-                                      googleMapProvider.update();
-                                    }),
-                                    decoration: InputDecoration(
-                                      // suffixIconConstraints:
-                                      // BoxConstraints(minWidth: iconMinWidth ?? 60, minHeight: 50, maxHeight: 50),
-                                      // contentPadding: EdgeInsets.symmetric(
-                                      //     horizontal: horizontalPadding ?? 16, vertical: verticalPadding ?? 16),
-                                      fillColor: AppColors.white,
-                                      hintText: "Location",
-                                      suffixIcon:
-                                          googleMapProvider.searchTC.text.isNotEmpty
-                                              ? GestureDetector(
-                                                  onTap: () {
-                                                    googleMapProvider.searchTC.clear();
-                                                    googleMapProvider.markers.clear();
-                                                    googleMapProvider.update();
-                                                  },
-                                                  child: const Icon(
-                                                    Icons.cancel_outlined,
-                                                    color: Colors.red,
-                                                  ),
-                                                )
-                                              : null,
-                                      // suffixIcon != null
-                                      //     ? Container(child: suffixIcon)
-                                      //     : null,
-                                      hintStyle:  TextStyle(
-                                        color: AppColors.lightColorBlue,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                      isDense: true,
-                                      enabledBorder:  OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderSide: BorderSide(
-                                            color: AppColors.lightColorBlue),
-                                      ),
-                                      border:  OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderSide: BorderSide(
-                                            color: AppColors.lightColorBlue),
-                                      ),
-                                      disabledBorder:  OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderSide: BorderSide(
-                                            color: AppColors.lightColorBlue),
-                                      ),
-                                      focusedBorder:  OutlineInputBorder(
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderSide: BorderSide(
-                                            color: AppColors.primaryColor),
-                                      ),
-                                      errorBorder: const OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderSide: BorderSide(
-                                            color: AppColors.redColor),
-                                      ),
-                                      focusedErrorBorder:
-                                           const OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(10)),
-                                        borderSide: BorderSide(
-                                            color: AppColors.redColor),
-                                      ),
-                                      filled: true,
-                                    ),
-                                  ),
+                            ),
+                            
+                            Text(
+                                  "Add Location",
+                                  style: headingText(
+                                      size: 26,
+                                      color: AppColors.textPrimary),
                                 ),
-                              ),
-                              GestureDetector(
-                                onTap: () async {
-                                  bool check =
-                                      await GoogleMapFunctions.checkLocation();
-                                  if (check) {
-                                    await googleMapProvider.getLocation();
-                                  }
-                                },
-                                child: Container(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal:MediaQuery.sizeOf(context).width * 0.01,
-                                      vertical: MediaQuery.sizeOf(context).width * 0.01),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xffEEF1F3),
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child:  Icon(
-                                    Icons.my_location,
-                                    color: AppColors.primaryColor,
-                                    size: 28,
-                                  ),
-                                ),
-                              )
-                            ],
+                          ],
+                        ).paddingOnly(right: 150),
+                        20.hp,
+                        TextFormField(
+                          readOnly: false,
+                          controller: googleMapProvider.searchTC,
+                          onChanged: ((value) {
+                            if (value.isNotEmpty) {
+                              GoogleMapFunctions.predict(value);
+                            }
+                            googleMapProvider.update();
+                          }),
+                          onTapOutside: (val){
+
+                          },
+                          cursorColor: AppColors.primaryColor,
+                          decoration: InputDecoration(
+                            fillColor: AppColors.white,
+                            hintText: "Search for a Location",
+                            suffixIcon:
+                                googleMapProvider.searchTC.text.isNotEmpty
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          googleMapProvider.searchTC.clear();
+                                          googleMapProvider.markers.clear();
+                                          googleMapProvider.update();
+                                        },
+                                        child: const Icon(
+                                          Icons.cancel_outlined,
+                                          color: Colors.red,
+                                        ),
+                                      )
+                                    : Icon(Icons.search),
+
+                            hintStyle:  TextStyle(
+                              color: AppColors.lightColorBlue,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400,
+                            ),
+                            isDense: true,
+
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: AppColors.borderColor),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                            // Increased vertical padding
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: AppColors.borderColor),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            filled: true,
                           ),
-                          GoogleMapPredict(
-                            address: (addrs) async {
-                              googleMapProvider.locationData = addrs;
+                        ).paddingSymmetric(horizontal: 10),
+                        GoogleMapPredict(
+                          address: (addrs) async {
+                            googleMapProvider.locationData = addrs;
+                            googleMapProvider.searchTC.text = addrs.streetAddress ?? "";
 
-                              //set the address in text field
-                              googleMapProvider.searchTC.text = addrs.streetAddress ?? "";
+                            //set the lat lng
+                            googleMapProvider.startLocation = lt.LatLng(
+                                addrs.lat ?? googleMapProvider.startLocation!.latitude,
+                                addrs.lng ??
+                                    googleMapProvider.startLocation!.longitude);
 
-                              //set the lat lng
-                              googleMapProvider.startLocation = lt.LatLng(
-                                  addrs.lat ?? googleMapProvider.startLocation!.latitude,
-                                  addrs.lng ??
-                                      googleMapProvider.startLocation!.longitude);
+                            //move the camera
+                            googleMapProvider.mapsController?.animateCamera(
+                                CameraUpdate.newCameraPosition(CameraPosition(
+                              target: googleMapProvider.startLocation!,
+                              zoom: 18,
+                            )));
 
-                              //move the camera
-                              googleMapProvider.mapsController?.animateCamera(
-                                  CameraUpdate.newCameraPosition(CameraPosition(
-                                target: googleMapProvider.startLocation!,
-                                zoom: 18,
-                              )));
+                            //add the marker
+                            googleMapProvider.markers.clear();
+                            googleMapProvider.markers.add(
+                              Marker(
+                                markerId: MarkerId("$googleMapProvider.startLocation"),
+                                position: googleMapProvider.startLocation!,
+                                icon: googleMapProvider.icon1!,
+                              ),
+                            );
 
-                              //add the marker
-                              googleMapProvider.markers.clear();
-                              googleMapProvider.markers.add(
-                                Marker(
-                                  markerId: MarkerId("$googleMapProvider.startLocation"),
-                                  position: googleMapProvider.startLocation!,
-                                  icon: googleMapProvider.icon1!,
-                                ),
-                              );
-
-                              //update
-                              googleMapProvider.update();
-                            },
-                          )
-                        ],
-                      ),
+                            //update
+                            googleMapProvider.update();
+                          },
+                        )
+                      ],
                     ),
                   ],
                 ),

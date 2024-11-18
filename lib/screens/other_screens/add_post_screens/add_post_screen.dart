@@ -19,6 +19,7 @@ import 'package:connect_app/widgets/primary_button.dart';
 import 'package:connect_app/widgets/text_fields.dart';
 
 import '../../../controllers/mainScreen_controllers/home_page_cont.dart';
+import '../../../globals/global.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String filePath;
@@ -193,6 +194,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     label: 'Post',
                     onPress: () {
                       var data = getController.addresses.first;
+                      if(controller.text.isEmpty){
+                        Global.showToastAlert(
+                            context: Get.overlayContext!,
+                            strTitle: "Message",
+                            strMsg: 'Please Enter the Info',
+                            toastType: TOAST_TYPE.toastError);
+                      }
                       getController
                           .setPost(
                         title: '',

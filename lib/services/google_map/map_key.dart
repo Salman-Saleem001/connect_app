@@ -1,6 +1,6 @@
 
 class MapKey {//
-  static String mapKey = "AIzaSyCBDzA1PUvLkPkX9sTP_Br3gVPI8SzsL2Q";
+  static String mapKey = "AIzaSyC9FPLBwpCIQIRVERrlmHv94qv4u9zmILw";
 }
 //Google map url
 String getLatLngFromAddressUrl(adress, key) =>

@@ -40,7 +40,7 @@ class GoogleMapScreenProvider extends ChangeNotifier{
           markers.clear();
           markers.add(
             Marker(
-              markerId: MarkerId("${startLocation}"),
+              markerId: MarkerId("$startLocation"),
               position: startLocation!,
               icon: icon1 ?? BitmapDescriptor.defaultMarker,
             ),
