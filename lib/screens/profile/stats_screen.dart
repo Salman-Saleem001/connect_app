@@ -29,6 +29,7 @@ class _StatsMapScreenState extends State<StatsMapScreen> {
   @override
   void initState() {
     super.initState();
+    // var  homeController= Get.put(HomeFeedController());
     dataOfMarker={};
     for (var element in data) {
       dataOfMarker.add(Marker(markerId: MarkerId(element.name),
@@ -37,6 +38,11 @@ class _StatsMapScreenState extends State<StatsMapScreen> {
               title: element.name, snippet: element.views.toString())));
     }
   }
+
+  // convertValue(List<Stats> value) async{
+  //   // homeController.getStats(widget.id);
+  //
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -47,21 +53,49 @@ class _StatsMapScreenState extends State<StatsMapScreen> {
         shape: InputBorder.none,
         color: AppColors.white,
         child: GetBuilder(builder: (HomeFeedController homeController) {
-          if (homeController.position != null) {
-            homeController.getStats(widget.id);
+          if (homeController.dataOfMarker == null) {
             return Center(child: CircularProgressIndicator(
               color: AppColors.primaryColor,));
           } else {
-            return GoogleMap(
-              mapType: MapType.normal,
-              markers: dataOfMarker,
-              onMapCreated: (GoogleMapController controller) {
-                homeController.controller.complete(controller);
-              },
-              initialCameraPosition: CameraPosition(
-                target: dataOfMarker.first.position,
-                zoom: 5,
-              ),);
+            // homeController.getStats(widget.id);
+            return Stack(
+              children: [
+                GoogleMap(
+                  mapType: MapType.normal,
+                  markers: dataOfMarker,
+                  onMapCreated: (GoogleMapController controller) {
+                    homeController.controller.complete(controller);
+                  },
+                  initialCameraPosition: CameraPosition(
+                    target: dataOfMarker.first.position,
+                    zoom: 5,
+                  ),),
+                Positioned(
+                  top: 50,
+                  left: 15,
+                  child: GestureDetector(
+                    onTap: () {
+                      Get.back();
+                    },
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.white,
+                        border: Border.all(
+                          color: AppColors.borderColor,
+                          width: 1.0,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 20,
+                        color: AppColors.primaryIconColor,
+                      ).paddingAll(10),
+                    ),
+                  ),
+                ),
+              ],
+            );
           }
         }),
       ),

@@ -18,6 +18,9 @@ import '../../globals/rest_api/app_apis.dart';
 import '../../models/content_videos.dart';
 import '../../models/country_model.dart';
 import '../../models/posts_model.dart';
+import '../../services/google_map/api_service.dart';
+import '../../services/google_map/google_address_model.dart';
+import '../../services/google_map/map_key.dart';
 import '../../services/http_services.dart';
 import '../../utils/login_details.dart';
 
@@ -35,7 +38,8 @@ class HomeFeedController extends GetxController {
   Position? position;
   String? reviewDescrioption;
   double? rating;
-
+  // Rx<Stats>? stats;
+  RxSet<Marker>? dataOfMarker;
   // RxList<bool> isLiked = <bool>[].obs;
 
   List<CscPicker> cscPicker = [];
@@ -336,19 +340,60 @@ postView(int id , String country )async{
 
   getStats(int id)async{
     try{
-      // debugPrint('url ${AppApis.ratePostApi}$id');
       var response=await  HttpsServices.getApiCall(url: '${AppApis.statsOfVideoApi}$id',);
 
       if(response !=null){
         debugPrint('Resonse data stats===> $response');
-      }
 
+        var data= jsonDecode(response);
+
+        debugPrint('Resonse data stats===> ${data["stats"]}');
+        dataOfMarker= <Marker>{}.obs;
+        if(data["stats"]!=null&& data["stats"].isNotEmpty){
+          List<CountryData> values=[];
+          dynamic location;
+          for(var element in data["stats"]){
+            debugPrint('${element['country']}');
+               if(element['country']!=null&& element['country'].isNotEmpty&& element["total_views"]!=null){
+                    location= await  getLatLngFromAddress(element['country']);
+                    debugPrint("lat===> ${location.lat} and ${location.lng}");
+                    // values.add();
+               }
+          }
+
+          // await Future.wait(values);
+          for (var element in values) {
+            debugPrint("valuees");
+          }
+          // dataOfMarker.add(value)
+        }
+        // stats= Stats.fromJson(data).obs;
+        update();
+      }
 
     }catch(e){
       debugPrint('Some thing Went wrong while getting stats====>$e');
     }
   }
 
+
+  Future getLatLngFromAddress(String address) async {
+    final ApiRequest _apiRequests = ApiRequest();
+    GoogleAddressModel googleAddressModel = GoogleAddressModel();
+    debugPrint(getLatLngFromAddressUrl(address, MapKey.mapKey));
+    await _apiRequests.getMap(
+        url: getLatLngFromAddressUrl(address, MapKey.mapKey),
+        onSuccess: (res) async {
+          googleAddressModel = GoogleAddressModel.fromJson(jsonDecode(res));
+          debugPrint(googleAddressModel.toJson().toString());
+          // googleAddressModel.results?.first.geometry?.location.lat;
+          return googleAddressModel.results?.first.geometry?.location;
+
+        },
+        onError: (e) {
+          debugPrint(e.toString());
+        });
+  }
 
 
   @override
@@ -358,4 +403,15 @@ postView(int id , String country )async{
     super.dispose();
   }
 
+}
+
+
+
+class CountryData {
+  CountryData(this.name, this.views, this.latitude, this.longitude);
+
+  final String name;
+  final double views;
+  final double latitude;
+  final double longitude;
 }

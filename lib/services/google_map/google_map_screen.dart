@@ -1,16 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_flutter_platform_interface/src/types/location.dart' as lt;
-import 'package:provider/provider.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
 import 'package:connect_app/services/google_map/google_map_screen_provider.dart';
 import 'package:connect_app/services/google_map/home_provider.dart';
 import 'package:connect_app/utils/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter_platform_interface/src/types/location.dart' as lt;
+import 'package:provider/provider.dart';
 
 import '../../utils/text_styles.dart';
-import '../../widgets/appbars.dart';
 import '../../widgets/primary_button.dart';
 import 'google_map_functions.dart';
 import 'google_map_predict.dart';
@@ -63,6 +62,8 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
         await setCurrentLocation();
       }
     });
+
+
     super.initState();
   }
 
@@ -235,7 +236,7 @@ class _GoogleMapScreenState extends State<GoogleMapScreen> {
                                     : Icon(Icons.search),
 
                             hintStyle:  TextStyle(
-                              color: AppColors.lightColorBlue,
+                              color: AppColors.txtGrey,
                               fontSize: 15,
                               fontWeight: FontWeight.w400,
                             ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connect_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
@@ -56,7 +57,7 @@ class _VideoViewState extends State<VideoView> {
     } else {
       _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url.isEmpty
           ? 'http://3.123.149.87/storage/videos/QbKX9HXAwWrwLYmgbHVRI944dTWUJ4FMrF8hg6XK.mp4'
-          : widget.url),)
+          : widget.url,),)
         ..initialize().then((_) {
           setState(() {});
         })
@@ -160,7 +161,10 @@ class _VideoViewState extends State<VideoView> {
                         )
                     ],
                   )
-                : SizedBox(),
+                : SizedBox(
+                height: 50,
+                width: 50,
+                child: CircularProgressIndicator(color: AppColors.primaryColor,)),
           ),
         ),
       ),

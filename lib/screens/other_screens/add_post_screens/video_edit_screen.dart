@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:connect_app/extensions/string_extensions.dart';
+import 'package:connect_app/utils/app_colors.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,8 +10,6 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:connect_app/extensions/string_extensions.dart';
-import 'package:connect_app/utils/app_colors.dart';
 import 'package:tapioca/tapioca.dart';
 
 import '../../../controllers/chat/chat_detail_controller.dart';
@@ -492,11 +492,9 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                           final cup =
                               Cup(Content(widget.filePath), tapiocaBalls);
                           await cup.suckUp(path).then((_) async {
-                            debugPrint("finished");
                             setState(() {
                               processPercentage = 0;
                             });
-                            debugPrint(path);
                             if (selectedAudio != null) {
                               await audioFilePick(path);
                             }
@@ -529,10 +527,23 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                           debugPrint("error!!!!");
                         }
                       } else {
-                        Get.off(() => CreatePostScreen(
-                              filePath: outputUrlName ?? widget.filePath,
-                              isVideo: true,
-                            ));
+                        if (selectedAudio != null) {
+                          await audioFilePick(widget.filePath);
+                        }
+                        if(widget.fromMessage){
+                          await chatController.uploadToStorage(File(outputUrlName ?? widget.filePath,)).then((val)async{
+                            if(val){
+                              await widget.onSend!();
+                              Get.back(result: val);
+                            }
+                          });
+
+                        }else{
+                          Get.off(() => CreatePostScreen(
+                            filePath: outputUrlName ?? widget.filePath,
+                            isVideo: true,
+                          ));
+                        }
                       }
                       filterColor=null;
                       values= null;

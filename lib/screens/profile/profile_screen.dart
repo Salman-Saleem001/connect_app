@@ -1,19 +1,20 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/globals/network_image.dart';
-import 'package:connect_app/screens/other_screens/add_post_screens/video_view.dart';
 import 'package:connect_app/screens/profile/edit_details.dart';
 import 'package:connect_app/screens/profile/followRequests_screen.dart';
 import 'package:connect_app/screens/profile/stats_screen.dart';
+import 'package:connect_app/screens/profile/video_screen.dart';
 import 'package:connect_app/screens/settings/settings_screen.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/login_details.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/primary_button.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../controllers/mainScreen_controllers/navbar_controller.dart';
 import '../../controllers/mainScreen_controllers/profile_controller.dart';
@@ -57,7 +58,6 @@ class ProfileScreen extends StatelessWidget {
           ]),
       body: SafeArea(
         child: ListView(
-          // padding: EdgeInsets.symmetric(horizontal: wd(15), vertical: ht(15)),
           children: [
             const SizedBox(
               height: 10,
@@ -233,6 +233,7 @@ class ProfileScreen extends StatelessWidget {
                                     Get.to(()=> StatsMapScreen(id: post.id??0,));
                                   }
                                 },
+                              context,
 
                               // Handle if video is null
                             );
@@ -250,12 +251,10 @@ class ProfileScreen extends StatelessWidget {
   }
 
   Widget _buildCard(
-      String thumbnail, double cardWidth, double cardheight, String url, int videoId,void Function(String)? onSelected) {
+      String thumbnail, double cardWidth, double cardheight, String url, int videoId,void Function(String)? onSelected,BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Get.to(VideoView(
-          url: url,
-        ));
+        Get.to(VideoScreen(url: url,));
       },
       child: SizedBox(
         width: cardWidth,
@@ -264,7 +263,10 @@ class ProfileScreen extends StatelessWidget {
           elevation: 0,
           child: Stack(
             children: [
-              Image.file(
+              Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
+                height: cardWidth,
+                  width: cardWidth,
+                  child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
                 File(thumbnail),
                 fit: BoxFit.cover,
                 height: cardheight,

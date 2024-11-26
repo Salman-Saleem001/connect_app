@@ -3,16 +3,16 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/media_preview.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/video_edit_screen.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../widgets/appbars.dart';
@@ -131,7 +131,7 @@ class _CameraScreenState extends State<CameraScreen>
     _ambiguate(WidgetsBinding.instance)?.removeObserver(this);
     _flashModeControlRowAnimationController.dispose();
     _exposureModeControlRowAnimationController.dispose();
-
+    controller?.dispose();
     super.dispose();
   }
 
@@ -201,7 +201,7 @@ class _CameraScreenState extends State<CameraScreen>
                   if(!_isRecording)
                   Positioned(
                     bottom: 45,
-                    left: 40,
+                    left: 20,
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         color: AppColors.white.withOpacity(.25),

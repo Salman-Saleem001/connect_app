@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connect_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -27,9 +28,9 @@ class _VideoViewState extends State<VideoView> {
         })
         ..setLooping(true);
     } else {
-      _controller = VideoPlayerController.network(widget.url.isEmpty
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url.isEmpty
           ? 'https://vod-progressive.akamaized.net/exp=1664615196~acl=%2Fvimeo-prod-skyfire-std-us%2F01%2F520%2F16%2F402600916%2F1720731425.mp4~hmac=811caaa84f656f88e3d01903966aa9034544d0c2d658ac8deada26228d2937aa/vimeo-prod-skyfire-std-us/01/520/16/402600916/1720731425.mp4'
-          : widget.url)
+          : widget.url))
         ..initialize().then((_) {
           setState(() {});
         })
@@ -91,7 +92,10 @@ class _VideoViewState extends State<VideoView> {
                         )
                     ],
                   )
-                : SizedBox(),
+                : SizedBox(
+               height: 50,
+                width: 50,
+                child: CircularProgressIndicator(color: AppColors.primaryColor,)),
           ),
         ),
       ),
