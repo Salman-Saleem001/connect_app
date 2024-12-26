@@ -22,8 +22,7 @@ import '../../controllers/mainScreen_controllers/profile_controller.dart';
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  final String imageUrl =
-      'https://www.portotheme.com/wordpress/porto/shortcodes/wp-content/uploads/sites/32/2016/06/team-1.jpg';
+
 
   @override
   Widget build(BuildContext context) {
@@ -62,27 +61,29 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Colors.grey.shade300,
-                ),
-                height: ht(96),
-                width: ht(96),
-                child: Center(
-                  child: imageUrl == ''
-                      ? const Icon(Icons.image)
-                      : ClipRRect(
-                          borderRadius: BorderRadius.circular(100),
-                          child: NetworkImageCustom(
-                              fit: BoxFit.cover,
-                              height: double.infinity,
-                              width: double.infinity,
-                              image: Get.find<UserDetail>().userData.user?.avatar?? imageUrl),
-                        ),
-                ),
-              ),
+            GetBuilder(
+              builder: (UserDetail controller) {
+                return Center(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: Colors.grey.shade300,
+                    ),
+                    height: ht(96),
+                    width: ht(96),
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: NetworkImageCustom(
+                            fit: BoxFit.cover,
+                            height: double.infinity,
+                            width: double.infinity,
+                            image: controller.userData.user?.avatar?? ''),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(
               height: 5,

@@ -52,14 +52,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   setListOfTags() async {
-    await getController.getLocation();
+   if(getController.addresses.isEmpty){
+     await getController.getLocation();
+   }
     await getController.getTags();
     getController.tags?.forEach((element) {
       tiles.add(RadioButtonTile(title: element, value: element));
     });
     for (var val in tiles) {
       debugPrint('val==>${val.value} and Title====> ${val.title}');
+
     }
+
+    tags.add(tiles.first.title);
     setState(() {});
   }
 
@@ -358,12 +363,19 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             label: 'add Tag',
             onPress: () async {
               String val = '#${controller1.text.capitalizeText()}';
-              tiles.add(RadioButtonTile(title: val, value: val));
-              await getController.sendTags(val).then((val) {
-                if (val) {
-                  debugPrint("Tags added");
+              if( tiles.any((element)=> element.title==val)){
+                tags.add(val);
+                for (var element in tags) {
+                  debugPrint(element);
                 }
-              });
+              }else{
+                tiles.add(RadioButtonTile(title: val, value: val));
+                await getController.sendTags(val).then((val) {
+                  if (val) {
+                    debugPrint("Tags added");
+                  }
+                });
+              }
               controller1.clear();
               setState(() {});
             },
@@ -372,7 +384,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         ],
         if (tiles.isNotEmpty)
           RadioButtonTileGroup<String>(
-            selectedValues: [tiles.first.title],
+            key: Key(tags.length.toString()),
+            selectedValues: tags,
             onChanged: (newValues) {
               tags = [];
               for (var val in newValues) {

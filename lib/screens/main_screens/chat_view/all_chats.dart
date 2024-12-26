@@ -22,11 +22,16 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-  TextEditingController search = TextEditingController();
-  Database  database=Database();
+  late TextEditingController search;
+  late Database  database;
 
-
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    search= TextEditingController();
+    database= Database();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +92,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   ListView chats(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
+      // physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: snapshot.data?.docs.length,
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
@@ -156,6 +161,13 @@ class ChatScreenState extends State<ChatScreen> {
 
 
   List<String> status = ['My Replies', 'My videos'];
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    search.dispose();
+    super.dispose();
+  }
 }
 
 class ChatListItem extends StatelessWidget {

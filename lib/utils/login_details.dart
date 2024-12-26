@@ -71,6 +71,11 @@ class UserDetail extends GetxController {
     update();
   }
 
+  rebuild(){
+    update();
+  }
+
+
   Future<void> updateNotificationStatus(bool n) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
    await sharedPreferences.setBool('notificationStatus', n);

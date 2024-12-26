@@ -30,11 +30,14 @@ class ProfileController extends GetxController{
 
       myPosts.value= PostModel.fromJson(jsonDecode(response));
 
+
+
       List<Future<void>> thumbnailFutures = [];
 
       myPosts.value.posts?.forEach((element) {
         // Add each thumbnail generation task to the list
-        if(element.thumbnail?.isEmpty==true){
+        debugPrint("element====> ${element.thumbnail}");
+        if(element.thumbnail?.isEmpty==true|| element.thumbnail=="https://connect-giant.aliraza.xyz/images/thumbnail.png"){
           var thumbnailFuture = createThumbNai(element.video ?? '').then((thumbnail) {
             element.thumbnail = thumbnail;
           });

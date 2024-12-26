@@ -48,7 +48,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.bar_chart,
                 title: 'Views Stats',
                 onTap: (){
-                  Get.to(()=> StatsMapScreen(id: 0,));
+                  Get.to(()=> StatsMapScreen(id: -1,));
                 },
               ),
               SettingsTile(

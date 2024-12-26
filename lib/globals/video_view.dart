@@ -16,7 +16,6 @@ class VideoView extends StatefulWidget {
   final bool isContained;
   final bool isFullScreen;
   final String url;
-  final String? country;
   final BoxFit? fit;
   final int? id;
   const VideoView(
@@ -25,7 +24,7 @@ class VideoView extends StatefulWidget {
       this.isLocal = false,
       this.url = '',
       this.isAsset = false,
-      this.isFullScreen = false, this.country, this.id, this.fit, });
+      this.isFullScreen = false, this.id, this.fit, });
 
   @override
   State<VideoView> createState() => _VideoViewState();
@@ -66,7 +65,7 @@ class _VideoViewState extends State<VideoView> {
 
     if(widget.id!=null){
       var homeController= Get.put(HomeFeedController());
-      homeController.postView(widget.id??0, widget.country??'');
+      homeController.postView(widget.id??0);
     }
 
   }

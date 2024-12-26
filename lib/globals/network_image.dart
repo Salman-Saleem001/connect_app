@@ -24,6 +24,6 @@ class NetworkImageCustom extends StatelessWidget {
         height: height,
         width: width,
         errorWidget: ((context, url, error) => const Icon(Icons.account_circle,size: 60,color: Colors.grey,)),
-        fit: fit != null ? fit! : BoxFit.contain);
+        fit: fit?? BoxFit.contain);
   }
 }

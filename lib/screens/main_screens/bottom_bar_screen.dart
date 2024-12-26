@@ -92,9 +92,9 @@ class _NavBarScreenState extends State<NavBarScreen>
                 onTap: () {
                   value.changeTab(0);
                   var homeController = Get.put(HomeFeedController());
-                  homeController.selectedCategory.value = 'Recommended';
-                  if (homeController.recommendedPosts?.posts?.isEmpty == true) {
-                    homeController.getContent();
+                  homeController.selectedCategory.value = 'Trending';
+                  if (homeController.trendingPosts.posts?.isEmpty == true) {
+                    homeController.getTrendingContent();
                   }
                 },
                 child: Container(

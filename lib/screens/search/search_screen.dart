@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
 import 'package:connect_app/controllers/searchScreen_controller.dart';
-import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
 import 'package:connect_app/globals/radioGroups.dart';
@@ -176,16 +176,16 @@ class SearchScreen extends StatelessWidget {
                           TabBar(
                             tabs: const [
                               Tab(
-                                text: 'Recommended',
+                                text:  'My feed' ,
                               ),
                               Tab(
                                 text: 'Trending',
                               ),
                               Tab(
-                                text: 'Featured',
+                                text: 'Recommended',
                               ),
                               Tab(
-                                text: 'Events',
+                                text: 'Featured',
                               )
                             ],
                             labelPadding: EdgeInsets.zero,
@@ -195,11 +195,11 @@ class SearchScreen extends StatelessWidget {
                               debugPrint('Here is the index==>$index');
                               if (index == 1) {
                                 homeController.selectedCategory.value =
-                                    'Trending';
+                                    'Recommended';
                                 if (homeController
                                         .trendingPosts.posts?.isEmpty ==
                                     true) {
-                                  homeController.getTrendingContent();
+                                  homeController.getContent();
                                 }
                               } else if (index == 2) {
                                 homeController.selectedCategory.value =
@@ -217,11 +217,11 @@ class SearchScreen extends StatelessWidget {
                                 }
                               } else {
                                 homeController.selectedCategory.value =
-                                    'Recommended';
+                                    'Trending';
                                 if (homeController
                                         .recommendedPosts?.posts?.isEmpty ==
                                     true) {
-                                  homeController.getContent();
+                                  homeController.getTrendingContent();
                                 }
                               }
                             },
@@ -417,13 +417,13 @@ class PostTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: const ColoredBox(
-                  color: Colors.black,
-                  child: SizedBox(
+                child: CachedNetworkImage(
+                    imageUrl: selectedPostModel.posts?[index].thumbnail??'',
                     height: 300,
-                    width: double.maxFinite,
-                  ),
-                ),
+                    width: double.infinity,
+                    errorWidget: ((context, url, error) => ColoredBox(color: Colors.black,
+                    child: SizedBox(height: 300,))),
+                    fit:  BoxFit.cover),
               ),
               GestureDetector(
                 onTap: onTap,

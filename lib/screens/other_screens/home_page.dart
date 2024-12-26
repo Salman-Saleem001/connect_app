@@ -10,19 +10,13 @@ import 'package:connect_app/utils/login_details.dart';
 import 'package:connect_app/utils/size_config.dart';
 import 'package:connect_app/utils/text_styles.dart';
 
-class HomePageFeed extends StatefulWidget {
+class HomePageFeed extends StatelessWidget {
   const HomePageFeed({super.key});
-
-  @override
-  State<HomePageFeed> createState() => _HomePageFeedState();
-}
-
-class _HomePageFeedState extends State<HomePageFeed> {
-  var controller = Get.put(HomeFeedController());
 
   @override
   Widget build(BuildContext context) {
     SizeConfig().init(context);
+    var controller = Get.put(HomeFeedController());
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
@@ -83,7 +77,7 @@ class _HomePageFeedState extends State<HomePageFeed> {
                         VideoView(
                           url: video.video ?? "",
                           id: video.id,
-                          country: video.country,
+                          // country: video.country,
                         ),
                         Positioned(
                           bottom: 20,
@@ -284,13 +278,13 @@ class _HomePageFeedState extends State<HomePageFeed> {
                       children: [
                         GestureDetector(
                           onTap: () {
-                            controller.selectedCategory.value = 'Recommended';
-                            controller.getRecommendedContent();
+                            controller.selectedCategory.value = 'Trending';
+                            controller.getTrendingContent();
                           },
                           child: Text(
-                            'Recommended',
+                            'My feed',
                             style: subHeadingText(
-                              color: controller.selectedCategory.value == 'Recommended'
+                              color: controller.selectedCategory.value == 'Trending'
                                   ? Colors.white
                                   : Colors.grey,
                             ),
@@ -299,13 +293,13 @@ class _HomePageFeedState extends State<HomePageFeed> {
                         const SizedBox(width: 18),
                         GestureDetector(
                           onTap: () {
-                            controller.selectedCategory.value = 'Trending';
-                            controller.getTrendingContent();
+                            controller.selectedCategory.value = 'Recommended';
+                            controller.getRecommendedContent();
                           },
                           child: Text(
                             'Trending',
                             style: subHeadingText(
-                              color: controller.selectedCategory.value == 'Trending'
+                              color: controller.selectedCategory.value == 'Recommended'
                                   ? Colors.white
                                   : Colors.grey,
                             ),
@@ -318,7 +312,7 @@ class _HomePageFeedState extends State<HomePageFeed> {
                             controller.getFeaturedContent();
                           },
                           child: Text(
-                            'Featured',
+                            'Recommended',
                             style: subHeadingText(
                               color: controller.selectedCategory.value == 'Featured'
                                   ? Colors.white
@@ -333,7 +327,7 @@ class _HomePageFeedState extends State<HomePageFeed> {
                             controller.getEventContent();
                           },
                           child: Text(
-                            'Events',
+                            'Featured',
                             style: subHeadingText(
                               color: controller.selectedCategory.value == 'Events'
                                   ? Colors.white
@@ -351,12 +345,5 @@ class _HomePageFeedState extends State<HomePageFeed> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    controller.dispose();
-    super.dispose();
   }
 }
