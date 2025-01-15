@@ -10,6 +10,8 @@ import 'package:connect_app/utils/login_details.dart';
 import 'package:connect_app/utils/size_config.dart';
 import 'package:connect_app/utils/text_styles.dart';
 
+import '../../globals/network_image.dart';
+
 class HomePageFeed extends StatelessWidget {
   const HomePageFeed({super.key});
 
@@ -88,9 +90,26 @@ class HomePageFeed extends StatelessWidget {
                             children: [
                               GestureDetector(
                                 onTap: () {},
-                                child: Text(
-                                  '@${video.user?.firstName?.toLowerCase() ?? ''}',
-                                  style: subHeadingText().copyWith(color: Colors.white),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(50),
+                                      child: NetworkImageCustom(
+                                        image: video.user?.avatar??'',
+                                        fit: BoxFit.cover,
+                                        height: 50,
+                                        width: 50,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      '@${video.user?.firstName?.toLowerCase() ?? ''}',
+                                      style: subHeadingText().copyWith(color: Colors.white),
+                                    ),
+                                  ],
                                 ),
                               ),
                               const SizedBox(
@@ -100,13 +119,12 @@ class HomePageFeed extends StatelessWidget {
                                 video.info ?? '',
                                 style: normalText(size: 12).copyWith(color: Colors.white),
                               ),
-                              SizedBox(
-                                height: ht(13),
-                              ),
                               if (video.id != null)
                                 Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
                                     Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
                                         Image.asset(
                                           'assets/images/ic_video_camera.png',
@@ -126,6 +144,10 @@ class HomePageFeed extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+
+                              SizedBox(
+                                height: ht(30),
+                              ),
                             ],
                           ),
                         ),
@@ -186,11 +208,12 @@ class HomePageFeed extends StatelessWidget {
                                                                 (video.userId ??
                                                                         0)
                                                                     .toString(),
-                                                            userName: video.user!.firstName?.toLowerCase(),
+                                                            userName: video.user?.firstName?.toLowerCase(),
                                                             tags: video.tags,
                                                             videoId: video.id,
                                                             description: video.info,
                                                             userAvatar: video.user?.avatar,
+                                                            bio: video.user?.bio??'',
                                                           ));
                                                     }
                                                   },
@@ -279,7 +302,7 @@ class HomePageFeed extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             controller.selectedCategory.value = 'Trending';
-                            controller.getTrendingContent();
+                            controller.getFeaturedContent();
                           },
                           child: Text(
                             'My feed',
@@ -294,7 +317,7 @@ class HomePageFeed extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             controller.selectedCategory.value = 'Recommended';
-                            controller.getRecommendedContent();
+                            controller.getTrendingContent();
                           },
                           child: Text(
                             'Trending',
@@ -309,7 +332,7 @@ class HomePageFeed extends StatelessWidget {
                         GestureDetector(
                           onTap: () {
                             controller.selectedCategory.value = 'Featured';
-                            controller.getFeaturedContent();
+                            controller.getRecommendedContent();
                           },
                           child: Text(
                             'Recommended',
@@ -320,21 +343,21 @@ class HomePageFeed extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 18),
-                        GestureDetector(
-                          onTap: () {
-                            controller.selectedCategory.value = 'Events';
-                            controller.getEventContent();
-                          },
-                          child: Text(
-                            'Featured',
-                            style: subHeadingText(
-                              color: controller.selectedCategory.value == 'Events'
-                                  ? Colors.white
-                                  : Colors.grey,
-                            ),
-                          ),
-                        ),
+                        // const SizedBox(width: 18),
+                        // GestureDetector(
+                        //   onTap: () {
+                        //     controller.selectedCategory.value = 'Events';
+                        //     controller.getEventContent();
+                        //   },
+                        //   child: Text(
+                        //     'Featured',
+                        //     style: subHeadingText(
+                        //       color: controller.selectedCategory.value == 'Events'
+                        //           ? Colors.white
+                        //           : Colors.grey,
+                        //     ),
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),

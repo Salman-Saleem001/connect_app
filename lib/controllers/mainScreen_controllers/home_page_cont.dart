@@ -48,7 +48,7 @@ class HomeFeedController extends GetxController {
   List<ContentVideos> addLater = [];
   List<ContentVideos> dynamicVideo = [];
 
-  PostModel? recommendedPosts;
+  PostModel recommendedPosts= PostModel(posts: <Post>[]);
   PostModel trendingPosts = PostModel(posts: <Post>[]);
   PostModel featuredPosts = PostModel(posts: <Post>[]);
   PostModel eventPosts = PostModel(posts: <Post>[]);
@@ -134,9 +134,12 @@ class HomeFeedController extends GetxController {
 
     fetchingRecommended.value = false;
     EasyLoading.dismiss(); // Hide loading indicator
+    notifyChildrens();
   }
 
   Future<void> getTrendingContent() async {
+
+    debugPrint("getting trending");
     fetchingTrending.value = true;
     var response = await HttpsServices.getPostsHome(
         token: Get.find<UserDetail>().userData.token.toString(),
@@ -145,6 +148,7 @@ class HomeFeedController extends GetxController {
       trendingPosts = response;
     }
     fetchingTrending.value = false;
+    update();
   }
 
   Future<void> getFeaturedContent() async {
@@ -155,6 +159,7 @@ class HomeFeedController extends GetxController {
       featuredPosts = response;
     }
     fetchingFeatured.value = false;
+    update();
   }
 
   Future<void> getEventContent() async {
@@ -338,7 +343,10 @@ class HomeFeedController extends GetxController {
   getStats(int id) async {
     try {
       dataOfMarker = <Marker>{}.obs;
+
       dynamic response;
+
+      debugPrint("Getting stats for $id");
 
       if (id == -1) {
         await Future.delayed(Duration(seconds: 2));
@@ -418,7 +426,7 @@ class HomeFeedController extends GetxController {
     pageController.dispose();
     dataOfMarker = null;
     position = null;
-    recommendedPosts = null;
+    // recommendedPosts = null;
     reviewDescrioption = null;
     rating = null;
     super.dispose();

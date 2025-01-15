@@ -1,4 +1,5 @@
 
+import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:connect_app/globals/enum.dart';
@@ -59,6 +60,8 @@ class _SuccessUploadedState extends State<SuccessUploaded> {
                             label: 'Continue',
                             onPress: () {
                               getController.getContent();
+                              var profileController= Get.put(ProfileController());
+                              profileController.clear().
                               Get.back();
                             }),
                       ],

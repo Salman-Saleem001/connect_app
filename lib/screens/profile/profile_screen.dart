@@ -190,56 +190,57 @@ class ProfileScreen extends StatelessWidget {
               builder: (context, constraints) {
                 final double cardWidth = (constraints.maxWidth) / 3;
                 final double cardheight = (constraints.maxWidth / 3 * 1.5);
-
                 return GetBuilder(
                   builder: (ProfileController controller) {
-                    if (controller.myPosts.value.posts?.isEmpty == true) {
-                      return Center(
-                        child: SizedBox(
-                            height: 50,
-                            width: 50,
-                            child: CircularProgressIndicator(
-                              color: AppColors.primaryColor,
-                            ),
-                        ),
-                      );
-                    }
-                    return Wrap(
-                      // spacing: 0,
-                      // runSpacing: 0,
-                      children: controller.myPosts.value.posts
-                              ?.asMap()
-                              .entries
-                              .map((entry) {
-                            int index = entry.key; // The index
-                            var post = entry.value; // The post object
-                            return _buildCard(
-                              post.thumbnail ??
-                                  'https://via.placeholder.com/150?text=Video+${index + 1}',
-                              cardWidth,
-                              cardheight,
-                              post.video ?? '',
-                              post.id??0,
-                                    (value) {
-                                  debugPrint('Selected: $value');
-                                  if(value=='Delete Video'){
-                                    controller.deleteVideo(post.id??0).then((val){
-                                      if(val){
-                                        controller.myPosts.value.posts?.removeAt(index);
-                                        controller.update();
-                                      }
-                                    });
-                                  }else{
-
-                                    Get.to(()=> StatsMapScreen(id: post.id??0,));
+                    if (controller.myPosts.value.posts?.isNotEmpty == true &&  controller.isDataFetched.value) {
+                      return Wrap(
+                        // spacing: 0,
+                        // runSpacing: 0,
+                        children: controller.myPosts.value.posts
+                            ?.asMap()
+                            .entries
+                            .map((entry) {
+                          int index = entry.key; // The index
+                          var post = entry.value; // The post object
+                          return BuildVideoCard(
+                            thumbnail :post.thumbnail ??
+                                'https://via.placeholder.com/150?text=Video+${index + 1}',
+                            cardWidth :cardWidth,
+                            cardheight: cardheight,
+                            url: post.video ?? '',
+                            videoId :post.id??0,
+                            onSelected :(value) {
+                              debugPrint('Selected: $value');
+                              if(value=='Delete Video'){
+                                controller.deleteVideo(post.id??0).then((val){
+                                  if(val){
+                                    controller.myPosts.value.posts?.removeAt(index);
+                                    controller.update();
                                   }
-                                },
-                              context,
+                                });
+                              }else{
 
-                              // Handle if video is null
-                            );
-                          }).toList() ??
-                          [],
+                                Get.to(()=> StatsMapScreen(id: post.id??0,));
+                              }
+                            },
+
+                            // Handle if video is null
+                          );
+                        }).toList() ??
+                            [],
+                      );
+                    }else if(controller.isDataFetched.value){
+                      return  Center(child: Text("No Videos available",style: TextStyle(fontSize: 18),),);
+                    }
+
+                    return Center(
+                      child: SizedBox(
+                        height: 50,
+                        width: 50,
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
                     );
                   },
                 );
@@ -251,8 +252,104 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCard(
-      String thumbnail, double cardWidth, double cardheight, String url, int videoId,void Function(String)? onSelected,BuildContext context) {
+  // Widget buildCard(
+  //     String thumbnail, double cardWidth, double cardheight, String url, int videoId,void Function(String)? onSelected,BuildContext context) {
+  //   return GestureDetector(
+  //     onTap: () {
+  //       Get.to(VideoScreen(url: url,));
+  //     },
+  //     child: SizedBox(
+  //       width: cardWidth,
+  //       child: Card(
+  //         color: Colors.transparent, // Make the card background transparent
+  //         elevation: 0,
+  //         child: Stack(
+  //           children: [
+  //             Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
+  //               height: cardWidth,
+  //                 width: cardWidth,
+  //                 child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
+  //               File(thumbnail),
+  //               fit: BoxFit.cover,
+  //               height: cardheight,
+  //               width: cardWidth,
+  //             ),
+  //             Positioned(
+  //               bottom: 1.0,
+  //               left: 1.0,
+  //               right: 1.0,
+  //               child: Row(
+  //                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                 children: [
+  //                   Flexible(
+  //                     child: IconButton(
+  //                       icon:  ImageIcon(const AssetImage('assets/images/video_message_icon.png'), color: AppColors.white,),
+  //                       onPressed: () {
+  //                         Get.to(FollowRequestsScreen(thumbnail: thumbnail, videoId: videoId,));
+  //
+  //                       },
+  //                     ),
+  //                   ),
+  //                   Flexible(
+  //                     child: PopupMenuButton<String>(
+  //                       onSelected: onSelected,
+  //                       itemBuilder: (BuildContext context) {
+  //                         return {'Stats', 'Delete Video'}
+  //                             .map((String choice) {
+  //                           IconData icon;
+  //                           switch (choice) {
+  //                             case 'Stats':
+  //                               icon = Icons.query_stats;
+  //                               break;
+  //                             case 'Delete Video':
+  //                               icon = Icons.delete;
+  //                               break;
+  //                             default:
+  //                               icon = Icons.info;
+  //                           }
+  //
+  //                           return PopupMenuItem<String>(
+  //                             value: choice,
+  //                             child: Row(
+  //                               children: [
+  //                                 Icon(icon),
+  //                                 const SizedBox(width: 4),
+  //                                 Text(choice),
+  //                               ],
+  //                             ),
+  //                           );
+  //                         }).toList();
+  //                       },
+  //                       icon: const Icon(Icons.more_vert, color: Colors.white),
+  //                       // Customizing the appearance of the dropdown menu
+  //                       shape: RoundedRectangleBorder(
+  //                         borderRadius: BorderRadius.circular(10),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //   );
+  // }
+}
+
+class BuildVideoCard extends StatelessWidget {
+  const BuildVideoCard({super.key, required this.thumbnail, required this.cardWidth, required this.cardheight, required this.url, required this.videoId, this.onSelected});
+
+  final String thumbnail;
+  final double cardWidth;
+  final double cardheight;
+  final String url;
+      final int videoId;
+  final void Function(String)? onSelected;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Get.to(VideoScreen(url: url,));
@@ -266,8 +363,8 @@ class ProfileScreen extends StatelessWidget {
             children: [
               Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
                 height: cardWidth,
-                  width: cardWidth,
-                  child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
+                width: cardWidth,
+                child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
                 File(thumbnail),
                 fit: BoxFit.cover,
                 height: cardheight,

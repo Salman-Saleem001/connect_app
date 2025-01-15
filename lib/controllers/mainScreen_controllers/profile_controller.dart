@@ -18,6 +18,7 @@ class ProfileController extends GetxController{
 
   Rx<PostModel> myPosts= PostModel(posts: []).obs;
 
+  RxBool isDataFetched= false.obs;
 
   clear(){
     myPosts.value.posts?.clear();
@@ -37,7 +38,7 @@ class ProfileController extends GetxController{
       myPosts.value.posts?.forEach((element) {
         // Add each thumbnail generation task to the list
         debugPrint("element====> ${element.thumbnail}");
-        if(element.thumbnail?.isEmpty==true|| element.thumbnail=="https://connect-giant.aliraza.xyz/images/thumbnail.png"){
+        if(element.thumbnail?.isEmpty==true){
           var thumbnailFuture = createThumbNai(element.video ?? '').then((thumbnail) {
             element.thumbnail = thumbnail;
           });
@@ -48,6 +49,7 @@ class ProfileController extends GetxController{
       // Wait for all thumbnail generation tasks to complete
       await Future.wait(thumbnailFutures);
       thumbnailFutures.clear();
+      isDataFetched.value= true;
       update();
 
     }catch(e){

@@ -27,15 +27,13 @@ class ChatDetailScreenNew extends StatelessWidget {
     this.tags,
     this.description,
     this.videoId,
-    this.userAvatar,
+    this.userAvatar, this.bio,
   });
 
-  final String? secondUserId;
+  final String? secondUserId , userName, description, userAvatar, bio;
   final int? videoId;
-  final String? userName;
-  final String? description;
-  final String? userAvatar;
   final List<String>? tags;
+
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +57,8 @@ class ChatDetailScreenNew extends StatelessWidget {
               Get.to(RatingScreen(
                 userAvatar: userAvatar,
                 videoId: videoId,
+                name: userName,
+                bio: bio,
               ))?.whenComplete(() {
                 homeFeedController.rating = null;
                 homeFeedController.reviewDescrioption = null;
@@ -124,7 +124,8 @@ class ChatDetailScreenNew extends StatelessWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 5),
                           decoration: BoxDecoration(
                             color: AppColors.primaryColorBottom,
                             borderRadius: BorderRadius.circular(16),
@@ -475,7 +476,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                 .toString();
                                         return Padding(
                                           padding: const EdgeInsets.symmetric(
-                                              vertical: 8.0),
+                                              vertical: 5.0),
                                           child: Align(
                                             alignment: check
                                                 ? Alignment.topLeft

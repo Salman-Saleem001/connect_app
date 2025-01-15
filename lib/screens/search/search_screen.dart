@@ -26,7 +26,7 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         appBar: customAppBar(title: 'Search', backButton: false),
         body: SafeArea(
@@ -184,24 +184,24 @@ class SearchScreen extends StatelessWidget {
                               Tab(
                                 text: 'Recommended',
                               ),
-                              Tab(
-                                text: 'Featured',
-                              )
+                              // Tab(
+                              //   text: 'Featured',
+                              // )
                             ],
                             labelPadding: EdgeInsets.zero,
                             labelColor: AppColors.primaryColor,
                             indicatorColor: AppColors.primaryColor,
                             onTap: (index) {
                               debugPrint('Here is the index==>$index');
-                              if (index == 1) {
+                              if (index == 2) {
                                 homeController.selectedCategory.value =
                                     'Recommended';
                                 if (homeController
-                                        .trendingPosts.posts?.isEmpty ==
+                                        .recommendedPosts.posts?.isEmpty ==
                                     true) {
-                                  homeController.getContent();
+                                  homeController.getRecommendedContent();
                                 }
-                              } else if (index == 2) {
+                              } else if (index == 0) {
                                 homeController.selectedCategory.value =
                                     'Featured';
                                 if (homeController
@@ -209,49 +209,47 @@ class SearchScreen extends StatelessWidget {
                                     true) {
                                   homeController.getFeaturedContent();
                                 }
-                              } else if (index == 3) {
-                                homeController.selectedCategory.value = 'Event';
-                                if (homeController.eventPosts.posts?.isEmpty ==
-                                    true) {
-                                  homeController.getEventContent();
-                                }
-                              } else {
+                              }  else {
                                 homeController.selectedCategory.value =
                                     'Trending';
                                 if (homeController
-                                        .recommendedPosts?.posts?.isEmpty ==
+                                        .trendingPosts.posts?.isEmpty ==
                                     true) {
                                   homeController.getTrendingContent();
                                 }
                               }
+                              // Get.forceAppUpdate();
                             },
                           ),
-                          Expanded(child: GetBuilder(
+                          Expanded(child:
+                          GetBuilder(
                               builder: (HomeFeedController homeFeed) {
                             PostModel selectedPostModel;
                             bool isLoading;
                             switch (homeFeed.selectedCategory.value) {
                               case 'Trending':
+                                debugPrint("Here I am Trending");
                                 selectedPostModel = homeFeed.trendingPosts;
+                                debugPrint("Here I am ${homeFeed.trendingPosts.posts?.length}");
                                 isLoading = homeFeed.fetchingTrending.value;
                                 break;
                               case 'Featured':
                                 selectedPostModel = homeFeed.featuredPosts;
                                 isLoading = homeFeed.fetchingFeatured.value;
+                                debugPrint("Here I am Featured $isLoading");
                                 break;
-                              case 'Events':
-                                selectedPostModel = homeFeed.eventPosts;
-                                isLoading = homeFeed.fetchingEvents.value;
-                                break;
-                              case 'Recommended':
                               default:
-                                selectedPostModel = homeFeed.recommendedPosts??PostModel();
+                                debugPrint("Here I am Recomended");
+                                selectedPostModel = homeFeed.recommendedPosts;
+                                debugPrint("Here I am ${homeFeed.recommendedPosts.posts?.length}");
                                 isLoading = homeFeed.fetchingRecommended.value;
                                 break;
                             }
                             if (isLoading) {
-                              return CircularProgressIndicator(
-                                color: AppColors.primaryColor,
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primaryColor,
+                                ),
                               );
                             } else {
                               return ListView.builder(
