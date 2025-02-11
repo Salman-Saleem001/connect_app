@@ -142,7 +142,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
       body: Stack(
         children: [
           widget.isVideo
-              ? SizedBox.expand(child: VideoView(isLocal: true, url: widget.filePath,fit: BoxFit.none,))
+              ? SizedBox.expand(child: EditVideoView( url: widget.filePath,fit: BoxFit.none,))
               : Image.file(
                   File(widget.filePath),
                 ),

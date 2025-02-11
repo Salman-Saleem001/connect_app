@@ -203,19 +203,20 @@ class SearchScreen extends StatelessWidget {
                                 }
                               } else if (index == 0) {
                                 homeController.selectedCategory.value =
-                                    'Featured';
+                                    'My feed';
                                 if (homeController
-                                        .featuredPosts.posts?.isEmpty ==
+                                        .trendingPosts.posts?.isEmpty ==
                                     true) {
-                                  homeController.getFeaturedContent();
+                                  homeController.getTrendingContent();
                                 }
                               }  else {
                                 homeController.selectedCategory.value =
                                     'Trending';
                                 if (homeController
-                                        .trendingPosts.posts?.isEmpty ==
+                                        .featuredPosts.posts?.isEmpty ==
                                     true) {
-                                  homeController.getTrendingContent();
+                                  homeController.getFeaturedContent();
+
                                 }
                               }
                               // Get.forceAppUpdate();
@@ -228,20 +229,18 @@ class SearchScreen extends StatelessWidget {
                             bool isLoading;
                             switch (homeFeed.selectedCategory.value) {
                               case 'Trending':
-                                debugPrint("Here I am Trending");
-                                selectedPostModel = homeFeed.trendingPosts;
-                                debugPrint("Here I am ${homeFeed.trendingPosts.posts?.length}");
-                                isLoading = homeFeed.fetchingTrending.value;
-                                break;
-                              case 'Featured':
                                 selectedPostModel = homeFeed.featuredPosts;
                                 isLoading = homeFeed.fetchingFeatured.value;
-                                debugPrint("Here I am Featured $isLoading");
+                                break;
+                              case 'My feed':
+                                selectedPostModel = homeFeed.trendingPosts;
+                                isLoading = homeFeed.fetchingTrending.value;
+                                // debugPrint("Here I am Featured $isLoading");
                                 break;
                               default:
-                                debugPrint("Here I am Recomended");
+                                // debugPrint("Here I am Recomended");
                                 selectedPostModel = homeFeed.recommendedPosts;
-                                debugPrint("Here I am ${homeFeed.recommendedPosts.posts?.length}");
+                                // debugPrint("Here I am ${homeFeed.recommendedPosts.posts?.length}");
                                 isLoading = homeFeed.fetchingRecommended.value;
                                 break;
                             }

@@ -1,4 +1,3 @@
-
 import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -18,7 +17,6 @@ class SuccessUploaded extends StatefulWidget {
 }
 
 class _SuccessUploadedState extends State<SuccessUploaded> {
-
   var getController = Get.put(HomeFeedController());
 
   @override
@@ -40,32 +38,34 @@ class _SuccessUploadedState extends State<SuccessUploaded> {
                   fit: BoxFit.cover,
                 )),
                 Container(
-                    color: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 20),
-                    width: double.infinity,
-                    child: Column(
-                      children: [
-                        44.hp,
-                        Text(
-                          'Successful Upload',
-                          style: headingText(color: Colors.black, size: 24),
-                        ),
-                        Text(
-                          'Your Dream Connection starts Now',
-                          style: regularText(size: 16, color: Colors.grey),
-                        ),
-                        50.hp,
-                        PrimaryButton(
-                            label: 'Continue',
-                            onPress: () {
-                              getController.getContent();
-                              var profileController= Get.put(ProfileController());
-                              profileController.clear().
-                              Get.back();
-                            }),
-                      ],
-                    ))
+                  color: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  width: double.infinity,
+                  child: Column(
+                    children: [
+                      44.hp,
+                      Text(
+                        'Successful Upload',
+                        style: headingText(color: Colors.black, size: 24),
+                      ),
+                      Text(
+                        'Your Dream Connection starts Now',
+                        style: regularText(size: 16, color: Colors.grey),
+                      ),
+                      50.hp,
+                      PrimaryButton(
+                          label: 'Continue',
+                          onPress: () {
+                            getController.getTrendingContent();
+                            var profileController =
+                                Get.put(ProfileController());
+                            profileController.clear();
+                            Get.back();
+                          }),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

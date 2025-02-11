@@ -51,8 +51,8 @@ class HomeFeedController extends GetxController {
   PostModel recommendedPosts= PostModel(posts: <Post>[]);
   PostModel trendingPosts = PostModel(posts: <Post>[]);
   PostModel featuredPosts = PostModel(posts: <Post>[]);
-  PostModel eventPosts = PostModel(posts: <Post>[]);
-  var selectedCategory = 'Trending'.obs;
+  // PostModel eventPosts = PostModel(posts: <Post>[]);
+  var selectedCategory = 'My feed'.obs;
 
   RxBool fetchingRecommended = false.obs;
   RxBool fetchingTrending = false.obs;
@@ -64,11 +64,11 @@ class HomeFeedController extends GetxController {
     debugPrint(
         "OInit Run====>${Get.find<UserDetail>().userData.token.toString()}");
     pageController = PageController();
-    getContent();
+    // getContent();
     getRecommendedContent();
     getTrendingContent();
     getFeaturedContent();
-    getEventContent();
+    // getEventContent();
     getCameras();
     getLocation();
     super.onInit();
@@ -134,7 +134,7 @@ class HomeFeedController extends GetxController {
 
     fetchingRecommended.value = false;
     EasyLoading.dismiss(); // Hide loading indicator
-    notifyChildrens();
+    update();
   }
 
   Future<void> getTrendingContent() async {
@@ -152,6 +152,8 @@ class HomeFeedController extends GetxController {
   }
 
   Future<void> getFeaturedContent() async {
+
+    debugPrint("Getting featured");
     fetchingFeatured.value = true;
     var response = await HttpsServices.getPostsHome(
         token: Get.find<UserDetail>().userData.token.toString());
@@ -162,15 +164,15 @@ class HomeFeedController extends GetxController {
     update();
   }
 
-  Future<void> getEventContent() async {
-    fetchingEvents.value = true;
-    var response = await HttpsServices.getPostsHome(
-        token: Get.find<UserDetail>().userData.token.toString());
-    if (response != null && response is PostModel) {
-      eventPosts = response;
-    }
-    fetchingEvents.value = false;
-  }
+  // Future<void> getEventContent() async {
+  //   fetchingEvents.value = true;
+  //   var response = await HttpsServices.getPostsHome(
+  //       token: Get.find<UserDetail>().userData.token.toString());
+  //   if (response != null && response is PostModel) {
+  //     // eventPosts = response;
+  //   }
+  //   fetchingEvents.value = false;
+  // }
 
   Future<void> getTags() async {
     EasyLoading.show();

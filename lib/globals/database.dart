@@ -221,7 +221,7 @@ class Database {
         'userName': Get.find<UserDetail>().userData.user?.username,
         'lastMessageType': model.lastMessageType,
         'messageData': model.messageData,
-        'lastMessageTime': DateTime.now().toIso8601String(),
+        'lastMessageTime': FieldValue.serverTimestamp(),
       });
 
 

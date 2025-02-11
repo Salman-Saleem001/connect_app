@@ -4,6 +4,8 @@
 
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 ChatDataModel chatModelFromJson(String str) => ChatDataModel.fromJson(json.decode(str));
 
 String chatModelToJson(ChatDataModel data) => json.encode(data.toJson());
@@ -14,7 +16,7 @@ class ChatDataModel {
   String? otherStatus;
   String? chatsId;
   String? description;
-  String? lastMessageTime;
+  Timestamp? lastMessageTime;
   String? lastMessageType;
   String? messageData;
   String? receiverId;
@@ -44,7 +46,7 @@ class ChatDataModel {
     myStatus: json["myStatus"],
     otherStatus: json["otherStatus"],
     chatsId: json["chatsId"],
-    lastMessageTime: json["lastMessageTime"],
+    lastMessageTime: json["lastMessageTime"] as Timestamp?,
     lastMessageType: json["lastMessageType"],
     messageData: json["messageData"],
     receiverId: json["receiverId"],

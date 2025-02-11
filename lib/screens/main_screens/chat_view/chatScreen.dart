@@ -794,7 +794,7 @@ getTime(dynamic val) {
         DateTime.parse(val).microsecondsSinceEpoch;
   } catch (e) {
     timeDifferenceMicroseconds =
-        (DateTime.now().microsecondsSinceEpoch - val.microsecondsSinceEpoch)
+        (DateTime.now().microsecondsSinceEpoch - val.toDate().microsecondsSinceEpoch)
             .toInt();
   }
   Duration timeDifference = Duration(microseconds: timeDifferenceMicroseconds);

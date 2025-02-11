@@ -89,8 +89,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       SizedBox(
                           height: ht(400),
                           child: widget.isVideo
-                              ? VideoView(
-                                  isLocal: true,
+                              ? EditVideoView(
                                   url: widget.filePath,
                                   isContained: true,
                                 )
