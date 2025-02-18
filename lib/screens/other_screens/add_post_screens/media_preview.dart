@@ -145,7 +145,7 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
                                 filePath: outputUrlName != null
                                     ? outputUrlName ?? ''
                                     : widget.filePath,
-                                isVideo: widget.isVideo,
+                                isVideo: widget.isVideo, fromMessage: widget.fromMessage,
                               ),
                               );
                             }

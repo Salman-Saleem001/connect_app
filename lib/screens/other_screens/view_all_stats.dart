@@ -33,7 +33,7 @@ class ViewAllStats extends StatelessWidget {
                           thumbnail: post.thumbnail ??
                               'https://via.placeholder.com/150?text=Video+${index + 1}',
                           cardWidth: MediaQuery.of(context).size.width / 2.5,
-                          cardheight:
+                          cardHeight:
                               MediaQuery.of(context).size.width / 3 * 1.5,
                           url: post.video ?? '',
                           videoId: post.id ?? 0,
@@ -52,7 +52,7 @@ class ViewAllStats extends StatelessWidget {
                                     id: post.id ?? 0,
                                   ));
                             }
-                          },
+                          }, name: post.title??'', viewsCount: post.viewsCount??0,
 
                           // Handle if video is null
                         );

@@ -136,7 +136,8 @@ class Database {
         'description': description,
         'messageData': videoUrl,
         'avatar': userAvatar,
-        'lastMessageTime': DateTime.now().toIso8601String(),
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'videoTime': FieldValue.serverTimestamp(),
         'chatsId': chatRoomId,
       });
       firestoreInstance
@@ -156,7 +157,8 @@ class Database {
         'lastMessageType': 'video',
         'messageData': videoUrl,
         'avatar': Get.find<UserDetail>().userData.user?.avatar,
-        'lastMessageTime': DateTime.now().toIso8601String(),
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'videoTime': FieldValue.serverTimestamp(),
         'chatsId': chatRoomId,
       });
     } on FirebaseException catch (e) {
@@ -176,7 +178,7 @@ class Database {
           .collection(userId)
           .doc('$secondUser$videId')
           .update({
-           'lastMessageTime': DateTime.now().toIso8601String(),
+           'lastMessageTime': FieldValue.serverTimestamp(),
       });
       firestoreInstance
           .collection('chatRooms')
@@ -184,7 +186,7 @@ class Database {
           .collection(secondUser)
           .doc('$userId$videId')
           .update({
-           'lastMessageTime': DateTime.now().toIso8601String(),});
+           'lastMessageTime': FieldValue.serverTimestamp(),});
     } on FirebaseException catch (e) {
       debugPrint("while updating last time $e");
     }

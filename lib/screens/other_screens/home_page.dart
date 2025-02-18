@@ -84,6 +84,7 @@ class HomePageFeed extends StatelessWidget {
                                   VideoView(
                                     url: video?.video ?? "",
                                     id: video?.id,
+                                    fit: BoxFit.cover,
                                     // country: video.country,
                                   ),
                                   Positioned(
@@ -306,7 +307,7 @@ class HomePageFeed extends StatelessWidget {
                                     child: Center(
                                       child: GestureDetector(
                                         onTap: () {
-                                          Get.to(() => CameraScreen(
+                                          Get.off(() => CameraScreen(
                                               cameras: controller.cameras));
                                         },
                                         child: Container(

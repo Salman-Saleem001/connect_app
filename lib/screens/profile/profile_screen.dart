@@ -206,7 +206,7 @@ class ProfileScreen extends StatelessWidget {
                             thumbnail :post.thumbnail ??
                                 'https://via.placeholder.com/150?text=Video+${index + 1}',
                             cardWidth :cardWidth,
-                            cardheight: cardheight,
+                            cardHeight: cardheight,
                             url: post.video ?? '',
                             videoId :post.id??0,
                             onSelected :(value) {
@@ -222,7 +222,7 @@ class ProfileScreen extends StatelessWidget {
 
                                 Get.to(()=> StatsMapScreen(id: post.id??0,));
                               }
-                            },
+                            }, name: post.title??'', viewsCount: post.viewsCount??0,
 
                             // Handle if video is null
                           );
@@ -339,13 +339,13 @@ class ProfileScreen extends StatelessWidget {
 }
 
 class BuildVideoCard extends StatelessWidget {
-  const BuildVideoCard({super.key, required this.thumbnail, required this.cardWidth, required this.cardheight, required this.url, required this.videoId, this.onSelected});
+  const BuildVideoCard({super.key, required this.thumbnail, required this.cardWidth, required this.cardHeight, required this.url, required this.videoId, this.onSelected, required this.name, required this.viewsCount});
 
-  final String thumbnail;
+  final String thumbnail,name;
   final double cardWidth;
-  final double cardheight;
+  final double cardHeight;
   final String url;
-      final int videoId;
+      final int videoId, viewsCount;
   final void Function(String)? onSelected;
 
   @override
@@ -354,80 +354,81 @@ class BuildVideoCard extends StatelessWidget {
       onTap: () {
         Get.to(VideoScreen(url: url,));
       },
-      child: SizedBox(
-        width: cardWidth,
-        child: Card(
-          color: Colors.transparent, // Make the card background transparent
-          elevation: 0,
-          child: Stack(
-            children: [
-              Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
-                height: cardWidth,
-                width: cardWidth,
-                child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
-                File(thumbnail),
-                fit: BoxFit.cover,
-                height: cardheight,
-                width: cardWidth,
-              ),
-              Positioned(
-                bottom: 1.0,
-                left: 1.0,
-                right: 1.0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: IconButton(
-                        icon:  ImageIcon(const AssetImage('assets/images/video_message_icon.png'), color: AppColors.white,),
-                        onPressed: () {
-                          Get.to(FollowRequestsScreen(thumbnail: thumbnail, videoId: videoId,));
+      child: Card(
+        color: Colors.transparent, // Make the card background transparent
+        elevation: 0,
+        child: Stack(
+          children: [
+            Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(
+              height: cardHeight,
+              width: cardWidth,
+              fit: BoxFit.cover,
+              imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
+              height: cardHeight,
+              width: cardWidth,
+              child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
+              File(thumbnail),
+              fit: BoxFit.cover,
+              height: cardHeight,
+              width: cardWidth,
+            ),
+            Positioned(
+              bottom: 1.0,
+              left: 1.0,
+              right: 1.0,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: IconButton(
+                      icon:  ImageIcon(const AssetImage('assets/images/video_message_icon.png'), color: AppColors.white,),
+                      onPressed: () {
+                        Get.to(FollowRequestsScreen(thumbnail: thumbnail, videoId: videoId, name: name, viewsCount: viewsCount,));
 
-                        },
+                      },
+                    ),
+                  ),
+                  Flexible(
+                    child: PopupMenuButton<String>(
+                      onSelected: onSelected,
+                      itemBuilder: (BuildContext context) {
+                        return {'Stats', 'Delete Video'}
+                            .map((String choice) {
+                          IconData icon;
+                          switch (choice) {
+                            case 'Stats':
+                              icon = Icons.query_stats;
+                              break;
+                            case 'Delete Video':
+                              icon = Icons.delete;
+                              break;
+                            default:
+                              icon = Icons.info;
+                          }
+
+                          return PopupMenuItem<String>(
+                            value: choice,
+                            child: Row(
+                              children: [
+                                Icon(icon),
+                                const SizedBox(width: 4),
+                                Text(choice),
+                              ],
+                            ),
+                          );
+                        }).toList();
+                      },
+                      icon: const Icon(Icons.more_vert, color: Colors.white),
+                      // Customizing the appearance of the dropdown menu
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
-                    Flexible(
-                      child: PopupMenuButton<String>(
-                        onSelected: onSelected,
-                        itemBuilder: (BuildContext context) {
-                          return {'Stats', 'Delete Video'}
-                              .map((String choice) {
-                            IconData icon;
-                            switch (choice) {
-                              case 'Stats':
-                                icon = Icons.query_stats;
-                                break;
-                              case 'Delete Video':
-                                icon = Icons.delete;
-                                break;
-                              default:
-                                icon = Icons.info;
-                            }
-
-                            return PopupMenuItem<String>(
-                              value: choice,
-                              child: Row(
-                                children: [
-                                  Icon(icon),
-                                  const SizedBox(width: 4),
-                                  Text(choice),
-                                ],
-                              ),
-                            );
-                          }).toList();
-                        },
-                        icon: const Icon(Icons.more_vert, color: Colors.white),
-                        // Customizing the appearance of the dropdown menu
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

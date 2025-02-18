@@ -21,6 +21,9 @@ class VideoScreen extends StatelessWidget {
         children: [
           VideoView(
             url: url,
+            // isFullScreen: true,
+
+            fit: BoxFit.none,
           ),
           Positioned(
             top: 70,

@@ -6,6 +6,7 @@ import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/primary_button.dart';
 
 import '../../../controllers/mainScreen_controllers/home_page_cont.dart';
+import '../../main_screens/bottom_bar_screen.dart';
 
 class SuccessUploaded extends StatefulWidget {
   const SuccessUploaded({
@@ -62,6 +63,7 @@ class _SuccessUploadedState extends State<SuccessUploaded> {
                                 Get.put(ProfileController());
                             profileController.clear();
                             Get.back();
+                            Get.off(()=> NavBarScreen());
                           }),
                     ],
                   ),

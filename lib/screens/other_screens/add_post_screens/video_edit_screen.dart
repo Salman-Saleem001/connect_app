@@ -11,7 +11,6 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tapioca/tapioca.dart';
-
 import '../../../controllers/chat/chat_detail_controller.dart';
 import '../../../globals/video_view.dart';
 import '../../../utils/text_styles.dart';
@@ -452,7 +451,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                 child: !isLoading? PrimaryButton(
                     label: 'Save Changes',
                     onPress: () async {
-                      debugPrint("clicked!");
+                      // debugPrint("clicked!");
                       setState(() {
                         isLoading = true;
                       });
@@ -467,7 +466,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         TextPainter textPainter = TextPainter(
                           text: TextSpan(
                             text: values,
-                            style: const TextStyle(fontSize: 24),
+                            style: const TextStyle(fontSize: 32),
                           ),
                           textDirection: TextDirection.ltr,
                         );
@@ -479,7 +478,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         int yPosition = (height / 2).toInt() - textHeight ~/ 2;
                         tapiocaBalls.add(
                           TapiocaBall.textOverlay(values ?? 'Hello', xPosition,
-                              yPosition, 24, const Color(0xffffc0cb)),
+                              yPosition, 32, const Color(0xffffc0cb)),
                         );
                       }
                       if (tapiocaBalls.isNotEmpty) {
@@ -499,23 +498,21 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                               await audioFilePick(path);
                             }
                             if(widget.fromMessage){
-                              await chatController.uploadToStorage(File(outputUrlName != null
-                                  ? outputUrlName ?? ''
-                                  : widget.filePath,)).then((val)async{
+                              await chatController.uploadToStorage(File(
+                                   outputUrlName ?? widget.filePath)).then((val)async{
                                 if(val){
                                   await widget.onSend!();
-                                  Get.back(result: val);
+                                  Get..back()..back(result: val);
                                 }
                               });
 
                             }else{
-                              Get.off(() => CreatePostScreen(
+                              Get..back()..off(() => CreatePostScreen(
                                 filePath: outputUrlName != null
                                     ? outputUrlName ?? ''
                                     : path,
-                                isVideo: widget.isVideo,
-                              ),
-                              );
+                                isVideo: widget.isVideo, fromMessage: widget.fromMessage,
+                              ));
                             }
                             setState(() {
                               isLoading = false;
@@ -534,14 +531,14 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                           await chatController.uploadToStorage(File(outputUrlName ?? widget.filePath,)).then((val)async{
                             if(val){
                               await widget.onSend!();
-                              Get.back(result: val);
+                              Get..back()..back(result: val);
                             }
                           });
 
                         }else{
-                          Get.off(() => CreatePostScreen(
+                          Get..back()..off(() => CreatePostScreen(
                             filePath: outputUrlName ?? widget.filePath,
-                            isVideo: true,
+                            isVideo: true, fromMessage: widget.fromMessage,
                           ));
                         }
                       }

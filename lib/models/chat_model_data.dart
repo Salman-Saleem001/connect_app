@@ -17,6 +17,7 @@ class ChatDataModel {
   String? chatsId;
   String? description;
   Timestamp? lastMessageTime;
+  Timestamp? videoTime;
   String? lastMessageType;
   String? messageData;
   String? receiverId;
@@ -31,6 +32,7 @@ class ChatDataModel {
     this.otherStatus,
     this.chatsId,
     this.lastMessageTime,
+    this.videoTime,
     this.lastMessageType,
     this.messageData,
     this.receiverId,
@@ -47,6 +49,7 @@ class ChatDataModel {
     otherStatus: json["otherStatus"],
     chatsId: json["chatsId"],
     lastMessageTime: json["lastMessageTime"] as Timestamp?,
+    videoTime: json["videoTime"] as Timestamp?,
     lastMessageType: json["lastMessageType"],
     messageData: json["messageData"],
     receiverId: json["receiverId"],

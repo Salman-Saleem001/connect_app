@@ -34,7 +34,6 @@ class HttpsServices {
 
       var request =
           http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.register));
-      debugPrint("request-->${request.body}");
       request.body = json.encode({
         "email": email,
         "password": password,
@@ -46,6 +45,7 @@ class HttpsServices {
         "preferences": preferences,
         "bio": bio
       });
+      debugPrint("request-->${request.body}");
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();

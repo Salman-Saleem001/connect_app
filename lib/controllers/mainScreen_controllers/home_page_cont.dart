@@ -31,6 +31,7 @@ class HomeFeedController extends GetxController {
   PostModel postModel = PostModel(posts: <Post>[]);
   late PageController pageController;
   List<String>? tags;
+  RxBool loadingNext = false.obs;
   RxBool fetchingTags = false.obs;
   RxBool fetchingPosts = false.obs;
   RxBool fetchingRecommendedPosts = false.obs;
@@ -75,6 +76,12 @@ class HomeFeedController extends GetxController {
   }
 
   bool loading = true;
+
+
+  changeScreen(){
+    loadingNext.value= !loadingNext.value;
+    update();
+  }
 
   changeLike(int index) {
     // isLiked[index] = !isLiked[index];

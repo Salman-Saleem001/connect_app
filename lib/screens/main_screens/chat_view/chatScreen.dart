@@ -124,8 +124,8 @@ class ChatDetailScreenNew extends StatelessWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 5),
+                          margin: const EdgeInsets.fromLTRB(
+                               16,5, 16, 15),
                           decoration: BoxDecoration(
                             color: AppColors.primaryColorBottom,
                             borderRadius: BorderRadius.circular(16),
@@ -353,7 +353,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                         ),
                                         Text(
                                           getTime(chatController.chatDataModel
-                                                  .value?.lastMessageTime ??
+                                                  .value?.videoTime ??
                                               ''),
                                           textAlign: TextAlign.right,
                                           style: const TextStyle(
@@ -789,14 +789,52 @@ class UserAvatarImage extends StatelessWidget {
 
 getTime(dynamic val) {
   int timeDifferenceMicroseconds = 0;
-  try {
-    timeDifferenceMicroseconds = DateTime.now().microsecondsSinceEpoch -
-        DateTime.parse(val).microsecondsSinceEpoch;
-  } catch (e) {
+  // try {
+  //   timeDifferenceMicroseconds = DateTime.now().microsecondsSinceEpoch -
+  //       DateTime.parse(val).microsecondsSinceEpoch;
+  // } catch (e) {
+
+    // String dateTimeStr = (val??"2025-02-15T15:32:12+05:00").toString();
+    //
+    // debugPrint("My Date==>  $dateTimeStr");
+    //
+    // // Parse the string into a DateTime object
+    // DateTime dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
+    //
+    // debugPrint("My after conversion Date==>$dateTimeStr");
+    //
+    //
+    // // Convert to local time
+    // DateTime localTime = dateTimeUtcPlus5.toLocal();
+    //
+    // // Print the converted time
+    // print("Local time: $localTime");
+
+
+    DateTime dateTimeUtcPlus5;
+
+    try {
+      if (val is Timestamp) {
+        // Convert Firestore Timestamp to DateTime
+        dateTimeUtcPlus5 = val.toDate();
+        debugPrint(dateTimeUtcPlus5.toString());
+      }
+      else {
+        // If val is not a Timestamp, treat it as a string
+        String dateTimeStr = (val ?? "2025-02-15T15:32:12+05:00").toString();
+        dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
+      }
+    } catch (parseError) {
+      // Fallback to current date-time if all parsing fails
+      dateTimeUtcPlus5 = DateTime.now();
+    }
+
+    DateTime localTime = dateTimeUtcPlus5.toLocal();
+
     timeDifferenceMicroseconds =
-        (DateTime.now().microsecondsSinceEpoch - val.toDate().microsecondsSinceEpoch)
+        (DateTime.now().microsecondsSinceEpoch - localTime.microsecondsSinceEpoch)
             .toInt();
-  }
+
   Duration timeDifference = Duration(microseconds: timeDifferenceMicroseconds);
 
   String formattedTimeDifference;

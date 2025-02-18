@@ -184,12 +184,12 @@ class EditVideoView extends StatefulWidget {
   final bool isFullScreen;
   final String url;
   final BoxFit? fit;
-  final int? id;
+
   const EditVideoView(
       {super.key,
         this.isContained = false,
         this.url = '',
-        this.isFullScreen = false, this.id, this.fit, });
+        this.isFullScreen = false, this.fit, });
 
   @override
   State<EditVideoView> createState() => _EditVideoViewState();
@@ -204,7 +204,9 @@ class _EditVideoViewState extends State<EditVideoView> {
   void initState() {
     debugPrint("Edit Video");
     play = false;
+    started =true;
     super.initState();
+
 
     _controller = VideoPlayerController.file(File(widget.url))
       ..initialize().then((_) {
@@ -212,11 +214,10 @@ class _EditVideoViewState extends State<EditVideoView> {
       })
       ..setLooping(true);
 
-
+    _controller.play();
   }
 
-  var started = false;
-  var play = false;
+  late bool play,started;
   void playVideo() {
     _controller.play();
     play = true;
@@ -300,7 +301,8 @@ class _EditVideoViewState extends State<EditVideoView> {
                             Icons.pause,
                             color: Colors.white,
                             size: 30,
-                          )),
+                          ),
+                      ),
                     ),
                   )
               ],

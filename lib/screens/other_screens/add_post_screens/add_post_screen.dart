@@ -21,13 +21,14 @@ import 'package:provider/provider.dart';
 
 import '../../../controllers/mainScreen_controllers/home_page_cont.dart';
 import '../../../globals/global.dart';
+import '../../main_screens/bottom_bar_screen.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final String filePath;
-  final bool isVideo;
+  final bool isVideo, fromMessage;
 
   const CreatePostScreen(
-      {super.key, required this.filePath, this.isVideo = false});
+      {super.key, required this.filePath, this.isVideo = false, required this.fromMessage});
 
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
@@ -35,33 +36,43 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   var getController = Get.put(HomeFeedController());
+
   late List<String> tags;
   late TextEditingController controller;
   late TextEditingController controller1;
   late List<RadioButtonTile<String>> tiles;
   DateTime? selectedExpiry;
+  late bool showVideo;
   @override
   void initState() {
+    showVideo = false;
     controller = TextEditingController();
     controller1 = TextEditingController();
+
     tags = [];
     tiles = [];
     setListOfTags();
     selectedExpiry = DateTime.now();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      showVideo = true;
+      Future.delayed(Duration(seconds: 1)).whenComplete((){
+        setState(() {});
+      });
+
+    });
     super.initState();
   }
 
   setListOfTags() async {
-   if(getController.addresses.isEmpty){
-     await getController.getLocation();
-   }
+    if (getController.addresses.isEmpty) {
+      await getController.getLocation();
+    }
     await getController.getTags();
     getController.tags?.forEach((element) {
       tiles.add(RadioButtonTile(title: element, value: element));
     });
     for (var val in tiles) {
       debugPrint('val==>${val.value} and Title====> ${val.title}');
-
     }
 
     tags.add(tiles.first.title);
@@ -85,7 +96,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               children: [
                 Expanded(
                   child: ListView(
+                    // controller: scrollController,
                     children: [
+                      if(showVideo)
                       SizedBox(
                           height: ht(400),
                           child: widget.isVideo
@@ -113,61 +126,52 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           20.hp,
                           Consumer<HomeProvider>(
                               builder: (context, homeProvider, _) {
-                                return GestureDetector(
-                                  behavior: HitTestBehavior.opaque,
-                                  onTap: () {
-                                    Get.to(() => GoogleMapScreen(
+                            return GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                Get.to(() => GoogleMapScreen(
                                       selectedLocation: LatLng(
-                                          getController.position?.latitude??homeProvider.startLocation.latitude,
-                                          getController.position?.longitude??homeProvider.startLocation.longitude),
+                                          getController.position?.latitude ??
+                                              homeProvider
+                                                  .startLocation.latitude,
+                                          getController.position?.longitude ??
+                                              homeProvider
+                                                  .startLocation.longitude),
                                     ))?.then((v) {
-                                      setState(() {});
-                                      if (context.mounted) {
-                                        context
-                                            .read<GoogleMapScreenProvider>()
-                                            .update();
-
-                                      }
-                                    });
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        'Add Location',
-                                        style: subHeadingText(size: 16),
-                                      ),
-                                      const Icon(Icons.arrow_forward_ios)
-                                    ],
+                                  setState(() {});
+                                  if (context.mounted) {
+                                    context
+                                        .read<GoogleMapScreenProvider>()
+                                        .update();
+                                  }
+                                });
+                              },
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Add Location',
+                                    style: subHeadingText(size: 16),
                                   ),
-                                );
-                              }),
+                                  const Icon(Icons.arrow_forward_ios)
+                                ],
+                              ),
+                            );
+                          }),
                           DecoratedBox(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(
-                                  width: .5,
-                                  color: AppColors.txtGrey
-                              ),
+                                  width: .5, color: AppColors.txtGrey),
                             ),
-                            child: Text('${context
-                                .read<GoogleMapScreenProvider>()
-                                .locationData
-                                ?.city ??
-                                getController.addresses.first.locality ??
-                                ''}, ${context
-                                .read<GoogleMapScreenProvider>()
-                                .locationData
-                                ?.state ??
-                                getController.addresses.first.administrativeArea??
-                                ''} , ${context
-                                .read<GoogleMapScreenProvider>()
-                                .locationData
-                                ?.country ??
-                                getController.addresses.first.country ??
-                                ''}',
-                              style: Theme.of(context).textTheme.titleMedium?.copyWith(),
-                            ).paddingSymmetric(horizontal: 10,vertical: 10),
+                            child: Text(
+                              '${context.read<GoogleMapScreenProvider>().locationData?.city ?? getController.addresses.first.locality ?? ''}, ${context.read<GoogleMapScreenProvider>().locationData?.state ?? getController.addresses.first.administrativeArea ?? ''} , ${context.read<GoogleMapScreenProvider>().locationData?.country ?? getController.addresses.first.country ?? ''}',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleMedium
+                                  ?.copyWith(),
+                            ).paddingSymmetric(horizontal: 10, vertical: 10),
                           ),
                           20.hp,
                           _preferences(),
@@ -183,7 +187,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               showDatePicker(
                                   context: context,
                                   firstDate: DateTime.now(),
-                                  lastDate: DateTime.now().add(Duration(days: 90)),
+                                  lastDate:
+                                      DateTime.now().add(Duration(days: 90)),
                                   builder: (context, child) {
                                     return Theme(
                                       data: Theme.of(context).copyWith(
@@ -191,9 +196,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                           primary: AppColors
                                               .primaryColor, // <-- SEE HERE
                                           onPrimary:
-                                          AppColors.white, // <-- SEE HERE
-                                          onSurface: Colors.grey, // <-- SEE HERE
-                                          onInverseSurface: AppColors.primaryColor,
+                                              AppColors.white, // <-- SEE HERE
+                                          onSurface:
+                                              Colors.grey, // <-- SEE HERE
+                                          onInverseSurface:
+                                              AppColors.primaryColor,
                                           // inverseSurface: AppColors.primaryColor
                                         ),
                                         textButtonTheme: TextButtonThemeData(
@@ -218,11 +225,11 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 10.wp,
                                 Text(
                                   selectedExpiry
-                                      ?.toIso8601String()
-                                      .substring(0, 10) ??
+                                          ?.toIso8601String()
+                                          .substring(0, 10) ??
                                       '',
-                                  style:
-                                  subHeadingText(size: 16, color: Colors.grey),
+                                  style: subHeadingText(
+                                      size: 16, color: Colors.grey),
                                 ),
                                 Spacer(),
                                 Icon(Icons.arrow_forward_ios_rounded)
@@ -311,6 +318,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               backButton: true,
               title: 'Add a new Post',
               marginTop: 25,
+              onTap: !widget.fromMessage? (){
+                Get.off(()=> NavBarScreen());
+              }: null
             ),
           ),
         ],
@@ -362,18 +372,16 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
             label: 'add Tag',
             onPress: () async {
               String val = '#${controller1.text.capitalizeText()}';
-              if( tiles.any((element)=> element.title==val)){
-                tags.add(val);
-                for (var element in tags) {
-                  debugPrint(element);
-                }
-              }else{
+              if (!tiles.any((element) => element.title == val)) {
                 tiles.add(RadioButtonTile(title: val, value: val));
-                await getController.sendTags(val).then((val) {
-                  if (val) {
+                await getController.sendTags(val).then((check) {
+                  if (check) {
                     debugPrint("Tags added");
+                    tags.add(val);
                   }
                 });
+              } else {
+                tags.add(val);
               }
               controller1.clear();
               setState(() {});
@@ -389,7 +397,6 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
               tags = [];
               for (var val in newValues) {
                 tags.add(val);
-                // debugPrint(val);
               }
             },
             selectedTileColor: AppColors.primaryColorBottom,
