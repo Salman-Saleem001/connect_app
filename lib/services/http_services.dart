@@ -219,6 +219,9 @@ class HttpsServices {
         required String dob,
         }) async {
     try {
+
+      debugPrint("Image===>${image.path}\n firstName===>$firstName\n lastName===>$lastName\n email===>$email\n dob===>$dob\n");
+
       var headers = {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
