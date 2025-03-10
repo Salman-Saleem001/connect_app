@@ -11,7 +11,7 @@ class NetworkImageCustom extends StatelessWidget {
       {super.key,
       this.height = double.infinity,
       this.width = double.infinity,
-      required this.image,
+      this.image,
       this.fit});
 
   @override
@@ -22,7 +22,7 @@ class NetworkImageCustom extends StatelessWidget {
         imageUrl: image??'',
         height: height,
         width: width,
-        errorWidget: ((context, url, error) =>  Icon(Icons.account_circle,size: height,color: Colors.grey,)),
+        errorWidget: (context, url, error) =>  Icon(Icons.account_circle,size: 90,color: Colors.grey,),
         fit: fit?? BoxFit.contain);
   }
 }

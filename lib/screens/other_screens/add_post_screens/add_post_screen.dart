@@ -165,13 +165,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                               border: Border.all(
                                   width: .5, color: AppColors.txtGrey),
                             ),
-                            child: Text(
-                              '${context.read<GoogleMapScreenProvider>().locationData?.city ?? getController.addresses.first.locality ?? ''}, ${context.read<GoogleMapScreenProvider>().locationData?.state ?? getController.addresses.first.administrativeArea ?? ''} , ${context.read<GoogleMapScreenProvider>().locationData?.country ?? getController.addresses.first.country ?? ''}',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleMedium
-                                  ?.copyWith(),
-                            ).paddingSymmetric(horizontal: 10, vertical: 10),
+                            child: GetBuilder(
+                              builder: (HomeFeedController controller) {
+                                if(controller.addresses.isEmpty){
+                                  return SizedBox();
+                                }else{
+                                  return Text(
+                                    '${context.read<GoogleMapScreenProvider>().locationData?.city ?? getController.addresses.first.locality ?? ''}, ${context.read<GoogleMapScreenProvider>().locationData?.state ?? getController.addresses.first.administrativeArea ?? ''} , ${context.read<GoogleMapScreenProvider>().locationData?.country ?? getController.addresses.first.country ?? ''}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(),
+                                  ).paddingSymmetric(horizontal: 10, vertical: 10);
+                                }
+                              },
+                            ),
                           ),
                           20.hp,
                           _preferences(),

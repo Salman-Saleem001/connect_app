@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:connect_app/extensions/string_extensions.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -112,21 +113,53 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
     final tempDir = await getTemporaryDirectory();
     String outputUrl =
         '${tempDir.path}/output_${DateTime.now().millisecondsSinceEpoch}.mp4';
-    if (await File(outputUrl).exists()) {
-      debugPrint("Exist");
-      File(outputUrl).delete();
-    }
-    String commandToExecute =
-        '-i $audioUrlName -i $filePath -c copy $outputUrl';
-    FFmpegKit.execute(commandToExecute).then((value) {
-      setState(() {
-        outputUrlName = outputUrl;
-      });
 
-      debugPrint("DURUM: $value");
+    // Delete the output file if it already exists
+    if (await File(outputUrl).exists()) {
+      await File(outputUrl).delete();
+    }
+
+    // FFmpeg command to merge audio and video while preserving the original audio
+    String commandToExecute =
+        '-i $filePath -i $audioUrlName -filter_complex "[0:a][1:a]amerge=inputs=2[a]" -map 0:v -map "[a]" -c:v copy -ac 2 $outputUrl';
+
+    // Execute the FFmpeg command
+    FFmpegKit.execute(commandToExecute).then((session) async {
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        setState(() {
+          outputUrlName = outputUrl;
+        });
+        debugPrint("Merge successful: $outputUrl");
+      } else if (ReturnCode.isCancel(returnCode)) {
+        debugPrint("Merge canceled");
+      } else {
+        debugPrint("Merge failed with return code: $returnCode");
+      }
+    }).catchError((error) {
+      debugPrint("Error during merge: $error");
     });
-    debugPrint("DURUM: ${await Directory(outputUrlName ?? '').exists()}");
   }
+
+  // Future<void> mergeFiles(String filePath) async {
+  //   final tempDir = await getTemporaryDirectory();
+  //   String outputUrl =
+  //       '${tempDir.path}/output_${DateTime.now().millisecondsSinceEpoch}.mp4';
+  //   if (await File(outputUrl).exists()) {
+  //     File(outputUrl).delete();
+  //   }
+  //   String commandToExecute =
+  //       '-i $audioUrlName -i $filePath -c copy $outputUrl';
+  //   FFmpegKit.execute(commandToExecute).then((value) {
+  //     setState(() {
+  //       outputUrlName = outputUrl;
+  //     });
+  //
+  //     debugPrint("DURUM: $value");
+  //   });
+  //   debugPrint("DURUM: ${await Directory(outputUrlName ?? '').exists()}");
+  // }
 
   void _disableEventReceiver() {
     _streamSubscription.cancel();
@@ -474,8 +507,8 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         int textWidth = textPainter.width.toInt();
                         int textHeight = textPainter.height.toInt();
 
-                        int xPosition = (width / 2).toInt() - textWidth ~/ 2;
-                        int yPosition = (height / 2).toInt() - textHeight ~/ 2;
+                        int xPosition = (width / 2).toInt() - (textWidth ~/ 2);
+                        int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
                         tapiocaBalls.add(
                           TapiocaBall.textOverlay(values ?? 'Hello', xPosition,
                               yPosition, 32, const Color(0xffffc0cb)),

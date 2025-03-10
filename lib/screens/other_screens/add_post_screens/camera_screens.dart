@@ -79,7 +79,7 @@ class _CameraScreenState extends State<CameraScreen>
           stopVideoRecording().then((XFile? file) {
             if (file != null) {
               videoFile = file;
-              Get.to(() => VideoEditScreen(
+              Get.off(() => VideoEditScreen(
                     filePath: file.path,
                     isVideo: true,
                     fromMessage: widget.fromMessage,
@@ -669,8 +669,7 @@ class _CameraScreenState extends State<CameraScreen>
         if(timer.isActive){
           timer.cancel();
         }
-        Get.to(
-          () => VideoEditScreen(
+        Get.off(() => VideoEditScreen(
             filePath: file.path,
             isVideo: true,
             fromMessage: widget.fromMessage,

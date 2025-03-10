@@ -62,8 +62,8 @@ class HomeFeedController extends GetxController {
 
   @override
   void onInit() {
-    debugPrint(
-        "OInit Run====>${Get.find<UserDetail>().userData.token.toString()}");
+    // debugPrint(
+    //     "OInit Run====>${Get.find<UserDetail>().userData.token.toString()}");
     pageController = PageController();
     // getContent();
     getRecommendedContent();
@@ -321,7 +321,7 @@ class HomeFeedController extends GetxController {
       });
     }
     position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.best));
     debugPrint('location: ${position?.latitude}');
     var data = await placemarkFromCoordinates(
         position?.latitude ?? 0.0, position?.longitude ?? 0.0);
@@ -438,6 +438,7 @@ class HomeFeedController extends GetxController {
     // recommendedPosts = null;
     reviewDescrioption = null;
     rating = null;
+    debugPrint("Dispose is called HomeCont");
     super.dispose();
   }
 }

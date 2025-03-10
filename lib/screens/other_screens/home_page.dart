@@ -74,260 +74,231 @@ class HomePageFeed extends StatelessWidget {
                           onPageChanged: ((i) => controller.changePage(i)),
                           scrollDirection: Axis.vertical,
                           controller: controller.pageController,
-                          itemCount: selectedPostModel.posts!.length,
+                          itemCount: selectedPostModel.posts?.length,
                           itemBuilder: (context, index) {
                             Post? video = selectedPostModel?.posts?[index];
-                            return SizedBox(
-                              height: double.infinity,
-                              child: Stack(
-                                children: [
-                                  VideoView(
-                                    url: video?.video ?? "",
-                                    id: video?.id,
-                                    fit: BoxFit.cover,
-                                    // country: video.country,
+                            return Stack(
+                              children: [
+                                VideoView(
+                                  url: video?.video ?? "",
+                                  id: video?.id,
+                                  fit: BoxFit.cover,
+                                  // country: video.country,
+                                ),
+                                Positioned(
+                                  bottom: 20,
+                                  left: 11,
+                                  right: 70,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {},
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(50),
+                                              child: NetworkImageCustom(
+                                                image:
+                                                    video?.user?.avatar ?? '',
+                                                fit: BoxFit.cover,
+                                                height: 50,
+                                                width: 50,
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              '@${video?.user?.firstName?.toLowerCase() ?? ''}',
+                                              style: subHeadingText()
+                                                  .copyWith(
+                                                      color: Colors.white),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        video?.info ?? '',
+                                        style: normalText(size: 12)
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                      if (video?.id != null)
+                                        Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Image.asset(
+                                                  'assets/images/ic_video_camera.png',
+                                                  height: 18,
+                                                  errorBuilder:
+                                                      (_, error, trace) {
+                                                    return const SizedBox
+                                                        .shrink();
+                                                  },
+                                                ),
+                                                const SizedBox(
+                                                  width: 8,
+                                                ),
+                                                Text(
+                                                  video?.title ?? '',
+                                                  style: normalText(size: 12)
+                                                      .copyWith(
+                                                          color:
+                                                              Colors.white),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      SizedBox(
+                                        height: ht(30),
+                                      ),
+                                    ],
                                   ),
-                                  Positioned(
-                                    bottom: 20,
-                                    left: 11,
-                                    right: 70,
+                                ),
+                                GetBuilder<HomeFeedController>(
+                                    builder: (value) {
+                                  return Positioned(
+                                    top: 252,
+                                    left: 10,
                                     child: Column(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                          CrossAxisAlignment.center,
                                       children: [
                                         GestureDetector(
                                           onTap: () {},
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              ClipRRect(
-                                                borderRadius:
-                                                    BorderRadius.circular(50),
-                                                child: NetworkImageCustom(
-                                                  image:
-                                                      video?.user?.avatar ?? '',
-                                                  fit: BoxFit.cover,
-                                                  height: 50,
-                                                  width: 50,
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(
-                                                '@${video?.user?.firstName?.toLowerCase() ?? ''}',
-                                                style: subHeadingText()
-                                                    .copyWith(
-                                                        color: Colors.white),
-                                              ),
-                                            ],
+                                          child: ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            child: Image.asset(
+                                              'assets/images/kora_logo.png',
+                                              scale: 2.2,
+                                            ),
                                           ),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        GestureDetector(
+                                            onTap: () {
+                                              value.toggle(video?.id ?? 0);
+                                              video?.isLiked =
+                                                  !(video.isLiked ?? false);
+                                              if (video?.isLiked ?? false) {
+                                                video?.likesCount =
+                                                    (video.likesCount ?? 0) +
+                                                        1;
+                                              }
+                                              value.update();
+                                            },
+                                            child: Image.asset(
+                                              'assets/images/ic_heart.png',
+                                              height: 40,
+                                              color: (video?.isLiked ?? false)
+                                                  ? Colors.red
+                                                  : Colors.white,
+                                            )),
+                                        Text(
+                                          "${(video?.likesCount ?? 0)} Likes",
+                                          style: normalText()
+                                              .copyWith(color: Colors.white),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Opacity(
+                                          opacity: video?.userId ==
+                                                  Get.find<UserDetail>()
+                                                      .userData
+                                                      .user!
+                                                      .id
+                                              ? 0.4
+                                              : 1,
+                                          child: GestureDetector(
+                                              onTap: () async {
+                                                if ((video?.userId ?? 0) !=
+                                                    (Get.find<UserDetail>()
+                                                            .userData
+                                                            .user
+                                                            ?.id ??
+                                                        0)) {
+                                                  Get.to(() =>
+                                                      ChatDetailScreenNew(
+                                                        secondUserId:
+                                                            (video?.userId ??
+                                                                    0)
+                                                                .toString(),
+                                                        userName: video
+                                                            ?.user?.firstName
+                                                            ?.toLowerCase(),
+                                                        tags: video?.tags,
+                                                        videoId: video?.id,
+                                                        description:
+                                                            video?.info,
+                                                        userAvatar: video
+                                                            ?.user?.avatar,
+                                                        bio:
+                                                            video?.user?.bio ??
+                                                                '',
+                                                      ));
+                                                }
+                                              },
+                                              child: Image.asset(
+                                                'assets/images/ic_comments.png',
+                                                height: 34,
+                                                color: Colors.white,
+                                              )),
+                                        ),
+                                        Text(
+                                          "Chats",
+                                          style: normalText()
+                                              .copyWith(color: Colors.white),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        InkWell(
+                                            onTap: () async {
+                                              final result =
+                                                  await Share.share(
+                                                      video?.video ?? "");
+
+                                              if (result.status ==
+                                                  ShareResultStatus.success) {
+                                                debugPrint(
+                                                    'Thank you for sharing my website!');
+                                              }
+                                            },
+                                            child: Image.asset(
+                                              'assets/images/ic_share.png',
+                                              height: 25,
+                                              color: Colors.white,
+                                            )),
+                                        Text(
+                                          "Share",
+                                          style: normalText()
+                                              .copyWith(color: Colors.white),
                                         ),
                                         const SizedBox(
                                           height: 10,
                                         ),
-                                        Text(
-                                          video?.info ?? '',
-                                          style: normalText(size: 12)
-                                              .copyWith(color: Colors.white),
-                                        ),
-                                        if (video?.id != null)
-                                          Column(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.start,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/images/ic_video_camera.png',
-                                                    height: 18,
-                                                    errorBuilder:
-                                                        (_, error, trace) {
-                                                      return const SizedBox
-                                                          .shrink();
-                                                    },
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 8,
-                                                  ),
-                                                  Text(
-                                                    video?.title ?? '',
-                                                    style: normalText(size: 12)
-                                                        .copyWith(
-                                                            color:
-                                                                Colors.white),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        SizedBox(
-                                          height: ht(30),
-                                        ),
                                       ],
                                     ),
-                                  ),
-                                  GetBuilder<HomeFeedController>(
-                                      builder: (value) {
-                                    return Positioned(
-                                      top: 252,
-                                      left: 10,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {},
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(100),
-                                              child: Image.asset(
-                                                'assets/images/kora_logo.png',
-                                                scale: 2.2,
-                                              ),
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                          GestureDetector(
-                                              onTap: () {
-                                                value.toggle(video?.id ?? 0);
-                                                video?.isLiked =
-                                                    !(video.isLiked ?? false);
-                                                if (video?.isLiked ?? false) {
-                                                  video?.likesCount =
-                                                      (video.likesCount ?? 0) +
-                                                          1;
-                                                }
-                                                value.update();
-                                              },
-                                              child: Image.asset(
-                                                'assets/images/ic_heart.png',
-                                                height: 40,
-                                                color: (video?.isLiked ?? false)
-                                                    ? Colors.red
-                                                    : Colors.white,
-                                              )),
-                                          Text(
-                                            "${(video?.likesCount ?? 0)} Likes",
-                                            style: normalText()
-                                                .copyWith(color: Colors.white),
-                                          ),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                          Opacity(
-                                            opacity: video?.userId ==
-                                                    Get.find<UserDetail>()
-                                                        .userData
-                                                        .user!
-                                                        .id
-                                                ? 0.4
-                                                : 1,
-                                            child: GestureDetector(
-                                                onTap: () async {
-                                                  if ((video?.userId ?? 0) !=
-                                                      (Get.find<UserDetail>()
-                                                              .userData
-                                                              .user
-                                                              ?.id ??
-                                                          0)) {
-                                                    Get.to(() =>
-                                                        ChatDetailScreenNew(
-                                                          secondUserId:
-                                                              (video?.userId ??
-                                                                      0)
-                                                                  .toString(),
-                                                          userName: video
-                                                              ?.user?.firstName
-                                                              ?.toLowerCase(),
-                                                          tags: video?.tags,
-                                                          videoId: video?.id,
-                                                          description:
-                                                              video?.info,
-                                                          userAvatar: video
-                                                              ?.user?.avatar,
-                                                          bio:
-                                                              video?.user?.bio ??
-                                                                  '',
-                                                        ));
-                                                  }
-                                                },
-                                                child: Image.asset(
-                                                  'assets/images/ic_comments.png',
-                                                  height: 34,
-                                                  color: Colors.white,
-                                                )),
-                                          ),
-                                          Text(
-                                            "Chats",
-                                            style: normalText()
-                                                .copyWith(color: Colors.white),
-                                          ),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
-                                          InkWell(
-                                              onTap: () async {
-                                                final result =
-                                                    await Share.share(
-                                                        video?.video ?? "");
-
-                                                if (result.status ==
-                                                    ShareResultStatus.success) {
-                                                  debugPrint(
-                                                      'Thank you for sharing my website!');
-                                                }
-                                              },
-                                              child: Image.asset(
-                                                'assets/images/ic_share.png',
-                                                height: 25,
-                                                color: Colors.white,
-                                              )),
-                                          Text(
-                                            "Share",
-                                            style: normalText()
-                                                .copyWith(color: Colors.white),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
-                                  Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    bottom: 20,
-                                    child: Center(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          Get.off(() => CameraScreen(
-                                              cameras: controller.cameras));
-                                        },
-                                        child: Container(
-                                          height: 68,
-                                          width: 68,
-                                          decoration: BoxDecoration(
-                                              color: const Color(0xffE92A4F),
-                                              borderRadius:
-                                                  BorderRadius.circular(80)),
-                                          child: const Icon(
-                                            Icons.add,
-                                            size: 30,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
+                                  );
+                                }),
+                              ],
                             );
                           },
                         );
@@ -397,6 +368,32 @@ class HomePageFeed extends StatelessWidget {
                 ),
               ),
             ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 20,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Get.off(() => CameraScreen(
+                        cameras: controller.cameras));
+                  },
+                  child: Container(
+                    height: 68,
+                    width: 68,
+                    decoration: BoxDecoration(
+                        color: const Color(0xffE92A4F),
+                        borderRadius:
+                        BorderRadius.circular(80)),
+                    child: const Icon(
+                      Icons.add,
+                      size: 30,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),

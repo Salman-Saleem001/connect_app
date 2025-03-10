@@ -188,14 +188,14 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 20),
             LayoutBuilder(
               builder: (context, constraints) {
-                final double cardWidth = (constraints.maxWidth) / 3;
+                final double cardWidth = (constraints.maxWidth) / 3.2;
                 final double cardheight = (constraints.maxWidth / 3 * 1.5);
                 return GetBuilder(
                   builder: (ProfileController controller) {
                     if (controller.myPosts.value.posts?.isNotEmpty == true &&  controller.isDataFetched.value) {
                       return Wrap(
-                        // spacing: 0,
-                        // runSpacing: 0,
+                        spacing: 0,
+                        runSpacing: 0,
                         children: controller.myPosts.value.posts
                             ?.asMap()
                             .entries
@@ -357,20 +357,24 @@ class BuildVideoCard extends StatelessWidget {
       child: Card(
         color: Colors.transparent, // Make the card background transparent
         elevation: 0,
+        shape: RoundedRectangleBorder(),
         child: Stack(
           children: [
-            Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(
-              height: cardHeight,
-              width: cardWidth,
-              fit: BoxFit.cover,
-              imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
-              height: cardHeight,
-              width: cardWidth,
-              child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
-              File(thumbnail),
-              fit: BoxFit.cover,
-              height: cardHeight,
-              width: cardWidth,
+            ClipRRect(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              child: Uri.parse(thumbnail).isAbsolute? CachedNetworkImage(
+                height: cardHeight,
+                width: cardWidth,
+                fit: BoxFit.cover,
+                imageUrl: thumbnail, errorWidget: (context,error , trace)=> SizedBox(
+                height: cardHeight,
+                width: cardWidth,
+                child: Icon(Icons.video_file_rounded, color: AppColors.primaryColor,),),):Image.file(
+                File(thumbnail),
+                fit: BoxFit.cover,
+                height: cardHeight,
+                width: cardWidth,
+              ),
             ),
             Positioned(
               bottom: 1.0,
