@@ -44,14 +44,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Welcome Back',
+                    'Welcome Back!',
                     style: headingText(size: 26),
                   ),
                   // SizedBox(
                   //   height: ht(8),
                   // ),
                   Text(
-                    'Glad to see you again',
+                    'Glad to see you again.',
                     style: normalText(size: 26),
                   ),
                   SizedBox(

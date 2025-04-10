@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';

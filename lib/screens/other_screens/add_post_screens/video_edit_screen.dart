@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:connect_app/extensions/string_extensions.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
@@ -11,12 +10,13 @@ import 'package:get/get.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:tapioca/tapioca.dart';
+import 'package:tapioca_v2/tapioca_v2.dart';
 import '../../../controllers/chat/chat_detail_controller.dart';
 import '../../../globals/video_view.dart';
 import '../../../utils/text_styles.dart';
 import '../../../widgets/appbars.dart';
 import '../../../widgets/primary_button.dart';
+import '../../main_screens/bottom_bar_screen.dart';
 import 'add_post_screen.dart';
 
 class VideoEditScreen extends StatefulWidget {
@@ -178,16 +178,6 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
               : Image.file(
                   File(widget.filePath),
                 ),
-          Positioned(
-            left: 0,
-            right: 0,
-            top: 0,
-            child: customAppBarTransparent(
-              backButton: true,
-              title: 'Edit ${widget.isVideo ? 'Video' : 'Image'} ',
-              marginTop: 25,
-            ),
-          ),
           if (filterColor != null)
             Positioned.fill(
               child: ColoredBox(
@@ -474,6 +464,19 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                   },
                   itemCount: AppColors.defaultColors.length),
             ),
+          Positioned(
+            left: 0,
+            right: 0,
+            top: 0,
+            child: customAppBarTransparent(
+                backButton: true,
+                title: 'Edit ${widget.isVideo ? 'Video' : 'Image'} ',
+                marginTop: 25,
+                onTap: !widget.fromMessage? (){
+                  Get.off(()=> NavBarScreen());
+                }: null
+            ),
+          ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -489,7 +492,6 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         isLoading = true;
                       });
                       List<TapiocaBall> tapiocaBalls = [];
-
                       if (filterColor != null) {
                         tapiocaBalls.add(
                             TapiocaBall.filterFromColor(filterColor!, 0.4));
@@ -510,7 +512,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         int xPosition = (width / 2).toInt() - (textWidth ~/ 2);
                         int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
                         tapiocaBalls.add(
-                          TapiocaBall.textOverlay(values ?? 'Hello', xPosition,
+                          TapiocaBall.textOverlay(values ?? '', xPosition,
                               yPosition, 32, const Color(0xffffc0cb)),
                         );
                       }

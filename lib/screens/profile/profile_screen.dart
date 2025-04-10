@@ -28,7 +28,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: customAppBar(
-          backButton: true,
+          backButton: false,
           title: Get.find<UserDetail>().userData.user?.username ?? '',
           actions: [
             GestureDetector(

@@ -131,7 +131,7 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
       ),
       minLines: lines ?? 1,
       // Sets minimum number of lines
-      maxLines: lines ?? 1, // Sets maximum number of lines
+      maxLines: lines, // Sets maximum number of lines
     ),
   );
 }

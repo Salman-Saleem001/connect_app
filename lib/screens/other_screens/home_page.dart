@@ -262,13 +262,14 @@ class HomePageFeed extends StatelessWidget {
                                               )),
                                         ),
                                         Text(
-                                          "Chats",
+                                          "Connect",
                                           style: normalText()
                                               .copyWith(color: Colors.white),
                                         ),
                                         const SizedBox(
                                           height: 20,
                                         ),
+
                                         InkWell(
                                             onTap: () async {
                                               final result =

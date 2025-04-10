@@ -50,7 +50,7 @@ class ForgetPassword extends StatelessWidget {
                       height: ht(8),
                     ),
                     Text(
-                      'Glad to see you again!',
+                      'Recover Password.',
                       style: normalText(size: 16),
                     ),
                     SizedBox(

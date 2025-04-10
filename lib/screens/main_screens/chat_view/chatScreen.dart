@@ -27,13 +27,13 @@ class ChatDetailScreenNew extends StatelessWidget {
     this.tags,
     this.description,
     this.videoId,
-    this.userAvatar, this.bio,
+    this.userAvatar,
+    this.bio,
   });
 
-  final String? secondUserId , userName, description, userAvatar, bio;
+  final String? secondUserId, userName, description, userAvatar, bio;
   final int? videoId;
   final List<String>? tags;
-
 
   @override
   Widget build(BuildContext context) {
@@ -90,28 +90,40 @@ class ChatDetailScreenNew extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Row(
+                            // crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               UserAvatarImage(
                                 userAvatar: userAvatar,
                                 radius: 35,
                               ),
                               const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '@${userName ?? ''}',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 5),
-                                  Text('Last seen 5 mins ago',
-                                      style: normalText(
-                                          size: 14, color: Colors.grey)),
-                                ],
+                              Text(
+                                '@${userName ?? ''}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
+                              // Column(
+                              //   crossAxisAlignment: CrossAxisAlignment.start,
+                              //   children: [
+                              //
+                              //     const SizedBox(height: 5),
+                              //     Text('Last seen 5 mins ago',
+                              //         style: normalText(
+                              //             size: 14, color: Colors.grey)),
+                              //   ],
+                              // ),
+                              // Column(
+                              //   crossAxisAlignment: CrossAxisAlignment.start,
+                              //   children: [
+                              //
+                              //     const SizedBox(height: 5),
+                              //     Text('Last seen 5 mins ago',
+                              //         style: normalText(
+                              //             size: 14, color: Colors.grey)),
+                              //   ],
+                              // ),
                             ],
                           ),
                         ),
@@ -124,8 +136,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                         ),
                         Container(
                           padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.fromLTRB(
-                               16,5, 16, 15),
+                          margin: const EdgeInsets.fromLTRB(16, 5, 16, 15),
                           decoration: BoxDecoration(
                             color: AppColors.primaryColorBottom,
                             borderRadius: BorderRadius.circular(16),
@@ -295,15 +306,11 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                   behavior:
                                                       HitTestBehavior.opaque,
                                                   onTap: () {
-                                                    Get.to(
-                                                      VideoView(
+                                                    Get.to(() => ChatVideoView(
                                                         url: chatController
-                                                                .chatDataModel
-                                                                .value
-                                                                ?.messageData ??
-                                                            '',
-
-                                                      ),
+                                                            .chatDataModel
+                                                            .value
+                                                            ?.messageData),
                                                     );
                                                   },
                                                   child: ClipRRect(
@@ -537,34 +544,37 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                         ),
                                                       ),
                                                     ] else
-                                                      ClipRRect(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(15),
-                                                        child: ColoredBox(
-                                                          color: check
-                                                              ? AppColors.bgGrey
-                                                                  .withOpacity(
-                                                                      .2)
-                                                              : AppColors
-                                                                  .primaryColorBottom,
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(10.0),
-                                                            child: Text(
-                                                              chat.messageData ??
-                                                                  "",
-                                                              style: TextStyle(
-                                                                  fontSize: 16,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .normal,
-                                                                  color: check
-                                                                      ? Colors
-                                                                          .black
-                                                                      : AppColors
-                                                                          .white),
+                                                      Expanded(
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(15),
+                                                          child: ColoredBox(
+                                                            color: check
+                                                                ? AppColors.bgGrey
+                                                                    .withOpacity(
+                                                                        .2)
+                                                                : AppColors
+                                                                    .primaryColorBottom,
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(10.0),
+                                                              child: Text(
+                                                                chat.messageData ??
+                                                                    "",
+                                                                style: TextStyle(
+                                                                    fontSize: 16,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w400,
+                                                                    color: check
+                                                                        ? Colors
+                                                                            .black
+                                                                        : AppColors
+                                                                            .white),
+                                                                maxLines: 100,
+                                                              ),
                                                             ),
                                                           ),
                                                         ),
@@ -624,6 +634,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                           borderRadius: 1000,
                           hint: 'Type as message...',
                           chatController.controllerMessage,
+                          lines: null,
                           FocusNode(),
                           [])),
                   const SizedBox(width: 10),
@@ -756,6 +767,40 @@ class ChatDetailScreenNew extends StatelessWidget {
   }
 }
 
+class ChatVideoView extends StatelessWidget {
+  const ChatVideoView({
+    super.key,
+    this.url,
+  });
+
+  final String? url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        VideoView(
+          url: url ?? '',
+        ),
+        Positioned(
+          top: 60,
+          left: 20,
+          child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Get.back();
+              },
+              child: Icon(
+                Icons.arrow_back_ios,
+                size: 32,
+                color: AppColors.white,
+              )),
+        ),
+      ],
+    );
+  }
+}
+
 class UserAvatarImage extends StatelessWidget {
   const UserAvatarImage({
     super.key,
@@ -794,46 +839,44 @@ getTime(dynamic val) {
   //       DateTime.parse(val).microsecondsSinceEpoch;
   // } catch (e) {
 
-    // String dateTimeStr = (val??"2025-02-15T15:32:12+05:00").toString();
-    //
-    // debugPrint("My Date==>  $dateTimeStr");
-    //
-    // // Parse the string into a DateTime object
-    // DateTime dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
-    //
-    // debugPrint("My after conversion Date==>$dateTimeStr");
-    //
-    //
-    // // Convert to local time
-    // DateTime localTime = dateTimeUtcPlus5.toLocal();
-    //
-    // // Print the converted time
-    // print("Local time: $localTime");
+  // String dateTimeStr = (val??"2025-02-15T15:32:12+05:00").toString();
+  //
+  // debugPrint("My Date==>  $dateTimeStr");
+  //
+  // // Parse the string into a DateTime object
+  // DateTime dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
+  //
+  // debugPrint("My after conversion Date==>$dateTimeStr");
+  //
+  //
+  // // Convert to local time
+  // DateTime localTime = dateTimeUtcPlus5.toLocal();
+  //
+  // // Print the converted time
+  // print("Local time: $localTime");
 
+  DateTime dateTimeUtcPlus5;
 
-    DateTime dateTimeUtcPlus5;
-
-    try {
-      if (val is Timestamp) {
-        // Convert Firestore Timestamp to DateTime
-        dateTimeUtcPlus5 = val.toDate();
-        debugPrint(dateTimeUtcPlus5.toString());
-      }
-      else {
-        // If val is not a Timestamp, treat it as a string
-        String dateTimeStr = (val ?? "2025-02-15T15:32:12+05:00").toString();
-        dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
-      }
-    } catch (parseError) {
-      // Fallback to current date-time if all parsing fails
-      dateTimeUtcPlus5 = DateTime.now();
+  try {
+    if (val is Timestamp) {
+      // Convert Firestore Timestamp to DateTime
+      dateTimeUtcPlus5 = val.toDate();
+      debugPrint(dateTimeUtcPlus5.toString());
+    } else {
+      // If val is not a Timestamp, treat it as a string
+      String dateTimeStr = (val ?? "2025-02-15T15:32:12+05:00").toString();
+      dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
     }
+  } catch (parseError) {
+    // Fallback to current date-time if all parsing fails
+    dateTimeUtcPlus5 = DateTime.now();
+  }
 
-    DateTime localTime = dateTimeUtcPlus5.toLocal();
+  DateTime localTime = dateTimeUtcPlus5.toLocal();
 
-    timeDifferenceMicroseconds =
-        (DateTime.now().microsecondsSinceEpoch - localTime.microsecondsSinceEpoch)
-            .toInt();
+  timeDifferenceMicroseconds =
+      (DateTime.now().microsecondsSinceEpoch - localTime.microsecondsSinceEpoch)
+          .toInt();
 
   Duration timeDifference = Duration(microseconds: timeDifferenceMicroseconds);
 

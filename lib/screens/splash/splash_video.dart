@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:connect_app/screens/splash/splash_first.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
 
 class SplashVideo extends StatefulWidget {
@@ -15,7 +18,6 @@ class _SplashVideoState extends State<SplashVideo> {
 
   @override
   void initState() {
-    // TODO: implement initState
     controller = VideoPlayerController.asset('assets/video/intro.mp4')
       ..initialize().then((_) {
         setState(() {}); // Ensure UI updates when the video is ready
@@ -25,11 +27,8 @@ class _SplashVideoState extends State<SplashVideo> {
     controller.addListener(() {
       if (controller.value.position == controller.value.duration) {
         // Navigate to another screen when video finishes
-        Future.delayed(Duration(seconds: 1)).whenComplete((){
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SplashFirst()),
-          );
+        Future.delayed(Duration(seconds: Platform.isIOS? 3 :1)).whenComplete((){
+          Get.off(()=> SplashFirst());
         });
       }
     });

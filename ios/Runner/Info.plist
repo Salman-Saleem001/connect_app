@@ -46,7 +46,9 @@
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow microphone access video recording</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow gallery access to update your prrofile</string>
+	<string>Allow gallery access to update your profile and for video editing</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Allow gallery access to update your profile and for video editing</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
