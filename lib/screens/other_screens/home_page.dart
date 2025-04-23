@@ -125,10 +125,13 @@ class HomePageFeed extends StatelessWidget {
                                       const SizedBox(
                                         height: 10,
                                       ),
-                                      Text(
-                                        video?.info ?? '',
-                                        style: normalText(size: 12)
-                                            .copyWith(color: Colors.white),
+                                      SizedBox(
+                                        width: 200,
+                                        child: Text(
+                                          video?.info ?? '',
+                                          style: normalText(size: 12)
+                                              .copyWith(color: Colors.white),
+                                        ),
                                       ),
                                       if (video?.id != null)
                                         Column(

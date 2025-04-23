@@ -181,7 +181,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
           if (filterColor != null)
             Positioned.fill(
               child: ColoredBox(
-                  color: (filterColor ?? Colors.transparent).withOpacity(.4)),
+                  color: (filterColor ?? Colors.transparent).withValues(alpha: .4)),
             ),
           showTextField
               ? Center(
@@ -451,7 +451,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                           fit: BoxFit.cover,
                           height: 50,
                           width: 100,
-                          color: AppColors.defaultColors[index].withOpacity(.4),
+                          color: AppColors.defaultColors[index].withValues(alpha: .4),
                           colorBlendMode: BlendMode.overlay,
                         ),
                       ),
@@ -513,7 +513,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
                         tapiocaBalls.add(
                           TapiocaBall.textOverlay(values ?? '', xPosition,
-                              yPosition, 32, const Color(0xffffc0cb)),
+                              yPosition, 32,  Colors.white),
                         );
                       }
                       if (tapiocaBalls.isNotEmpty) {

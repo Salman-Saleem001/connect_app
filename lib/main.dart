@@ -16,14 +16,9 @@ import 'package:connect_app/utils/app_theme_input_dec.dart';
 import 'package:connect_app/utils/login_details.dart';
 import 'package:connect_app/widgets/error_handler.dart';
 
-
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-
-
-
   FlutterError.onError = (details) {
     FlutterError.presentError(details);
     EasyLoading.dismiss();
@@ -34,7 +29,6 @@ Future<void> main() async {
     });
     return true;
   };
-
   ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
     return CustomError(
       errorDetails: errorDetails,
