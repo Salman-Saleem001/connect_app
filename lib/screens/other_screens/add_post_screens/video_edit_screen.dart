@@ -513,7 +513,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                         int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
                         tapiocaBalls.add(
                           TapiocaBall.textOverlay(values ?? '', xPosition,
-                              yPosition, 32,  Colors.white),
+                              yPosition+100, 28,  Colors.white),
                         );
                       }
                       if (tapiocaBalls.isNotEmpty) {
