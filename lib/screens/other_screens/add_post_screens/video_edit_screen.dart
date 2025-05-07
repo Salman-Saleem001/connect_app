@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 import 'package:connect_app/extensions/string_extensions.dart';
 import 'package:connect_app/utils/app_colors.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:ffmpeg_kit_flutter_full_gpl/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_full_gpl/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -26,7 +26,11 @@ class VideoEditScreen extends StatefulWidget {
   final Function? onSend;
 
   const VideoEditScreen(
-      {super.key, required this.filePath, this.isVideo = false, required this.fromMessage, this.onSend});
+      {super.key,
+      required this.filePath,
+      this.isVideo = false,
+      required this.fromMessage,
+      this.onSend});
 
   @override
   State<VideoEditScreen> createState() => _VideoEditScreenState();
@@ -109,6 +113,23 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
     await Future.delayed(const Duration(seconds: 2));
   }
 
+  Future<String> _copyFontToDevice() async {
+    // 1. Get asset font as bytes
+    final byteData =
+        await rootBundle.load('assets/fonts/SF-Pro-Display-Bold.otf');
+
+    // 2. Get application documents directory
+    final dir = await getApplicationDocumentsDirectory();
+    final fontFile = File('${dir.path}/SF-Pro-Display-Bold.ttf');
+
+    // 3. Write font to device
+    await fontFile.writeAsBytes(byteData.buffer
+        .asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
+
+    return fontFile
+        .path; // Returns absolute path like: /data/user/0/com.example.app/files/MyFont.ttf
+  }
+
   Future<void> mergeFiles(String filePath) async {
     final tempDir = await getTemporaryDirectory();
     String outputUrl =
@@ -118,48 +139,104 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
     if (await File(outputUrl).exists()) {
       await File(outputUrl).delete();
     }
-
+    String escapedText = '';
+    if (values?.isNotEmpty == true && (values?.length ?? 0) > 6) {
+      List<String> lines = breakTextIntoLines(values ?? '');
+      for (var e in lines) {
+        escapedText += '$e\n';
+      }
+      debugPrint(escapedText);
+    } else {
+      escapedText = values ?? '';
+    }
     // FFmpeg command to merge audio and video while preserving the original audio
-    String commandToExecute =
-        '-i $filePath -i $audioUrlName -filter_complex "[0:a][1:a]amerge=inputs=2[a]" -map 0:v -map "[a]" -c:v copy -ac 2 $outputUrl';
+    String commandToExecute;
+
+    if (values?.isNotEmpty == true && selectedAudio != null) {
+      debugPrint("Called from 1");
+      String path = await _copyFontToDevice();
+      commandToExecute = '-y -i "$filePath" -i "$audioUrlName" '
+          '-filter_complex "[0:v]drawtext='
+          'fontfile=$path:'
+          'text=\'$escapedText\':'
+          'fontcolor=white:'
+          'fontsize=36:'
+          'box=1:'
+          'boxcolor=black@0.1:'
+          'boxborderw=10:'
+          'x=(w-text_w)/2:'
+          'y=(h-text_h)/2+200'
+          '[v];'
+          '[0:a][1:a]amerge=inputs=2[a]" '
+          '-map "[v]" -map "[a]" -c:v libx264 -ac 2 -shortest "$outputUrl"';
+    } else if (values?.isNotEmpty == true) {
+      debugPrint("Called from 2");
+
+      String path = await _copyFontToDevice();
+      commandToExecute = '-y -i "$filePath" '
+          '-vf "drawtext='
+          'fontfile=$path:'
+          'text=\'$escapedText\':'
+          'fontcolor=white:'
+          'fontsize=36:'
+          'box=1:'
+          'boxcolor=black@0.1:'
+          'boxborderw=10:'
+          'x=(w-text_w)/2:'
+          'y=(h-text_h)/2+200" ' // <-- space here is important!
+          '-c:v libx264 -c:a copy "$outputUrl"';
+
+      // 'ffmpeg -y -i "$filePath" '
+      //     '-vf "drawtext=fontfile=\'$path\':text=\'$escapedText\':'
+      //     'fontcolor=white:fontsize=36:box=1:boxcolor=black@0.1:boxborderw=10:'
+      //     'x=(w-text_w)/2:y=(h-text_h)/2+200" '
+      //     '-c:v libx264 -c:a copy "$outputUrl"';
+    } else {
+      debugPrint("Called from 3");
+
+      commandToExecute =
+          '-i $filePath -i $audioUrlName -filter_complex "[0:a][1:a]amerge=inputs=2[a]" -map 0:v -map "[a]" -c:v copy -ac 2 $outputUrl';
+    }
 
     // Execute the FFmpeg command
-    FFmpegKit.execute(commandToExecute).then((session) async {
+    await FFmpegKit.execute(commandToExecute).then((session) async {
+      final logs = await session.getAllLogsAsString();
       final returnCode = await session.getReturnCode();
 
       if (ReturnCode.isSuccess(returnCode)) {
-        setState(() {
-          outputUrlName = outputUrl;
-        });
+        outputUrlName = outputUrl;
         debugPrint("Merge successful: $outputUrl");
       } else if (ReturnCode.isCancel(returnCode)) {
         debugPrint("Merge canceled");
       } else {
-        debugPrint("Merge failed with return code: $returnCode");
+        debugPrint("Merge failed with return code: $returnCode and $logs");
       }
     }).catchError((error) {
       debugPrint("Error during merge: $error");
     });
   }
 
-  // Future<void> mergeFiles(String filePath) async {
-  //   final tempDir = await getTemporaryDirectory();
-  //   String outputUrl =
-  //       '${tempDir.path}/output_${DateTime.now().millisecondsSinceEpoch}.mp4';
-  //   if (await File(outputUrl).exists()) {
-  //     File(outputUrl).delete();
-  //   }
-  //   String commandToExecute =
-  //       '-i $audioUrlName -i $filePath -c copy $outputUrl';
-  //   FFmpegKit.execute(commandToExecute).then((value) {
-  //     setState(() {
-  //       outputUrlName = outputUrl;
-  //     });
-  //
-  //     debugPrint("DURUM: $value");
-  //   });
-  //   debugPrint("DURUM: ${await Directory(outputUrlName ?? '').exists()}");
-  // }
+  List<String> breakTextIntoLines(String text, {int maxCharsPerLine = 25}) {
+    List<String> words = text.split(' ');
+    List<String> lines = [];
+    String currentLine = '';
+
+    if (words.length == 1) {
+      return words;
+    }
+
+    for (final word in words) {
+      if ((currentLine + word).length >= maxCharsPerLine) {
+        lines.add(currentLine.trim());
+        currentLine = '';
+      }
+      currentLine += '$word ';
+    }
+    if (currentLine.trim().isNotEmpty) {
+      lines.add(currentLine.trim());
+    }
+    return lines;
+  }
 
   void _disableEventReceiver() {
     _streamSubscription.cancel();
@@ -174,43 +251,47 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
       body: Stack(
         children: [
           widget.isVideo
-              ? SizedBox.expand(child: EditVideoView( url: widget.filePath,fit: BoxFit.none,))
+              ? SizedBox.expand(
+                  child: EditVideoView(
+                  url: widget.filePath,
+                  fit: BoxFit.none,
+                ))
               : Image.file(
                   File(widget.filePath),
                 ),
           if (filterColor != null)
             Positioned.fill(
               child: ColoredBox(
-                  color: (filterColor ?? Colors.transparent).withValues(alpha: .4)),
+                  color: (filterColor ?? Colors.transparent)
+                      .withValues(alpha: .4)),
             ),
-          showTextField
-              ? Center(
-                  child: TextField(
-                    autofocus: true,
-                    onChanged: (val) {
-                      values = val;
-                    },
-                    enableIMEPersonalizedLearning: true,
-                    style: regularText(size: 24).copyWith(color: Colors.white),
-                    textAlign: TextAlign.center,
-                    cursorColor: Colors.black,
-                    maxLines: null,
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: Colors.transparent,
-                      border: InputBorder.none,
-                    ),
-                  ),
-                )
-              : Center(
-                child: Text(
-                    values ?? '',
-                    textAlign: TextAlign.center,
-                    style: regularText(size: 24).copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
+          Center(
+            child: showTextField? TextField(
+              autofocus: true,
+              onChanged: (val) {
+                values = val;
+              },
+              enableIMEPersonalizedLearning: true,
+              style: regularText(size: 24).copyWith(color: Colors.white),
+              textAlign: TextAlign.center,
+              cursorColor: Colors.black,
+              maxLines: null,
+              decoration: const InputDecoration(
+                filled: true,
+                fillColor: Colors.transparent,
+                border: InputBorder.none,
               ),
+            ): SizedBox(
+              width: 300,
+              child: Text(
+                values ?? '',
+                textAlign: TextAlign.center,
+                style: regularText(size: 24).copyWith(
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
           Positioned(
               right: 40,
               top: height / 3,
@@ -243,7 +324,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                             builder: (_) {
                               ValueNotifier<int> onClicked = ValueNotifier(-1);
                               ValueNotifier<String> selected =
-                              ValueNotifier('');
+                                  ValueNotifier('');
                               return PopScope(
                                 onPopInvokedWithResult: (val, results) {
                                   audioPlayer.stop();
@@ -268,10 +349,10 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                                                 String value, Widget? child) {
                                               return GestureDetector(
                                                 behavior:
-                                                HitTestBehavior.opaque,
+                                                    HitTestBehavior.opaque,
                                                 onTap: () {
                                                   selectedAudio =
-                                                  audios?[index];
+                                                      audios?[index];
                                                   selected.value =
                                                       audios?[index] ?? '';
                                                   debugPrint(
@@ -279,52 +360,52 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                                                 },
                                                 child: ClipRRect(
                                                   borderRadius:
-                                                  BorderRadius.circular(10),
+                                                      BorderRadius.circular(10),
                                                   child: ColoredBox(
                                                     color: selected.value ==
-                                                        audios?[index]
+                                                            audios?[index]
                                                         ? Colors.white
                                                         : Colors.transparent,
                                                     child: Padding(
                                                       padding:
-                                                      const EdgeInsets.all(
-                                                          8.0),
+                                                          const EdgeInsets.all(
+                                                              8.0),
                                                       child: Row(
                                                         mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
                                                         children: [
                                                           Text(
                                                             audios?[index]
-                                                                .capitalizeText() ??
+                                                                    .capitalizeText() ??
                                                                 '',
                                                             style: regularText(size: 24).copyWith(
                                                                 color: selected
-                                                                    .value ==
-                                                                    audios?[
-                                                                    index]
+                                                                            .value ==
+                                                                        audios?[
+                                                                            index]
                                                                     ? Colors
-                                                                    .black
+                                                                        .black
                                                                     : Colors
-                                                                    .white),
+                                                                        .white),
                                                           ),
                                                           ValueListenableBuilder(
                                                             valueListenable:
-                                                            onClicked,
+                                                                onClicked,
                                                             builder:
                                                                 (BuildContext
-                                                            context,
-                                                                int value,
-                                                                Widget?
-                                                                child) {
+                                                                        context,
+                                                                    int value,
+                                                                    Widget?
+                                                                        child) {
                                                               return GestureDetector(
                                                                 behavior:
-                                                                HitTestBehavior
-                                                                    .opaque,
+                                                                    HitTestBehavior
+                                                                        .opaque,
                                                                 onTap:
                                                                     () async {
                                                                   audioClicked =
-                                                                  !audioClicked;
+                                                                      !audioClicked;
                                                                   if (audioClicked) {
                                                                     debugPrint(
                                                                         "$value");
@@ -338,31 +419,31 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                                                                         .play();
                                                                   }
                                                                   if (onClicked
-                                                                      .value ==
+                                                                          .value ==
                                                                       index) {
                                                                     onClicked
                                                                         .value = -1;
                                                                   } else {
                                                                     onClicked
-                                                                        .value =
+                                                                            .value =
                                                                         index;
                                                                   }
                                                                 },
                                                                 child: Icon(
                                                                   value == index
                                                                       ? Icons
-                                                                      .pause
+                                                                          .pause
                                                                       : Icons
-                                                                      .play_arrow,
+                                                                          .play_arrow,
                                                                   size: 24,
                                                                   color: selected
-                                                                      .value ==
-                                                                      audios?[
-                                                                      index]
+                                                                              .value ==
+                                                                          audios?[
+                                                                              index]
                                                                       ? Colors
-                                                                      .black
+                                                                          .black
                                                                       : Colors
-                                                                      .white,
+                                                                          .white,
                                                                 ),
                                                               );
                                                             },
@@ -386,25 +467,28 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                                       right: 20,
                                       child: ValueListenableBuilder(
                                         valueListenable: selected,
-                                        builder: (BuildContext context,String value, Widget? child) {
-                                          if(value.isNotEmpty){
+                                        builder: (BuildContext context,
+                                            String value, Widget? child) {
+                                          if (value.isNotEmpty) {
                                             return GestureDetector(
-                                              onTap: (){
+                                              onTap: () {
                                                 Get.back();
                                               },
                                               child: const DecoratedBox(
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   shape: BoxShape.circle,
-
                                                 ),
                                                 child: Padding(
                                                   padding: EdgeInsets.all(10.0),
-                                                  child: Icon(Icons.check,color: Colors.black,),
+                                                  child: Icon(
+                                                    Icons.check,
+                                                    color: Colors.black,
+                                                  ),
                                                 ),
                                               ),
                                             );
-                                          }else{
+                                          } else {
                                             return const SizedBox.shrink();
                                           }
                                         },
@@ -451,7 +535,8 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                           fit: BoxFit.cover,
                           height: 50,
                           width: 100,
-                          color: AppColors.defaultColors[index].withValues(alpha: .4),
+                          color: AppColors.defaultColors[index]
+                              .withValues(alpha: .4),
                           colorBlendMode: BlendMode.overlay,
                         ),
                       ),
@@ -472,114 +557,142 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                 backButton: true,
                 title: 'Edit ${widget.isVideo ? 'Video' : 'Image'} ',
                 marginTop: 25,
-                onTap: !widget.fromMessage? (){
-                  Get.off(()=> NavBarScreen());
-                }: null
-            ),
+                onTap: !widget.fromMessage
+                    ? () {
+                        Get.off(() => NavBarScreen());
+                      }
+                    : null),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-                color: Colors.white,
-                padding:
-                     EdgeInsets.symmetric(horizontal: !isLoading? 30: width/2.18, vertical: 20),
-                width: double.infinity,
-                child: !isLoading? PrimaryButton(
-                    label: 'Save Changes',
-                    onPress: () async {
-                      // debugPrint("clicked!");
-                      setState(() {
-                        isLoading = true;
-                      });
-                      List<TapiocaBall> tapiocaBalls = [];
-                      if (filterColor != null) {
-                        tapiocaBalls.add(
-                            TapiocaBall.filterFromColor(filterColor!, 0.4));
-                      }
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(
+                  horizontal: !isLoading ? 30 : width / 2.18, vertical: 20),
+              width: double.infinity,
+              child: !isLoading
+                  ? PrimaryButton(
+                      label: 'Save Changes',
+                      onPress: () async {
+                        // debugPrint("clicked!");
+                        setState(() {
+                          isLoading = true;
+                        });
+                        List<TapiocaBall> tapiocaBalls = [];
+                        if (filterColor != null) {
+                          tapiocaBalls.add(
+                              TapiocaBall.filterFromColor(filterColor!, 0.4));
+                        }
 
-                      if (values != null && values?.isNotEmpty == true) {
-                        TextPainter textPainter = TextPainter(
-                          text: TextSpan(
-                            text: values,
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                          textDirection: TextDirection.ltr,
-                        );
-                        textPainter.layout();
-                        int textWidth = textPainter.width.toInt();
-                        int textHeight = textPainter.height.toInt();
-
-                        int xPosition = (width / 2).toInt() - (textWidth ~/ 2);
-                        int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
-                        tapiocaBalls.add(
-                          TapiocaBall.textOverlay(values ?? '', xPosition,
-                              yPosition, 32,  Colors.white),
-                        );
-                      }
-                      if (tapiocaBalls.isNotEmpty) {
-                        try {
-                          var tempDir = await getTemporaryDirectory();
-                          final path =
-                              '${tempDir.path}/result_${DateTime.now().millisecondsSinceEpoch}.mp4';
-                          debugPrint(
-                              "will start in Path==>${outputUrlName ?? widget.filePath}");
-                          final cup =
-                              Cup(Content(widget.filePath), tapiocaBalls);
-                          await cup.suckUp(path).then((_) async {
-                            setState(() {
-                              processPercentage = 0;
-                            });
-                            if (selectedAudio != null) {
-                              await audioFilePick(path);
-                            }
-                            if(widget.fromMessage){
-                              await chatController.uploadToStorage(File(
-                                   outputUrlName ?? widget.filePath)).then((val)async{
-                                if(val){
-                                  await widget.onSend!();
-                                  Get..back()..back(result: val);
-                                }
+                        // if (values != null && values?.isNotEmpty == true) {
+                        //   TextPainter textPainter = TextPainter(
+                        //     text: TextSpan(
+                        //       text: values,
+                        //       style: const TextStyle(fontSize: 32),
+                        //     ),
+                        //     textDirection: TextDirection.ltr,
+                        //   );
+                        //   textPainter.layout();
+                        //   int textWidth = textPainter.width.toInt();
+                        //   int textHeight = textPainter.height.toInt();
+                        //
+                        //   int xPosition = (width / 2).toInt() - (textWidth ~/ 2);
+                        //   int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
+                        //   tapiocaBalls.add(
+                        //     TapiocaBall.textOverlay(values ?? '', xPosition,
+                        //         yPosition, 32,  Colors.white),
+                        //   );
+                        // }
+                        if (tapiocaBalls.isNotEmpty) {
+                          try {
+                            var tempDir = await getTemporaryDirectory();
+                            final path =
+                                '${tempDir.path}/result_${DateTime.now().millisecondsSinceEpoch}.mp4';
+                            debugPrint(
+                                "will start in Path==>${outputUrlName ?? widget.filePath}");
+                            final cup =
+                                Cup(Content(widget.filePath), tapiocaBalls);
+                            await cup.suckUp(path).then((_) async {
+                              setState(() {
+                                processPercentage = 0;
                               });
-
-                            }else{
-                              Get..back()..off(() => CreatePostScreen(
-                                filePath: outputUrlName != null
-                                    ? outputUrlName ?? ''
-                                    : path,
-                                isVideo: widget.isVideo, fromMessage: widget.fromMessage,
-                              ));
-                            }
-                            setState(() {
-                              isLoading = false;
+                              if (selectedAudio != null) {
+                                await audioFilePick(path);
+                              } else if (values?.isNotEmpty == true) {
+                                await mergeFiles(path);
+                              }
+                              if (widget.fromMessage) {
+                                await chatController
+                                    .uploadToStorage(
+                                        File(outputUrlName ?? widget.filePath))
+                                    .then((val) async {
+                                  if (val) {
+                                    await widget.onSend!();
+                                    Get
+                                      ..back()
+                                      ..back(result: val);
+                                  }
+                                });
+                              } else {
+                                debugPrint(
+                                    "Here is output Url name===> $outputUrlName and filePath==> ${widget.filePath}");
+                                Get
+                                  ..back()
+                                  ..off(() => CreatePostScreen(
+                                        filePath: outputUrlName != null
+                                            ? outputUrlName ?? ''
+                                            : path,
+                                        isVideo: widget.isVideo,
+                                        fromMessage: widget.fromMessage,
+                                      ));
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }).catchError((e) {
+                              debugPrint('Got error: $e');
                             });
-                          }).catchError((e) {
-                            debugPrint('Got error: $e');
-                          });
-                        } on PlatformException {
-                          debugPrint("error!!!!");
+                          } on PlatformException {
+                            debugPrint("error!!!!");
+                          }
+                        } else {
+                          if (selectedAudio != null) {
+                            await audioFilePick(widget.filePath);
+                          } else if (values?.isNotEmpty == true) {
+                            await mergeFiles(widget.filePath);
+                          }
+                          if (widget.fromMessage) {
+                            await chatController
+                                .uploadToStorage(File(
+                              outputUrlName ?? widget.filePath,
+                            ))
+                                .then((val) async {
+                              if (val) {
+                                await widget.onSend!();
+                                Get
+                                  ..back()
+                                  ..back(result: val);
+                              }
+                            });
+                          } else {
+                            debugPrint(
+                                "Here is output Url name===> $outputUrlName and filePath==> ${widget.filePath}");
+                            Get
+                              ..back()
+                              ..off(() => CreatePostScreen(
+                                    filePath: outputUrlName ?? widget.filePath,
+                                    isVideo: true,
+                                    fromMessage: widget.fromMessage,
+                                  ));
+                          }
                         }
-                      } else {
-                        if (selectedAudio != null) {
-                          await audioFilePick(widget.filePath);
-                        }
-                        if(widget.fromMessage){
-                          await chatController.uploadToStorage(File(outputUrlName ?? widget.filePath,)).then((val)async{
-                            if(val){
-                              await widget.onSend!();
-                              Get..back()..back(result: val);
-                            }
-                          });
-
-                        }else{
-                          Get..back()..off(() => CreatePostScreen(
-                            filePath: outputUrlName ?? widget.filePath,
-                            isVideo: true, fromMessage: widget.fromMessage,
-                          ));
-                        }
-                      }
-                      filterColor=null;
-                      values= null;
-                    }): const CircularProgressIndicator(color: Colors.red,),),
+                        filterColor = null;
+                        values = null;
+                      })
+                  : const CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
+            ),
           ),
         ],
       ),
