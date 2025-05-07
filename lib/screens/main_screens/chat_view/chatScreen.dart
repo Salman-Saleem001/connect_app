@@ -84,6 +84,7 @@ class ChatDetailScreenNew extends StatelessWidget {
               child: GetBuilder(builder: (ChatDetailController chatController) {
                 if (chatController.isDataFetched.value) {
                   return SingleChildScrollView(
+                    padding: EdgeInsets.only(bottom: 100),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
