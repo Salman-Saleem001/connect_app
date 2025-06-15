@@ -13,7 +13,6 @@ class SplashVideo extends StatefulWidget {
 }
 
 class _SplashVideoState extends State<SplashVideo> {
-
   late VideoPlayerController controller;
 
   @override
@@ -21,30 +20,42 @@ class _SplashVideoState extends State<SplashVideo> {
     controller = VideoPlayerController.asset('assets/video/intro.mp4')
       ..initialize().then((_) {
         setState(() {}); // Ensure UI updates when the video is ready
-        controller.play(); // Start playing the video
-      });
-
-    controller.addListener(() {
-      if (controller.value.position == controller.value.duration) {
-        // Navigate to another screen when video finishes
-        Future.delayed(Duration(seconds: Platform.isIOS? 3 :1)).whenComplete((){
+        controller.play();// Start playing the video
+        Future.delayed(Duration(seconds:5 )).whenComplete((){
+          debugPrint("Getting Called");
           Get.off(()=> SplashFirst());
         });
-      }
-    });
+      });
+
+    // controller.addListener(() {
+    //   if (controller.value.position == controller.value.duration) {
+    //     // Navigate to another screen when video finishes
+    //     debugPrint("Getting Called");
+    //
+    //   }
+    // });
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox.expand(
-      child: VideoPlayer(controller),
+    return SafeArea(
+      child: SizedBox.expand(
+        child: FittedBox(
+          fit: BoxFit.cover,
+          child: SizedBox(
+            width: controller.value.size.width,
+            height: controller.value.size.height,
+            child: VideoPlayer(controller),
+          ),
+        ),
+      ),
     );
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     controller.dispose();
     super.dispose();
   }
