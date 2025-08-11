@@ -18,6 +18,7 @@ class AppColors {
   static Color borderlight = HexColor('#D0D1D3');
 
   static Color primaryColor = HexColor('#EF274D');
+  static Color videoBackground = HexColor('#FD2E38');
   static const redColor = Color.fromRGBO(233, 75, 62, 1);
 
   static Color textPrimary = HexColor('#1E232C');

@@ -34,12 +34,13 @@ class _VideoViewState extends State<VideoView> {
   late VideoPlayerController _controller;
 
   late Animation controller;
+  bool started = false;
+  bool play = false;
 
   @override
   void initState() {
     play = false;
     super.initState();
-
     if (widget.isAsset) {
       _controller = VideoPlayerController.asset(widget.url,
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
@@ -62,16 +63,11 @@ class _VideoViewState extends State<VideoView> {
         })
         ..setLooping(true);
     }
-
     if(widget.id!=null){
       var homeController= Get.put(HomeFeedController());
       homeController.postView(widget.id??0);
     }
-
   }
-
-  var started = false;
-  var play = false;
   void playVideo() {
     _controller.play();
     play = true;
