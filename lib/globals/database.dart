@@ -18,7 +18,13 @@ import '../utils/login_details.dart';
 
 
 class Database {
-  static FirebaseFirestore instance = FirebaseFirestore.instance;
+  static final Database _instance = Database._internal();
+
+  Database._internal();
+
+  factory Database() => _instance;
+  
+  static FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
   static FirebaseStorage storageInstance = FirebaseStorage.instance;
   static String userId =  (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
   initializeUser(){
@@ -28,13 +34,13 @@ class Database {
   Stream<QuerySnapshot<Object?>>? getChats({required int selected}) {
     if(selected==0){
       debugPrint('userId==>$userId');
-      return instance
+      return firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId).where('senderId', isEqualTo: userId )
           .snapshots();
     }else {
-      return instance
+      return firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId).where('receiverId', isEqualTo: userId )
@@ -45,7 +51,7 @@ class Database {
 
   Stream<QuerySnapshot<Object?>>? getRequestOnVideos({required int videoId}) {
     debugPrint(userId);
-      return instance
+      return firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId).where('receiverId', isEqualTo: userId ).where('videoId', isEqualTo: videoId)
@@ -56,7 +62,7 @@ class Database {
 
   getSingleChatDetail({required String secondUserId, required int videoId}) async {
     try {
-      DocumentSnapshot documentReference = await instance
+      DocumentSnapshot documentReference = await firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId)
@@ -113,7 +119,7 @@ class Database {
       required int videId,
       }) async {
     try {
-      instance
+      firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId)
@@ -130,10 +136,11 @@ class Database {
         'description': description,
         'messageData': videoUrl,
         'avatar': userAvatar,
-        'lastMessageTime': DateTime.now().toIso8601String(),
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'videoTime': FieldValue.serverTimestamp(),
         'chatsId': chatRoomId,
       });
-      instance
+      firestoreInstance
           .collection('chatRooms')
           .doc(secondUser)
           .collection(secondUser)
@@ -150,7 +157,8 @@ class Database {
         'lastMessageType': 'video',
         'messageData': videoUrl,
         'avatar': Get.find<UserDetail>().userData.user?.avatar,
-        'lastMessageTime': DateTime.now().toIso8601String(),
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'videoTime': FieldValue.serverTimestamp(),
         'chatsId': chatRoomId,
       });
     } on FirebaseException catch (e) {
@@ -164,21 +172,21 @@ class Database {
         required int videId,
       }) async {
     try {
-      instance
+      firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId)
           .doc('$secondUser$videId')
           .update({
-           'lastMessageTime': DateTime.now().toIso8601String(),
+           'lastMessageTime': FieldValue.serverTimestamp(),
       });
-      instance
+      firestoreInstance
           .collection('chatRooms')
           .doc(secondUser)
           .collection(secondUser)
           .doc('$userId$videId')
           .update({
-           'lastMessageTime': DateTime.now().toIso8601String(),});
+           'lastMessageTime': FieldValue.serverTimestamp(),});
     } on FirebaseException catch (e) {
       debugPrint("while updating last time $e");
     }
@@ -187,14 +195,14 @@ class Database {
   Future<bool> setAcceptanceStatus({required String secondUserId, required String status,required int videoId}) async {
     try {
       debugPrint({"sender": secondUserId, "status": status}.toString());
-        await instance
+        await firestoreInstance
           .collection('chatRooms')
           .doc(secondUserId)
           .collection(secondUserId)
           .doc('$userId$videoId')
           .update({'otherStatus': status});
 
-      await instance
+      await firestoreInstance
           .collection('chatRooms')
           .doc(userId)
           .collection(userId)
@@ -210,12 +218,12 @@ class Database {
   sendMessage({required String chatRoomId,required ChatDataModel model})async{
     try{
 
-      instance.collection('chats').doc(chatRoomId).collection(chatRoomId).add({
+      firestoreInstance.collection('chats').doc(chatRoomId).collection(chatRoomId).add({
         'senderId': userId,
         'userName': Get.find<UserDetail>().userData.user?.username,
         'lastMessageType': model.lastMessageType,
         'messageData': model.messageData,
-        'lastMessageTime': DateTime.now().toIso8601String(),
+        'lastMessageTime': FieldValue.serverTimestamp(),
       });
 
 
@@ -229,7 +237,7 @@ class Database {
 
 
   getMessages({required String chatRoomId}){
-    return instance
+    return firestoreInstance
           .collection('chats')
           .doc(chatRoomId)
           .collection(chatRoomId).orderBy('lastMessageTime',descending: true)
@@ -240,12 +248,12 @@ class Database {
   static Future<bool> listItem(ItemModel itemModel) async {
     try {
       if (itemModel.id != '') {
-        await instance
+        await firestoreInstance
             .collection("items")
             .doc(itemModel.id)
             .update(itemModel.toMap());
       } else {
-        await instance.collection("items").add(itemModel.toMap());
+        await firestoreInstance.collection("items").add(itemModel.toMap());
       }
       return true;
     } catch (e) {
@@ -256,7 +264,7 @@ class Database {
 
   static Future<bool> submitOrder(OrderModel orderModel) async {
     try {
-      await instance.collection("orders").add(orderModel.toMap());
+      await firestoreInstance.collection("orders").add(orderModel.toMap());
 
       return true;
     } catch (e) {
@@ -267,7 +275,7 @@ class Database {
 
   static Future<bool> submitRequest(RequestModel requestModel) async {
     try {
-      await instance.collection("requests").add(requestModel.toMap());
+      await firestoreInstance.collection("requests").add(requestModel.toMap());
 
       return true;
     } catch (e) {
@@ -279,7 +287,7 @@ class Database {
   static Future<bool> addToWishlist(String itemId) async {
     try {
       EasyLoading.show();
-      await instance.collection("wishlist").add({
+      await firestoreInstance.collection("wishlist").add({
         'itemId': itemId,
         'userId': Get.find<UserDetail>().userData.user!.id.toString()
       });
@@ -295,7 +303,7 @@ class Database {
   static Future<bool> removeWishlist(String id) async {
     try {
       EasyLoading.show();
-      await instance.collection("wishlist").doc(id).delete();
+      await firestoreInstance.collection("wishlist").doc(id).delete();
       EasyLoading.dismiss();
       return true;
     } catch (e) {
@@ -308,7 +316,7 @@ class Database {
   static Future<bool> updateRequesStatus(String id, String status) async {
     try {
       EasyLoading.show();
-      await instance.collection("requests").doc(id).update({'status': status});
+      await firestoreInstance.collection("requests").doc(id).update({'status': status});
       EasyLoading.dismiss();
 
       return true;
@@ -324,12 +332,12 @@ class Database {
     try {
       EasyLoading.show();
       if (status == OrderStatus.ordered) {
-        await instance
+        await firestoreInstance
             .collection("orders")
             .doc(id)
             .update({'status': status, 'pictures': picture});
       } else {
-        await instance
+        await firestoreInstance
             .collection("orders")
             .doc(id)
             .update({'status': status, 'dropPicture': picture});
@@ -347,7 +355,7 @@ class Database {
     try {
       EasyLoading.show();
 
-      await instance.collection("orders").doc(id).update({
+      await firestoreInstance.collection("orders").doc(id).update({
         'ratingDone': true,
       });
 
@@ -362,7 +370,7 @@ class Database {
 
   static Future<OrderModel?> checkPreviousReviews() async {
     try {
-      var query = await instance
+      var query = await firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
               fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
@@ -385,7 +393,7 @@ class Database {
   }
 
   static Stream<QuerySnapshot<DocModel>> getMyDocs(String type) {
-    return instance
+    return firestoreInstance
         .collection('users')
         .doc(userId)
         .collection('data')
@@ -400,7 +408,7 @@ class Database {
   }
 
   static Future<QuerySnapshot<DocModel>> getMyDocsFuture(String type) {
-    return instance
+    return firestoreInstance
         .collection('users')
         .doc(userId)
         .collection('data')
@@ -415,7 +423,7 @@ class Database {
   }
 
   static Stream<QuerySnapshot<ItemModel>> getMyListing() {
-    return instance
+    return firestoreInstance
         .collection('items')
         .withConverter<ItemModel>(
             fromFirestore: (r, _) => ItemModel.fromDocumentSnapshot(r),
@@ -429,7 +437,7 @@ class Database {
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> checkWishlist(String id) {
-    return instance
+    return firestoreInstance
         .collection('wishlist')
 
 
@@ -442,7 +450,7 @@ class Database {
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> getMyWishlist() {
-    return instance
+    return firestoreInstance
         .collection('wishlist')
         .where(
           'userId',
@@ -452,7 +460,7 @@ class Database {
   }
 
   static Stream<QuerySnapshot<RequestModel>> getMyRequest() {
-    return instance
+    return firestoreInstance
         .collection('requests')
         .withConverter<RequestModel>(
             fromFirestore: (r, _) => RequestModel.fromDocumentSnapshot(r),
@@ -471,7 +479,7 @@ class Database {
       {bool getIncoming = false}) {
     String key = getIncoming ? 'requestTo' : 'requestBy';
     if (status == 0) {
-      return instance
+      return firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
               fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
@@ -482,7 +490,7 @@ class Database {
           )
           .snapshots();
     } else if (status == 1) {
-      return instance
+      return firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
               fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
@@ -494,7 +502,7 @@ class Database {
           .where('status', isEqualTo: OrderStatus.picked)
           .snapshots();
     } else {
-      return instance
+      return firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
               fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
@@ -520,7 +528,7 @@ class Database {
 
   static Stream<QuerySnapshot<ChatGroupModel>> getChatRoomStatus(
       String userId) {
-    return instance
+    return firestoreInstance
         .collection('chats')
         .withConverter<ChatGroupModel>(
             fromFirestore: (r, _) => ChatGroupModel.fromMap(r),

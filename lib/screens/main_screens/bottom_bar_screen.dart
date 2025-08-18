@@ -13,7 +13,9 @@ import 'package:connect_app/utils/text_styles.dart';
 
 import '../../controllers/searchScreen_controller.dart';
 import '../../globals/adaptive_helper.dart';
+import '../../globals/database.dart';
 import '../../utils/app_colors.dart';
+import '../../utils/login_details.dart';
 import 'chat_view/all_chats.dart';
 
 class NavBarScreen extends StatefulWidget {
@@ -29,10 +31,17 @@ class _NavBarScreenState extends State<NavBarScreen>
 
   @override
   void initState() {
-    controller.changeTab(0);
     super.initState();
+    controller.changeTab(0);
+    initializeUser();
     controller.animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 250));
+  }
+
+  initializeUser()async{
+    var user = Get.put(UserDetail());
+    await user.getUserData();
+    Database().initializeUser();
   }
 
   @override
@@ -92,9 +101,9 @@ class _NavBarScreenState extends State<NavBarScreen>
                 onTap: () {
                   value.changeTab(0);
                   var homeController = Get.put(HomeFeedController());
-                  homeController.selectedCategory.value = 'Recommended';
-                  if (homeController.recommendedPosts?.posts?.isEmpty == true) {
-                    homeController.getContent();
+                  homeController.selectedCategory.value = 'My feed';
+                  if (homeController.trendingPosts.posts?.isEmpty == true) {
+                    homeController.getTrendingContent();
                   }
                 },
                 child: Container(

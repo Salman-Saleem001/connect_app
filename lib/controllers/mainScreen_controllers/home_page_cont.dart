@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart' hide Location;
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -18,24 +18,30 @@ import '../../globals/rest_api/app_apis.dart';
 import '../../models/content_videos.dart';
 import '../../models/country_model.dart';
 import '../../models/posts_model.dart';
+import '../../services/google_map/api_service.dart';
+import '../../services/google_map/google_address_model.dart';
+import '../../services/google_map/map_key.dart';
 import '../../services/http_services.dart';
 import '../../utils/login_details.dart';
 
 class HomeFeedController extends GetxController {
   List<CameraDescription> cameras = <CameraDescription>[];
-  final Completer<GoogleMapController> controller = Completer<GoogleMapController>();
+  final Completer<GoogleMapController> controller =
+      Completer<GoogleMapController>();
   PostModel postModel = PostModel(posts: <Post>[]);
   late PageController pageController;
   List<String>? tags;
-  RxBool fetchingTags= false.obs;
+  RxBool loadingNext = false.obs;
+  RxBool fetchingTags = false.obs;
   RxBool fetchingPosts = false.obs;
   RxBool fetchingRecommendedPosts = false.obs;
   RxBool fetchingTrendingPosts = false.obs;
-  RxList<Placemark> addresses= <Placemark>[].obs;
+  RxList<Placemark> addresses = <Placemark>[].obs;
   Position? position;
   String? reviewDescrioption;
   double? rating;
-
+  // Rx<Stats>? stats;
+  RxSet<Marker>? dataOfMarker;
   // RxList<bool> isLiked = <bool>[].obs;
 
   List<CscPicker> cscPicker = [];
@@ -43,11 +49,11 @@ class HomeFeedController extends GetxController {
   List<ContentVideos> addLater = [];
   List<ContentVideos> dynamicVideo = [];
 
-  PostModel? recommendedPosts;
+  PostModel recommendedPosts= PostModel(posts: <Post>[]);
   PostModel trendingPosts = PostModel(posts: <Post>[]);
   PostModel featuredPosts = PostModel(posts: <Post>[]);
-  PostModel eventPosts = PostModel(posts: <Post>[]);
-  var selectedCategory = 'Recommended'.obs;
+  // PostModel eventPosts = PostModel(posts: <Post>[]);
+  var selectedCategory = 'My feed'.obs;
 
   RxBool fetchingRecommended = false.obs;
   RxBool fetchingTrending = false.obs;
@@ -56,21 +62,28 @@ class HomeFeedController extends GetxController {
 
   @override
   void onInit() {
-    debugPrint("OInit Run====>${Get.find<UserDetail>().userData.token.toString()}");
-    pageController= PageController();
-    getContent();
+    // debugPrint(
+    //     "OInit Run====>${Get.find<UserDetail>().userData.token.toString()}");
+    pageController = PageController();
+    // getContent();
     getRecommendedContent();
     getTrendingContent();
     getFeaturedContent();
-    getEventContent();
+    // getEventContent();
     getCameras();
+    getLocation();
     super.onInit();
   }
 
   bool loading = true;
 
-  changeLike(int index) {
 
+  changeScreen(){
+    loadingNext.value= !loadingNext.value;
+    update();
+  }
+
+  changeLike(int index) {
     // isLiked[index] = !isLiked[index];
     // postModel.posts?[index].likesCount = isLiked[index]
     //     ? (postModel.posts?[index].likesCount ?? 0) + 1
@@ -80,7 +93,6 @@ class HomeFeedController extends GetxController {
 
   Future<void> getContent() async {
     // debugPrint("Getting Run====>${Get.find<UserDetail>().userData.token.toString()}");
-
 
     EasyLoading.show();
     fetchingPosts.value = true;
@@ -112,10 +124,11 @@ class HomeFeedController extends GetxController {
     fetchingRecommended.value = true;
     EasyLoading.show(); // Show loading indicator
 
-    var response = await HttpsServices.getPostsHome(token: Get.find<UserDetail>().userData.token.toString(),type: AppApis.getRecommendedPosts);
+    var response = await HttpsServices.getPostsHome(
+        token: Get.find<UserDetail>().userData.token.toString(),
+        type: AppApis.getRecommendedPosts);
 
-    if (response != null&& response is PostModel) {
-
+    if (response != null && response is PostModel) {
       recommendedPosts = response; // Update the recommended posts
       // debugPrint("Here is my response===> ${recommendedPosts?.toJson().toString()}");
     } else {
@@ -128,43 +141,51 @@ class HomeFeedController extends GetxController {
 
     fetchingRecommended.value = false;
     EasyLoading.dismiss(); // Hide loading indicator
+    update();
   }
 
-
   Future<void> getTrendingContent() async {
+
+    debugPrint("getting trending");
     fetchingTrending.value = true;
-    var response = await HttpsServices.getPostsHome(token: Get.find<UserDetail>().userData.token.toString(),type: AppApis.getTrendingPosts);
+    var response = await HttpsServices.getPostsHome(
+        token: Get.find<UserDetail>().userData.token.toString(),
+        type: AppApis.getTrendingPosts);
     if (response != null && response is PostModel) {
       trendingPosts = response;
     }
     fetchingTrending.value = false;
+    update();
   }
 
   Future<void> getFeaturedContent() async {
+
+    debugPrint("Getting featured");
     fetchingFeatured.value = true;
-    var response = await HttpsServices.getPostsHome(token: Get.find<UserDetail>().userData.token.toString());
+    var response = await HttpsServices.getPostsHome(
+        token: Get.find<UserDetail>().userData.token.toString());
     if (response != null && response is PostModel) {
       featuredPosts = response;
     }
     fetchingFeatured.value = false;
+    update();
   }
 
-  Future<void> getEventContent() async {
-    fetchingEvents.value = true;
-    var response = await HttpsServices.getPostsHome(token: Get.find<UserDetail>().userData.token.toString());
-    if (response != null && response is PostModel) {
-      eventPosts = response;
-    }
-    fetchingEvents.value = false;
-  }
-
-
-
+  // Future<void> getEventContent() async {
+  //   fetchingEvents.value = true;
+  //   var response = await HttpsServices.getPostsHome(
+  //       token: Get.find<UserDetail>().userData.token.toString());
+  //   if (response != null && response is PostModel) {
+  //     // eventPosts = response;
+  //   }
+  //   fetchingEvents.value = false;
+  // }
 
   Future<void> getTags() async {
     EasyLoading.show();
     fetchingTags.value = true;
-    var response = jsonDecode(await HttpsServices.getApiCall(url: AppApis.getTags));
+    var response =
+        jsonDecode(await HttpsServices.getApiCall(url: AppApis.getTags));
 
     if (response == null) {
       Global.showToastAlert(
@@ -174,39 +195,40 @@ class HomeFeedController extends GetxController {
           toastType: TOAST_TYPE.toastError);
       return;
     }
-    tags= response["tags"] == null ? [] : List<String>.from(response["tags"]!.map((x) => x["name"]));
-    tags?.forEach((val){
+    tags = response["tags"] == null
+        ? []
+        : List<String>.from(response["tags"]!.map((x) => x["name"]));
+    tags?.forEach((val) {
       debugPrint('Here is my Tag===>$val ');
     });
     fetchingTags.value = false;
     EasyLoading.dismiss();
   }
 
-  toggle(int id)async{
+  toggle(int id) async {
+    var response = await HttpsServices.likeToggle(
+        id, Get.find<UserDetail>().userData.token.toString());
 
-    var response= await  HttpsServices.likeToggle(id,Get.find<UserDetail>().userData.token.toString());
-
-
-
-    if(response!=null){
+    if (response != null) {
       debugPrint("Here is the response===> ${response.toString()}");
     }
-
   }
 
-postView(int id , String country )async{
-    try{
-      var response= await HttpsServices.postApiCall(url: '${AppApis.viewedPostApi}$id?country=$country&ip_address&device&latitude&longitude',);
-      if(response!=null){
+  postView(int id) async {
+    try {
+      debugPrint(
+          "Post Viewed===>${AppApis.viewedPostApi}$id?country=${addresses.first.country ?? 'Pakistan'}&ip_address&device&${position?.latitude ?? 0.0}&${position?.longitude ?? 0.0}");
+      var response = await HttpsServices.postApiCall(
+        url:
+            '${AppApis.viewedPostApi}$id?country=${addresses.first.country ?? 'Pakistan'}&ip_address&device&${position?.latitude ?? 0.0}&${position?.longitude ?? 0.0}',
+      );
+      if (response != null) {
         debugPrint('Here is the response===>$response');
       }
-
-    }catch(e){
+    } catch (e) {
       debugPrint("Error while view post is on");
     }
-}
-
-
+  }
 
   Future<bool> setPost({
     required String title,
@@ -241,7 +263,7 @@ postView(int id , String country )async{
           strTitle: "Message",
           strMsg: 'Something Went Wrong. Try Checking Your Internet Connect',
           toastType: TOAST_TYPE.toastError);
-    } else if (response !=null) {
+    } else if (response != null) {
       debugPrint("Here is my response===> $response");
       EasyLoading.dismiss();
       return true;
@@ -257,25 +279,20 @@ postView(int id , String country )async{
     return false;
   }
 
+  Future<bool> sendTags(String val) async {
+    try {
+      var response = await HttpsServices.postApiCall(
+          url: AppApis.getTags, body: {"name": val});
 
-  Future<bool> sendTags(String val)async{
-    try{
-      var response=await  HttpsServices.postApiCall(url: AppApis.getTags, body: {
-        "name" : val
-      });
-
-      if(response !=null){
+      if (response != null) {
         return true;
       }
-
-
-    }catch(e){
+    } catch (e) {
       debugPrint('Some thing Went wrong====>$e');
     }
 
     return false;
   }
-
 
   changePage(int i) {
     if (i + 2 == videos.length) {
@@ -293,69 +310,144 @@ postView(int id , String country )async{
     cameras = await availableCameras();
   }
 
-
   getLocation() async {
-    Permission permission= Permission.location;
-    if(await permission.status.isDenied || await permission.status.isPermanentlyDenied){
-      permission.request().then((val){
-        if(val.isDenied || val.isPermanentlyDenied){
+    Permission permission = Permission.location;
+    if (await permission.status.isDenied ||
+        await permission.status.isPermanentlyDenied) {
+      permission.request().then((val) {
+        if (val.isDenied || val.isPermanentlyDenied) {
           debugPrint("Permission denied");
         }
       });
     }
-    position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    position = await Geolocator.getCurrentPosition(
+        locationSettings: LocationSettings(accuracy: LocationAccuracy.best));
     debugPrint('location: ${position?.latitude}');
-    var data = await placemarkFromCoordinates(position?.latitude??0.0, position?.longitude??0.0);
+    var data = await placemarkFromCoordinates(
+        position?.latitude ?? 0.0, position?.longitude ?? 0.0);
     addresses.value = data;
     debugPrint(addresses.first.toJson().toString());
     update();
   }
 
-  Future<bool> sendReview(int id)async{
+  Future<bool> sendReview(int id) async {
     EasyLoading.show();
-    try{
+    try {
       debugPrint('url ${AppApis.ratePostApi}$id');
-      var response=await  HttpsServices.postApiCall(url: '${AppApis.ratePostApi}$id', body: {
-        "rating" : rating?.toInt(),
-        "comment": reviewDescrioption
-      });
+      var response = await HttpsServices.postApiCall(
+          url: '${AppApis.ratePostApi}$id',
+          body: {"rating": rating?.toInt(), "comment": reviewDescrioption});
 
-      if(response !=null){
+      if (response != null) {
         EasyLoading.dismiss();
         return true;
       }
-
-
-    }catch(e){
+    } catch (e) {
       debugPrint('Some thing Went wrong====>$e');
     }
     EasyLoading.dismiss();
     return false;
   }
 
+  getStats(int id) async {
+    try {
+      dataOfMarker = <Marker>{}.obs;
 
-  getStats(int id)async{
-    try{
-      // debugPrint('url ${AppApis.ratePostApi}$id');
-      var response=await  HttpsServices.getApiCall(url: '${AppApis.statsOfVideoApi}$id',);
+      dynamic response;
 
-      if(response !=null){
-        debugPrint('Resonse data stats===> $response');
+      debugPrint("Getting stats for $id");
+
+      if (id == -1) {
+        await Future.delayed(Duration(seconds: 2));
+        update();
+        return;
+      } else {
+        response = await HttpsServices.getApiCall(
+          url: '${AppApis.statsOfVideoApi}$id',
+        );
       }
 
+      if (response != null) {
+        // debugPrint('Response data stats===> $response');
+        var data = jsonDecode(response);
+        // debugPrint('Response data stats===> ${data["stats"]}');
 
-    }catch(e){
+        if (data["stats"] != null && data["stats"].isNotEmpty) {
+          List<CountryData> values = [];
+          Location? location;
+          for (var element in data["stats"]) {
+            debugPrint('${element['country']}');
+            if (element['country'] != null &&
+                element['country'].isNotEmpty &&
+                element["total_views"] != null) {
+              location = await getLatLngFromAddress(element['country']);
+              debugPrint("lat===> ${location?.lat} and ${location?.lng}");
+              values.add(CountryData(
+                  element['country'] ?? '',
+                  element["total_views"],
+                  (location?.lat ?? 0).toDouble(),
+                  (location?.lng ?? 0).toDouble()));
+            }
+          }
+
+          // await Future.wait(values);
+          for (var element in values) {
+            // debugPrint("values====> $element");
+            dataOfMarker?.add(Marker(
+                markerId: MarkerId(element.name),
+                position: LatLng(element.latitude, element.longitude),
+                infoWindow: InfoWindow(
+                    title: element.name, snippet: '${element.views} Views')));
+          }
+          values.clear();
+          location = null;
+        }
+        // stats= Stats.fromJson(data).obs;
+
+        update();
+      }
+    } catch (e) {
       debugPrint('Some thing Went wrong while getting stats====>$e');
     }
   }
 
-
+  Future<Location?> getLatLngFromAddress(String address) async {
+    final ApiRequest apiRequests = ApiRequest();
+    GoogleAddressModel googleAddressModel = GoogleAddressModel();
+    // debugPrint(getLatLngFromAddressUrl(address, MapKey.mapKey));
+    Location? location;
+    await apiRequests.getMap(
+        url: getLatLngFromAddressUrl(address, MapKey.mapKey),
+        onSuccess: (res) async {
+          googleAddressModel = GoogleAddressModel.fromJson(jsonDecode(res));
+          // debugPrint(googleAddressModel.results?.first.geometry?.location?.toJson().toString());
+          location = googleAddressModel.results?.first.geometry?.location;
+        },
+        onError: (e) {
+          debugPrint(e.toString());
+        });
+    return location;
+  }
 
   @override
   void dispose() {
-    // TODO: implement dispose
+    dataOfMarker = null;
     pageController.dispose();
+    dataOfMarker = null;
+    position = null;
+    // recommendedPosts = null;
+    reviewDescrioption = null;
+    rating = null;
+    debugPrint("Dispose is called HomeCont");
     super.dispose();
   }
+}
 
+class CountryData {
+  CountryData(this.name, this.views, this.latitude, this.longitude);
+
+  final String name;
+  final int views;
+  final double latitude;
+  final double longitude;
 }

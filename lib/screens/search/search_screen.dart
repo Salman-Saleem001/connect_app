@@ -1,8 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
 import 'package:connect_app/controllers/searchScreen_controller.dart';
-import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
 import 'package:connect_app/globals/radioGroups.dart';
@@ -26,7 +26,7 @@ class SearchScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 4,
+      length: 3,
       child: Scaffold(
         appBar: customAppBar(title: 'Search', backButton: false),
         body: SafeArea(
@@ -176,82 +176,79 @@ class SearchScreen extends StatelessWidget {
                           TabBar(
                             tabs: const [
                               Tab(
-                                text: 'Recommended',
+                                text:  'My feed' ,
                               ),
                               Tab(
                                 text: 'Trending',
                               ),
                               Tab(
-                                text: 'Featured',
+                                text: 'Recommended',
                               ),
-                              Tab(
-                                text: 'Events',
-                              )
+                              // Tab(
+                              //   text: 'Featured',
+                              // )
                             ],
                             labelPadding: EdgeInsets.zero,
                             labelColor: AppColors.primaryColor,
                             indicatorColor: AppColors.primaryColor,
                             onTap: (index) {
                               debugPrint('Here is the index==>$index');
-                              if (index == 1) {
+                              if (index == 2) {
                                 homeController.selectedCategory.value =
-                                    'Trending';
+                                    'Recommended';
+                                if (homeController
+                                        .recommendedPosts.posts?.isEmpty ==
+                                    true) {
+                                  homeController.getRecommendedContent();
+                                }
+                              } else if (index == 0) {
+                                homeController.selectedCategory.value =
+                                    'My feed';
                                 if (homeController
                                         .trendingPosts.posts?.isEmpty ==
                                     true) {
                                   homeController.getTrendingContent();
                                 }
-                              } else if (index == 2) {
+                              }  else {
                                 homeController.selectedCategory.value =
-                                    'Featured';
+                                    'Trending';
                                 if (homeController
                                         .featuredPosts.posts?.isEmpty ==
                                     true) {
                                   homeController.getFeaturedContent();
-                                }
-                              } else if (index == 3) {
-                                homeController.selectedCategory.value = 'Event';
-                                if (homeController.eventPosts.posts?.isEmpty ==
-                                    true) {
-                                  homeController.getEventContent();
-                                }
-                              } else {
-                                homeController.selectedCategory.value =
-                                    'Recommended';
-                                if (homeController
-                                        .recommendedPosts?.posts?.isEmpty ==
-                                    true) {
-                                  homeController.getContent();
+
                                 }
                               }
+                              // Get.forceAppUpdate();
                             },
                           ),
-                          Expanded(child: GetBuilder(
+                          Expanded(child:
+                          GetBuilder(
                               builder: (HomeFeedController homeFeed) {
                             PostModel selectedPostModel;
                             bool isLoading;
                             switch (homeFeed.selectedCategory.value) {
                               case 'Trending':
-                                selectedPostModel = homeFeed.trendingPosts;
-                                isLoading = homeFeed.fetchingTrending.value;
-                                break;
-                              case 'Featured':
                                 selectedPostModel = homeFeed.featuredPosts;
                                 isLoading = homeFeed.fetchingFeatured.value;
                                 break;
-                              case 'Events':
-                                selectedPostModel = homeFeed.eventPosts;
-                                isLoading = homeFeed.fetchingEvents.value;
+                              case 'My feed':
+                                selectedPostModel = homeFeed.trendingPosts;
+                                isLoading = homeFeed.fetchingTrending.value;
+                                // debugPrint("Here I am Featured $isLoading");
                                 break;
-                              case 'Recommended':
                               default:
-                                selectedPostModel = homeFeed.recommendedPosts??PostModel();
+                                // debugPrint("Here I am Recomended");
+                                selectedPostModel = homeFeed.recommendedPosts;
+                                // debugPrint("Here I am ${homeFeed.recommendedPosts.posts?.length}");
                                 isLoading = homeFeed.fetchingRecommended.value;
                                 break;
                             }
                             if (isLoading) {
-                              return CircularProgressIndicator(
-                                color: AppColors.primaryColor,
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  color: AppColors.primaryColor,
+                                ),
                               );
                             } else {
                               return ListView.builder(
@@ -417,13 +414,13 @@ class PostTile extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: const ColoredBox(
-                  color: Colors.black,
-                  child: SizedBox(
+                child: CachedNetworkImage(
+                    imageUrl: selectedPostModel.posts?[index].thumbnail??'',
                     height: 300,
-                    width: double.maxFinite,
-                  ),
-                ),
+                    width: double.infinity,
+                    errorWidget: ((context, url, error) => ColoredBox(color: Colors.black,
+                    child: SizedBox(height: 300,))),
+                    fit:  BoxFit.cover),
               ),
               GestureDetector(
                 onTap: onTap,

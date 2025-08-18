@@ -124,9 +124,11 @@ class _EditDetailsState extends State<EditDetails> {
             .find<UserDetail>()
             .userData
             .user
-            ?.dob ?? DateTime.now())
-            .toString()
-            .substring(0, 10).replaceAll('-', '/'));
+            ?.dob??'').toString().isNotEmpty?(Get
+            .find<UserDetail>()
+            .userData
+            .user
+            ?.dob ?? DateTime.now()) :'',);
     nameFocus = FocusNode();
     lastname = FocusNode();
     emailFocus = FocusNode();
@@ -136,6 +138,7 @@ class _EditDetailsState extends State<EditDetails> {
         .userData
         .user
         ?.avatar ?? '';
+
     debugPrint("Image===> $imageUrl");
     super.initState();
   }
@@ -208,7 +211,8 @@ class _EditDetailsState extends State<EditDetails> {
                     var controller = Get.put(ProfileController());
                     if (initvalidation()) {
                       controller.updateProfile(
-                          image: file ?? File(''), firstName: nameCont.text,
+                          image: file ?? File(''),
+                          firstName: nameCont.text,
                           lastName: lastnameCont.text,
                           email: emailCont.text,
                           dob: numberCont.text.substring(0,10).replaceAll('/', '-')).whenComplete(() {

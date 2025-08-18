@@ -15,7 +15,7 @@ import 'create_new_password.dart';
 
 class OTPScreen extends StatefulWidget {
   final String otp;
-  const OTPScreen({required this.otp});
+  const OTPScreen({super.key, required this.otp});
 
   @override
   _OTPScreenState createState() => _OTPScreenState();
@@ -28,7 +28,6 @@ class _OTPScreenState extends State<OTPScreen> {
   Widget build(BuildContext context) {
     SizeConfig().init(context);
     return Scaffold(
-      // appBar: customAppBar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,12 +35,11 @@ class _OTPScreenState extends State<OTPScreen> {
             Container(
                 padding: EdgeInsets.only(top: 40, left: 10),
                 width: double.infinity,
-                height: 300,
+                height: 400,
                 decoration: const BoxDecoration(
                   image: DecorationImage(
-                    image: AssetImage('assets/images/bg_image.png'),
-                    fit: BoxFit
-                        .cover, // You can adjust the fit as per your requirement
+                    image: AssetImage('assets/images/bg_image_copy.png'),
+                    fit: BoxFit.cover,
                   ),
                 ),
                 child: Column(

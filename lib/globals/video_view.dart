@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:connect_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:video_player/video_player.dart';
@@ -15,7 +16,6 @@ class VideoView extends StatefulWidget {
   final bool isContained;
   final bool isFullScreen;
   final String url;
-  final String? country;
   final BoxFit? fit;
   final int? id;
   const VideoView(
@@ -24,7 +24,7 @@ class VideoView extends StatefulWidget {
       this.isLocal = false,
       this.url = '',
       this.isAsset = false,
-      this.isFullScreen = false, this.country, this.id, this.fit, });
+      this.isFullScreen = false, this.id, this.fit, });
 
   @override
   State<VideoView> createState() => _VideoViewState();
@@ -34,12 +34,13 @@ class _VideoViewState extends State<VideoView> {
   late VideoPlayerController _controller;
 
   late Animation controller;
+  bool started = false;
+  bool play = false;
 
   @override
   void initState() {
     play = false;
     super.initState();
-
     if (widget.isAsset) {
       _controller = VideoPlayerController.asset(widget.url,
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
@@ -56,22 +57,17 @@ class _VideoViewState extends State<VideoView> {
     } else {
       _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url.isEmpty
           ? 'http://3.123.149.87/storage/videos/QbKX9HXAwWrwLYmgbHVRI944dTWUJ4FMrF8hg6XK.mp4'
-          : widget.url),)
+          : widget.url,),)
         ..initialize().then((_) {
           setState(() {});
         })
         ..setLooping(true);
     }
-
     if(widget.id!=null){
       var homeController= Get.put(HomeFeedController());
-      homeController.postView(widget.id??0, widget.country??'');
+      homeController.postView(widget.id??0);
     }
-
   }
-
-  var started = false;
-  var play = false;
   void playVideo() {
     _controller.play();
     play = true;
@@ -160,7 +156,157 @@ class _VideoViewState extends State<VideoView> {
                         )
                     ],
                   )
-                : SizedBox(),
+                : SizedBox(
+                height: 50,
+                width: 50,
+                child: CircularProgressIndicator(color: AppColors.primaryColor,)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+  }
+}
+
+
+
+class EditVideoView extends StatefulWidget {
+  final bool isContained;
+  final bool isFullScreen;
+  final String url;
+  final BoxFit? fit;
+
+  const EditVideoView(
+      {super.key,
+        this.isContained = false,
+        this.url = '',
+        this.isFullScreen = false, this.fit, });
+
+  @override
+  State<EditVideoView> createState() => _EditVideoViewState();
+}
+
+class _EditVideoViewState extends State<EditVideoView> {
+  late VideoPlayerController _controller;
+
+  late Animation controller;
+
+  @override
+  void initState() {
+    debugPrint("Edit Video");
+    play = false;
+    started =true;
+    super.initState();
+
+
+    _controller = VideoPlayerController.file(File(widget.url))
+      ..initialize().then((_) {
+        setState(() {});
+      })
+      ..setLooping(true);
+
+    _controller.play();
+  }
+
+  late bool play,started;
+  void playVideo() {
+    _controller.play();
+    play = true;
+    Future.delayed(const Duration(milliseconds: 400), () {
+      setState(() {
+        play = false;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return VisibilityDetector(
+      key: ObjectKey(_controller),
+      onVisibilityChanged: (visibility) {
+        if (visibility.visibleFraction == 0 && mounted) {
+          _controller.pause();
+        } else if (visibility.visibleFraction > 0.8 && mounted) {
+          _controller.play();
+          setState(() {
+            started = true;
+          });
+        }
+      },
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            if (_controller.value.isPlaying) {
+              _controller.pause();
+            } else {
+              playVideo();
+            }
+          });
+        },
+        child: Container(
+          color: Colors.black,
+          height: double.infinity,
+          width: double.infinity,
+          child: Center(
+            child: _controller.value.isInitialized
+                ? Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox.expand(
+                  child: FittedBox(
+                    fit: _controller.value.aspectRatio > 0.9 ||
+                        widget.isContained
+                        ? widget.fit??BoxFit.contain
+                        : BoxFit.cover,
+                    child: SizedBox(
+                      width: _controller.value.size.width,
+                      height: _controller.value.size.height,
+                      child: VideoPlayer(_controller),
+                    ),
+                  ),
+                ),
+                if (!_controller.value.isPlaying && started)
+                  const SizedBox(
+                    height: double.infinity,
+                    width: double.infinity,
+                    child: Center(
+                      child: CircleAvatar(
+                          backgroundColor: Colors.black45,
+                          radius: 30,
+                          child: Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 30,
+                          )),
+                    ),
+                  ),
+                if (play)
+                  const SizedBox(
+                    height: double.infinity,
+                    width: double.infinity,
+                    child: Center(
+                      child: CircleAvatar(
+                          backgroundColor: Colors.black45,
+                          radius: 30,
+                          child: Icon(
+                            Icons.pause,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                      ),
+                    ),
+                  )
+              ],
+            )
+                : SizedBox(
+                height: 50,
+                width: 50,
+                child: CircularProgressIndicator(color: AppColors.primaryColor,)),
           ),
         ),
       ),

@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/material.dart';
+
+import 'package:collection/collection.dart';
 import 'package:connect_app/services/google_map/api_service.dart';
 import 'package:connect_app/services/google_map/map_key.dart';
+import 'package:flutter/material.dart';
+
 import 'address_model.dart';
 import 'google_address_model.dart';
 import 'google_map_functions.dart';
-import 'package:collection/collection.dart';
 
 class GoogleMapPredict extends StatefulWidget {
   final ValueChanged<PickLocationData>? address;
@@ -38,6 +40,7 @@ class _GoogleMapPredictState extends State<GoogleMapPredict> {
               streetAddress: googleAddressModel.results?.first.formattedAddress ?? "",
               zipCode: googleAddressModel.results?.first.addressComponents?.firstWhereOrNull(
                       (element) => element.types!.contains("postal_code"))?.longName ?? ""));
+          debugPrint(googleAddressModel.toJson().toString());
           // setState(() {});
         },
         onError: (e) {
@@ -63,7 +66,7 @@ class _GoogleMapPredictState extends State<GoogleMapPredict> {
               return GestureDetector(
                 onTap: () async {
                   GoogleMapFunctions.isList = false;
-
+                  debugPrint("Here is the index====> $index");
                   await getLatLngFromAddress(GoogleMapFunctions
                       .predictions!.predictions[index].fullText);
                   // setState(() {});

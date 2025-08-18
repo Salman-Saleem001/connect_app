@@ -1,4 +1,3 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connect_app/globals/database.dart';
 import 'package:flutter/material.dart';
@@ -22,11 +21,16 @@ class ChatScreen extends StatefulWidget {
 }
 
 class ChatScreenState extends State<ChatScreen> {
-  TextEditingController search = TextEditingController();
-  Database  database=Database();
+  late TextEditingController search;
+  late Database database;
 
-
-
+  @override
+  void initState() {
+    // TODO: implement initState
+    search = TextEditingController();
+    database = Database();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +41,6 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Padding chatList() {
-
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -69,7 +71,7 @@ class ChatScreenState extends State<ChatScreen> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const SizedBox();
                   }
-                  if (snapshot.data?.docs.isEmpty==true) {
+                  if (snapshot.data?.docs.isEmpty == true) {
                     return Center(
                       child: Text(
                         'No chats',
@@ -87,14 +89,15 @@ class ChatScreenState extends State<ChatScreen> {
 
   ListView chats(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
     return ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
+      // physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       itemCount: snapshot.data?.docs.length,
       padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 10),
       itemBuilder: (BuildContext contextM, index) {
-        final chat = ChatDataModel.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>);
-        return ChatListItem(chatDataModel: chat,
-
+        final chat = ChatDataModel.fromJson(
+            snapshot.data!.docs[index].data() as Map<String, dynamic>);
+        return ChatListItem(
+          chatDataModel: chat,
         );
       },
     );
@@ -153,19 +156,23 @@ class ChatScreenState extends State<ChatScreen> {
     );
   }
 
-
-
   List<String> status = ['My Replies', 'My videos'];
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    search.dispose();
+    super.dispose();
+  }
 }
 
 class ChatListItem extends StatelessWidget {
   const ChatListItem({
-    super.key, required this.chatDataModel,
-
+    super.key,
+    required this.chatDataModel,
   });
 
   final ChatDataModel chatDataModel;
-
 
   @override
   Widget build(BuildContext context) {
@@ -200,18 +207,18 @@ class ChatListItem extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text(
-                    chatDataModel.description??'',
-                    style: subHeadingText(
-                        size: 16, color: AppColors.textPrimary),
+                    chatDataModel.description ?? '',
+                    style:
+                        subHeadingText(size: 16, color: AppColors.textPrimary),
                   ),
                   Text(
-                      chatDataModel.tags??'',
-                      style: normalText(color: AppColors.primaryColor),
-                    ),
+                    chatDataModel.tags ?? '',
+                    style: normalText(color: AppColors.primaryColor),
+                  ),
                   Text(
-                      getTime(chatDataModel.lastMessageTime??''),
-                      style: normalText(color: Colors.black87),
-                    ),
+                    getTime(chatDataModel.lastMessageTime ?? ''),
+                    style: normalText(color: Colors.black87),
+                  ),
                 ],
               ),
             ),
@@ -219,25 +226,25 @@ class ChatListItem extends StatelessWidget {
         ),
       ),
       onTap: () {
-
-        List<String> tags=[];
-        chatDataModel.tags?.split("#").forEach((element){
-          if(element.isNotEmpty){
+        List<String> tags = [];
+        chatDataModel.tags?.split("#").forEach((element) {
+          if (element.isNotEmpty) {
             tags.add('#$element');
           }
         });
 
-        var chatController= Get.put(ChatDetailController());
-        chatController.isDataFetched.value=true;
-        chatController.chatDataModel.value= chatDataModel;
+        var chatController = Get.put(ChatDetailController());
+        chatController.isDataFetched.value = true;
+        chatController.chatDataModel.value = chatDataModel;
         debugPrint(chatController.chatDataModel.value?.toJson().toString());
-        Get.to(() => ChatDetailScreenNew (
-          userName: chatDataModel.userName??'',
-          tags: tags,
-          description: chatDataModel.description,
-          videoId: chatDataModel.videoId,
-          userAvatar: chatDataModel.userAvatar,
-            ),
+        Get.to(
+          () => ChatDetailScreenNew(
+            userName: chatDataModel.userName ?? '',
+            tags: tags,
+            description: chatDataModel.description,
+            videoId: chatDataModel.videoId,
+            userAvatar: chatDataModel.userAvatar,
+          ),
         );
       },
     );

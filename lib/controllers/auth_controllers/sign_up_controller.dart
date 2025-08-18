@@ -165,7 +165,7 @@ class SignUpController extends GetxController {
           preferences: selectedPreferences,
           bio: bioController.text.trim()
       );
-     print("response$response");
+     debugPrint("response$response");
       EasyLoading.dismiss();
     } catch (e) {
       EasyLoading.dismiss();
@@ -177,41 +177,4 @@ class SignUpController extends GetxController {
     }
   }
 
-  // Future<void> resestPassowrd() async {
-  //   try {
-  //     if (!Global.checkNull(controllerEmail.text.toString().trim())) {
-  //       Global.showToastAlert(
-  //           context: Get.overlayContext!,
-  //           strTitle: "",
-  //           strMsg: 'Please enter email',
-  //           toastType: TOAST_TYPE.toastError);
-  //       FocusScope.of(Get.overlayContext!).requestFocus(focusNodeEmail);
-  //       return;
-  //     }
-  //     EasyLoading.show();
-  //     await FirebaseAuth.instance
-  //         .sendPasswordResetEmail(email: controllerEmail.text.trim());
-  //
-  //     controllerEmail.clear();
-  //     Global.showToastAlert(
-  //         context: Get.overlayContext!,
-  //         strTitle: "",
-  //         strMsg:
-  //         'If the email you provided exists in our databases as a valid user, you will receive an email with reset instructions',
-  //         toastType: TOAST_TYPE.toastSuccess);
-  //     EasyLoading.dismiss();
-  //     Get.back();
-  //     update();
-  //   } on FirebaseAuthException catch (e) {
-  //     EasyLoading.dismiss();
-  //     if (e.code == 'user-not-found') {
-  //       Global.showToastAlert(
-  //           context: Get.overlayContext!,
-  //           strTitle: "ok",
-  //           strMsg:
-  //           "We couldn't find an account with the provided email address",
-  //           toastType: TOAST_TYPE.toastError);
-  //     }
-  //   }
-  // }
 }

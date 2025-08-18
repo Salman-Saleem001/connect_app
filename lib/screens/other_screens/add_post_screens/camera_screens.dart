@@ -1,21 +1,19 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
-
 import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
-import 'package:connect_app/screens/other_screens/add_post_screens/media_preview.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/video_edit_screen.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../widgets/appbars.dart';
+import '../../main_screens/bottom_bar_screen.dart';
 
 /// Camera example home widget.
 class CameraScreen extends StatefulWidget {
@@ -81,21 +79,19 @@ class _CameraScreenState extends State<CameraScreen>
             if (file != null) {
               videoFile = file;
               Get.off(() => VideoEditScreen(
-                filePath: file.path,
-                isVideo: true,
-                fromMessage: widget.fromMessage,
-                onSend: widget.onSend,
-              ));
+                    filePath: file.path,
+                    isVideo: true,
+                    fromMessage: widget.fromMessage,
+                    onSend: widget.onSend,
+                  ));
               paddingValue = 0;
               videoState = VideoStates.idle;
               recordedSeconds = 0;
               t.cancel();
             }
           });
-
         } else {
           recordedSeconds += 1;
-
         }
         setState(() {});
       }
@@ -131,7 +127,7 @@ class _CameraScreenState extends State<CameraScreen>
     _ambiguate(WidgetsBinding.instance)?.removeObserver(this);
     _flashModeControlRowAnimationController.dispose();
     _exposureModeControlRowAnimationController.dispose();
-
+    controller?.dispose();
     super.dispose();
   }
 
@@ -175,6 +171,9 @@ class _CameraScreenState extends State<CameraScreen>
                       backButton: true,
                       title: 'Create Video',
                       marginTop: 25,
+                      onTap: !widget.fromMessage? (){
+                        Get.off(()=> NavBarScreen());
+                      }: null
                     ),
                   ),
                   _topToggleOptions(),
@@ -198,51 +197,50 @@ class _CameraScreenState extends State<CameraScreen>
                           ],
                         ),
                       )),
-                  if(!_isRecording)
-                  Positioned(
-                    bottom: 45,
-                    left: 40,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: AppColors.white.withOpacity(.25),
-                        borderRadius: BorderRadius.circular(50)
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          10.wp,
-                          TimeSelectedText(
-                            selectedTime: selectedTime,
-                            onTap: () {
-                              selectedTime = 30;
-                              setState(() {});
-                            },
-                            title: '30',
-                          ),
-                          10.wp,
-                          TimeSelectedText(
-                            selectedTime: selectedTime,
-                            onTap: () {
-                              selectedTime = 45;
-                              setState(() {});
-                            },
-                            title: '45',
-                          ),
-                          10.wp,
-                          TimeSelectedText(
-                            selectedTime: selectedTime,
-                            onTap: () {
-                              selectedTime = 60;
-                              setState(() {});
-                            },
-                            title: '60',
-                          ),
-                          10.wp,
-                        ],
+                  if (!_isRecording)
+                    Positioned(
+                      bottom: 45,
+                      left: 20,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                            color: AppColors.white.withOpacity(.25),
+                            borderRadius: BorderRadius.circular(50)),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            10.wp,
+                            TimeSelectedText(
+                              selectedTime: selectedTime,
+                              onTap: () {
+                                selectedTime = 30;
+                                setState(() {});
+                              },
+                              title: '30',
+                            ),
+                            10.wp,
+                            TimeSelectedText(
+                              selectedTime: selectedTime,
+                              onTap: () {
+                                selectedTime = 45;
+                                setState(() {});
+                              },
+                              title: '45',
+                            ),
+                            10.wp,
+                            TimeSelectedText(
+                              selectedTime: selectedTime,
+                              onTap: () {
+                                selectedTime = 60;
+                                setState(() {});
+                              },
+                              title: '60',
+                            ),
+                            10.wp,
+                          ],
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),
@@ -267,7 +265,7 @@ class _CameraScreenState extends State<CameraScreen>
               strMsg: 'Image size must be less than 8 MB',
               toastType: TOAST_TYPE.toastError);
         } else {
-          Get.off(() => MediaPreviewScreen(
+          Get.to(() => VideoEditScreen(
                 filePath: image.path,
                 fromMessage: widget.fromMessage,
                 onSend: widget.onSend,
@@ -287,7 +285,7 @@ class _CameraScreenState extends State<CameraScreen>
               strMsg: 'Video size must be less than 10 MB',
               toastType: TOAST_TYPE.toastError);
         } else {
-          Get.off(() => MediaPreviewScreen(
+          Get.to(() => VideoEditScreen(
                 filePath: video.path,
                 isVideo: true,
                 fromMessage: widget.fromMessage,
@@ -524,7 +522,7 @@ class _CameraScreenState extends State<CameraScreen>
 
     final CameraController cameraController = CameraController(
       cameraDescription,
-      kIsWeb ? ResolutionPreset.max : ResolutionPreset.medium,
+      ResolutionPreset.low ,
       enableAudio: enableAudio,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
@@ -589,7 +587,7 @@ class _CameraScreenState extends State<CameraScreen>
           imageFile = file;
         });
         if (file != null) {
-          Get.off(() => MediaPreviewScreen(
+          Get.to(() => VideoEditScreen(
                 filePath: file.path,
                 fromMessage: widget.fromMessage,
                 onSend: widget.onSend,
@@ -663,19 +661,25 @@ class _CameraScreenState extends State<CameraScreen>
       }
       if (file != null) {
         videoFile = file;
-
+        recordedSeconds=0;
+        paddingValue = 0;
+        videoState = VideoStates.idle;
+        recordedSeconds = 0;
+        if(timer.isActive){
+          timer.cancel();
+        }
         Get.off(() => VideoEditScreen(
-          filePath: file.path,
-          isVideo: true,
-          fromMessage: widget.fromMessage,
-          onSend: widget.onSend,
-        ));
+            filePath: file.path,
+            isVideo: true,
+            fromMessage: widget.fromMessage,
+            onSend: widget.onSend,
+          ),
+        );
         // invoke(file);
         // _startVideoPlayer();
       }
     });
   }
-
 
   void onPauseButtonPressed() {
     pauseVideoRecording().then((_) {
@@ -877,15 +881,19 @@ class TimeSelectedText extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(100),
       child: ColoredBox(
-        color: selectedTime == int.parse(title) ? AppColors.white: Colors.transparent,
+        color: selectedTime == int.parse(title)
+            ? AppColors.white
+            : Colors.transparent,
         child: GestureDetector(
-            onTap: onTap,
-            child: Text(
-              title,
-              style: TextStyle(
-                  fontSize: selectedTime == int.parse(title) ? 18 : 14,
-                  color: selectedTime == int.parse(title)?Colors.black:AppColors.white),
-            ).paddingAll(5),
+          onTap: onTap,
+          child: Text(
+            title,
+            style: TextStyle(
+                fontSize: selectedTime == int.parse(title) ? 18 : 14,
+                color: selectedTime == int.parse(title)
+                    ? Colors.black
+                    : AppColors.white),
+          ).paddingAll(5),
         ),
       ),
     ).paddingSymmetric(vertical: 5);

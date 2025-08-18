@@ -6,37 +6,10 @@ import '../../controllers/mainScreen_controllers/home_page_cont.dart';
 import '../../utils/app_colors.dart';
 
 
-class StatsMapScreen extends StatefulWidget {
+class StatsMapScreen extends StatelessWidget {
   const StatsMapScreen({super.key, required this.id});
 
   final int id;
-
-  @override
-  State<StatsMapScreen> createState() => _StatsMapScreenState();
-}
-
-class _StatsMapScreenState extends State<StatsMapScreen> {
-
-  late Set<Marker> dataOfMarker;
-  final List<CountryData> data = [
-    CountryData('Kyrgyzstan', 8.7, 41.2044, 74.7661),
-    CountryData('Pakistan', 3.5, 30.3753, 69.3451),
-    CountryData('India', 2.57, 20.5937, 78.9629),
-    CountryData('Laos', 1.57, 19.8563, 102.4955),
-    CountryData('Oman', 3.5, 21.4735, 55.9754),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    dataOfMarker={};
-    for (var element in data) {
-      dataOfMarker.add(Marker(markerId: MarkerId(element.name),
-          position: LatLng(element.latitude, element.longitude),
-          infoWindow: InfoWindow(
-              title: element.name, snippet: element.views.toString())));
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,35 +20,66 @@ class _StatsMapScreenState extends State<StatsMapScreen> {
         shape: InputBorder.none,
         color: AppColors.white,
         child: GetBuilder(builder: (HomeFeedController homeController) {
-          if (homeController.position != null) {
-            homeController.getStats(widget.id);
+          if (homeController.dataOfMarker == null) {
+
+             homeController.getStats(id);
+
             return Center(child: CircularProgressIndicator(
               color: AppColors.primaryColor,));
           } else {
-            return GoogleMap(
-              mapType: MapType.normal,
-              markers: dataOfMarker,
-              onMapCreated: (GoogleMapController controller) {
-                homeController.controller.complete(controller);
+            // homeController.getStats(widget.id);
+            return PopScope(
+              onPopInvokedWithResult: (val,result){
+                homeController.dataOfMarker= null;
               },
-              initialCameraPosition: CameraPosition(
-                target: dataOfMarker.first.position,
-                zoom: 5,
-              ),);
+              child: Stack(
+                children: [
+                  if((homeController.dataOfMarker??{}).isEmpty|| id==-1)...[
+                    Center(child: Text("No Stats available",style: TextStyle(fontSize: 18),),)
+                  ]else
+                  GoogleMap(
+                    mapType: MapType.normal,
+                    markers: homeController.dataOfMarker??{},
+                    onMapCreated: (GoogleMapController controller) {
+                      homeController.controller.complete(controller);
+                    },
+                    initialCameraPosition: CameraPosition(
+                      target: homeController.dataOfMarker?.first.position??LatLng(30.3753, 69.3451),
+                      zoom: 5,
+                    ),),
+                  Positioned(
+                    top: 50,
+                    left: 15,
+                    child: GestureDetector(
+                      onTap: () {
+                        Get.back();
+                      },
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.white,
+                          border: Border.all(
+                            color: AppColors.borderColor,
+                            width: 1.0,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.arrow_back_ios_new,
+                          size: 20,
+                          color: AppColors.primaryIconColor,
+                        ).paddingAll(10),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
           }
         }),
       ),
     );
   }
-
-  @override
-  void dispose() {
-    // TODO: implement dispose
-    dataOfMarker.clear();
-    super.dispose();
-  }
 }
-
 
 class CountryData {
   CountryData(this.name, this.views, this.latitude, this.longitude);

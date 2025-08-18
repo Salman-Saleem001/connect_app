@@ -1,6 +1,6 @@
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect_app/utils/login_details.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:connect_app/controllers/chat/chat_detail_controller.dart';
@@ -19,10 +19,10 @@ class FollowRequestsScreen extends StatelessWidget {
   FocusNode notesNode = FocusNode();
 
   FollowRequestsScreen(
-      {super.key, required this.thumbnail, required this.videoId});
+      {super.key, required this.thumbnail, required this.videoId, required this.name, required this.viewsCount});
 
-  final String thumbnail;
-  final int videoId;
+  final String thumbnail, name;
+  final int videoId, viewsCount;
 
   @override
   Widget build(BuildContext context) {
@@ -37,8 +37,8 @@ class FollowRequestsScreen extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),
-                child: Image.file(
-                  File(thumbnail),
+                child: Image.network(
+                  thumbnail,
                   fit: BoxFit.cover,
                   height: 160,
                   width: 120,
@@ -52,8 +52,8 @@ class FollowRequestsScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
-                          'The Round',
+                        Text(
+                          name,
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -67,13 +67,13 @@ class FollowRequestsScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const Text(
-                      'Roddy Roundicch',
+                    Text(
+                      Get.find<UserDetail>().userData.user?.username??'',
                       style: TextStyle(
                         color: Colors.grey,
                       ),
                     ),
-                    Text('1.7M videos',
+                    Text('$viewsCount views',
                         style: regularText(color: AppColors.textLight)),
                   ],
                 ),

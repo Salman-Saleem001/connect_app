@@ -11,19 +11,18 @@ class NetworkImageCustom extends StatelessWidget {
       {super.key,
       this.height = double.infinity,
       this.width = double.infinity,
-      required this.image,
+      this.image,
       this.fit});
 
   @override
   Widget build(BuildContext context) {
-    bool isAbsolute= Uri.parse(image??'').isAbsolute;
+    // bool isAbsolute= Uri.parse(image??'').isAbsolute;
     return CachedNetworkImage(
         // placeholder: ((context, url) => Image.asset(AppImages.ic_place_holder)),
-
-        imageUrl: isAbsolute? image??'' : 'https://cdn-icons-png.flaticon.com/512/61/61205.png',
+        imageUrl: image??'',
         height: height,
         width: width,
-        errorWidget: ((context, url, error) => const Icon(Icons.account_circle,size: 60,color: Colors.grey,)),
-        fit: fit != null ? fit! : BoxFit.contain);
+        errorWidget: (context, url, error) =>  Icon(Icons.account_circle,size: 90,color: Colors.grey,),
+        fit: fit?? BoxFit.contain);
   }
 }

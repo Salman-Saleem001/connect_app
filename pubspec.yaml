@@ -56,10 +56,17 @@ dependencies:
   geolocator: ^13.0.1
   camera: ^0.11.0+2
   just_audio: ^0.9.42
-  ffmpeg_kit_flutter: ^6.0.3
+#  For Android
+#  ffmpeg_kit_flutter: ^6.0.3
+#For IOS
+  ffmpeg_kit_flutter:
+   git:
+    url: https://github.com/Sahad2701/ffmpeg-kit.git
+    path: flutter/flutter
+    ref: flutter_fix_retired_v6.0.3
   video_thumbnail: ^0.5.3
   flutter_local_notifications: ^18.0.1
-  tapioca: ^1.0.6+1
+#  tapioca: ^1.0.6+1
   flutter_google_places_sdk: ^0.3.10
   location: ^6.0.2
   provider: ^6.1.2
@@ -71,6 +78,7 @@ dependencies:
   blur: ^4.0.0
   flutter_rating_bar: ^4.0.1
   collection:
+  tapioca_v2: ^1.0.0+2
 
 
 dev_dependencies:

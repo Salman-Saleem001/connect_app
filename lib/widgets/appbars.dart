@@ -88,6 +88,7 @@ PreferredSize customAppBarTransparent({
   bool backButton = true,
   List<Widget>? actions,
   double marginTop = 0,
+  VoidCallback? onTap
 }) {
   return PreferredSize(
     preferredSize: const Size(double.infinity, 70),
@@ -101,7 +102,7 @@ PreferredSize customAppBarTransparent({
       centerTitle: true,
       leading: backButton
           ? GestureDetector(
-              onTap: () {
+              onTap: onTap?? () {
                 // Adjust navigation according to your setup
                 Get.back();
               },

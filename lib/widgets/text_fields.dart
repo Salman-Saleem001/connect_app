@@ -15,6 +15,7 @@ customTextFiled(
   dynamic suffixIcon,
   Color? color,
   void Function(String? val)? onchange,
+  void Function(PointerDownEvent)? onTapOutSide,
   Function? ontap,
   int? lines,
   TextInputType textInputType = TextInputType.text,
@@ -41,6 +42,7 @@ customTextFiled(
           ontap();
         }
       },
+      onTapOutside: onTapOutSide,
       decoration: InputDecoration(
           labelText: hint,
           labelStyle: normalText().copyWith(color: AppColors.lightText),
@@ -53,7 +55,8 @@ customTextFiled(
                   width: 40,
                   child: icon,
                 ),
-          suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+          suffixIcon:
+              dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.borderColor),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
@@ -108,7 +111,8 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
                 child: prefixIcon,
               )
             : null,
-        suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+        suffixIcon:
+            dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.borderColor),
           borderRadius: BorderRadius.circular(borderRadius),
@@ -117,7 +121,8 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
           borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         // Increased vertical padding
         border: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.borderColor),
@@ -126,7 +131,7 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
       ),
       minLines: lines ?? 1,
       // Sets minimum number of lines
-      maxLines: lines ?? 1, // Sets maximum number of lines
+      maxLines: lines, // Sets maximum number of lines
     ),
   );
 }
@@ -162,7 +167,8 @@ simplecustomTextFiled(TextEditingController controller, FocusNode focusNode,
           labelText: hint,
           labelStyle:
               normalText().copyWith(color: Colors.grey.withOpacity(0.9)),
-          suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+          suffixIcon:
+              dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
@@ -187,7 +193,7 @@ class CustomTextFieldMulti extends StatefulWidget {
   final bool dropdown;
   final dynamic suffixIcon;
   final Color? color;
-  final void Function(String)?  onchange;
+  final void Function(String)? onchange;
   final Function? ontap;
   final int? lines;
   final TextInputType textInputType;
@@ -301,7 +307,8 @@ customTextFiledMenu(TextEditingController controller, FocusNode focusNode,
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
@@ -404,7 +411,8 @@ multiLinesTextField(
             borderSide:
                 BorderSide(color: AppColors.primaryColorBottom, width: 2),
             borderRadius: BorderRadius.circular(15)),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         border: OutlineInputBorder(
             borderSide: BorderSide(color: AppColors.bgGrey),
             borderRadius: BorderRadius.circular(15)),

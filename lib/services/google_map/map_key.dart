@@ -3,8 +3,8 @@ class MapKey {//
   static String mapKey = "AIzaSyC9FPLBwpCIQIRVERrlmHv94qv4u9zmILw";
 }
 //Google map url
-String getLatLngFromAddressUrl(adress, key) =>
-    "https://maps.googleapis.com/maps/api/geocode/json?address=$adress&key=$key";
+String getLatLngFromAddressUrl(address, key) =>
+    "https://maps.googleapis.com/maps/api/geocode/json?address=$address&key=$key";
 String getAddressFromlatlngUrl(lat, long, key) =>
     "https://maps.googleapis.com/maps/api/geocode/json?latlng=$lat,$long&key=$key";
 String getRouteBetweenCoordinateUrl(latlng1, latlng2, mode, key) =>

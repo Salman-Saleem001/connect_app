@@ -1,3 +1,4 @@
+import 'package:connect_app/screens/other_screens/view_all_stats.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
@@ -48,14 +49,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.bar_chart,
                 title: 'Views Stats',
                 onTap: (){
-                  Get.to(()=> StatsMapScreen(id: 0,));
+                  // var profileController = Get.put(ProfileController());
+                  Get.to(()=> ViewAllStats());
                 },
               ),
               SettingsTile(
                 icon: Icons.lock,
                 title: 'Password & Security',
                 onTap: (){
-                  Get.to(()=> ForgetPassword());
+                  Get.to(()=> ForgetPassword(fromChangePassword: true,));
 
                 },
               ),
