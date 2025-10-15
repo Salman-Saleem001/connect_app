@@ -86,25 +86,23 @@ class _SplashScreenState extends State<SplashScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(
-                        data.length,
-                        (i) => Padding(
-                              padding: const EdgeInsets.only(left: 5),
-                              child: Container(
-                                decoration:
-                                    ContainerProperties.simpleDecoration(
-                                        color: Color(0xffD9D9D9)
-                                            .withOpacity(index == i ? 1 : 0.4),
-                                        radius: 60),
-                                height: 16,
-                                width: 16,
-                              ),
-                            )),
+                      data.length,
+                      (i) => Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: Container(
+                          decoration: ContainerProperties.simpleDecoration(
+                              color: Color(0xffD9D9D9).withValues(alpha: index == i ? 1 : 0.4), radius: 60),
+                          height: 16,
+                          width: 16,
+                        ),
+                      ),
+                    ),
                   ),
                   43.hp,
                   PrimaryButton(
                     label: 'Get Started',
                     onPress: () {
-                      Get.off(() => LoginScreen());
+                      Get.to(()=> LoginScreen());
                     },
                     whiteButton: false,
                   ),

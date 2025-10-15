@@ -11,7 +11,6 @@ import 'package:connect_app/screens/other_screens/addRating_screen.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/camera_screens.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/video_view.dart';
 import 'package:connect_app/utils/app_colors.dart';
-import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/text_fields.dart';
 
@@ -41,8 +40,7 @@ class ChatDetailScreenNew extends StatelessWidget {
     var chatController = Get.put(ChatDetailController());
     if (chatController.chatDataModel.value == null) {
       // debugPrint("Here");
-      chatController.getSingleChatDetail(
-          secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
+      chatController.getSingleChatDetail(secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
     }
 
     return PopScope(
@@ -146,8 +144,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                description ??
-                                    'Anyone heading to Phoenix Game Tonight?',
+                                description ?? 'Anyone heading to Phoenix Game Tonight?',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
@@ -169,8 +166,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                           child: Column(
                             children: [
                               Obx(() {
-                                if (chatController.chatDataModel.value ==
-                                    null) {
+                                if (chatController.chatDataModel.value == null) {
                                   return Row(
                                     children: [
                                       UserAvatarImage(userAvatar: userAvatar),
@@ -180,11 +176,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                           onTap: () async {
                                             String chatRoomId;
                                             if (int.parse(secondUserId ?? '0') >
-                                                (Get.find<UserDetail>()
-                                                        .userData
-                                                        .user
-                                                        ?.id ??
-                                                    0)) {
+                                                (Get.find<UserDetail>().userData.user?.id ?? 0)) {
                                               chatRoomId =
                                                   '${int.parse(secondUserId ?? '0')}${Get.find<UserDetail>().userData.user?.id ?? 0}$videoId';
                                             } else {
@@ -192,8 +184,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                   '${Get.find<UserDetail>().userData.user?.id ?? 0}${int.parse(secondUserId ?? '0')}$videoId';
                                             }
                                             await Get.to(CameraScreen(
-                                              cameras:
-                                                  homeFeedController.cameras,
+                                              cameras: homeFeedController.cameras,
                                               fromMessage: true,
                                               onSend: () async {
                                                 String? tag;
@@ -202,25 +193,16 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                 });
                                                 await chatController
                                                     .createChatRoom(
-                                                        secondUser:
-                                                            secondUserId ?? '',
+                                                        secondUser: secondUserId ?? '',
                                                         chatRoomId: chatRoomId,
-                                                        userName:
-                                                            userName ?? '',
+                                                        userName: userName ?? '',
                                                         tags: tag ?? '',
-                                                        description:
-                                                            description ?? '',
+                                                        description: description ?? '',
                                                         videoId: videoId ?? 0,
-                                                        avatar:
-                                                            userAvatar ?? '')
+                                                        avatar: userAvatar ?? '')
                                                     .whenComplete(() {
-                                                  chatController
-                                                      .getSingleChatDetail(
-                                                          secondUserId:
-                                                              secondUserId ??
-                                                                  '',
-                                                          videoId:
-                                                              videoId ?? 0);
+                                                  chatController.getSingleChatDetail(
+                                                      secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
                                                 });
                                               },
                                             ));
@@ -229,8 +211,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                             padding: const EdgeInsets.all(16),
                                             decoration: BoxDecoration(
                                               color: Colors.grey[200],
-                                              borderRadius:
-                                                  BorderRadius.circular(16),
+                                              borderRadius: BorderRadius.circular(16),
                                             ),
                                             child: Row(
                                               children: [
@@ -246,17 +227,13 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                   decoration: BoxDecoration(
                                                     color: Colors.grey,
                                                     // Set the background color to grey
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            1000), // Circular shape
+                                                    borderRadius: BorderRadius.circular(1000), // Circular shape
                                                   ),
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
+                                                  padding: const EdgeInsets.all(8.0),
                                                   // Optional: Add padding if needed
                                                   child: const Icon(
                                                     Icons.videocam,
-                                                    color: Colors
-                                                        .white, // Set the icon color to white
+                                                    color: Colors.white, // Set the icon color to white
                                                   ),
                                                 )
                                               ],
@@ -267,65 +244,41 @@ class ChatDetailScreenNew extends StatelessWidget {
                                     ],
                                   );
                                 } else {
-                                  bool check = chatController
-                                          .chatDataModel.value?.senderId ==
-                                      (Get.find<UserDetail>()
-                                                  .userData
-                                                  .user
-                                                  ?.id ??
-                                              0)
-                                          .toString();
+                                  bool check = chatController.chatDataModel.value?.senderId ==
+                                      (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
                                   return Align(
-                                    alignment: check
-                                        ? Alignment.topLeft
-                                        : Alignment.bottomRight,
+                                    alignment: check ? Alignment.topLeft : Alignment.bottomRight,
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             if (check) ...[
-                                              UserAvatarImage(
-                                                  userAvatar:
-                                                      Get.find<UserDetail>()
-                                                          .userData
-                                                          .user
-                                                          ?.avatar),
+                                              UserAvatarImage(userAvatar: Get.find<UserDetail>().userData.user?.avatar),
                                               const SizedBox(
                                                 width: 5,
                                               ),
                                             ],
                                             Builder(builder: (_) {
-                                              if (chatController.thumbnail !=
-                                                  null) {
+                                              if (chatController.thumbnail != null) {
                                                 return GestureDetector(
-                                                  behavior:
-                                                      HitTestBehavior.opaque,
+                                                  behavior: HitTestBehavior.opaque,
                                                   onTap: () {
-                                                    Get.to(() => ChatVideoView(
-                                                        url: chatController
-                                                            .chatDataModel
-                                                            .value
-                                                            ?.messageData),
+                                                    Get.to(
+                                                      () => ChatVideoView(
+                                                          url: chatController.chatDataModel.value?.messageData),
                                                     );
                                                   },
                                                   child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                    borderRadius: BorderRadius.circular(10),
                                                     child: Stack(
-                                                      alignment:
-                                                          Alignment.center,
+                                                      alignment: Alignment.center,
                                                       children: [
                                                         Image.file(
-                                                          File(chatController
-                                                                  .thumbnail ??
-                                                              ''),
+                                                          File(chatController.thumbnail ?? ''),
                                                           height: 100,
                                                           width: 90,
                                                           fit: BoxFit.cover,
@@ -340,9 +293,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                 );
                                               }
                                               chatController.generateThumbnail(
-                                                  chatController.chatDataModel
-                                                          .value?.messageData ??
-                                                      '');
+                                                  chatController.chatDataModel.value?.messageData ?? '');
                                               return CircularProgressIndicator(
                                                 color: AppColors.primaryColor,
                                               );
@@ -351,8 +302,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                               const SizedBox(
                                                 width: 5,
                                               ),
-                                              UserAvatarImage(
-                                                  userAvatar: userAvatar),
+                                              UserAvatarImage(userAvatar: userAvatar),
                                             ]
                                           ],
                                         ),
@@ -360,55 +310,37 @@ class ChatDetailScreenNew extends StatelessWidget {
                                           height: 5,
                                         ),
                                         Text(
-                                          getTime(chatController.chatDataModel
-                                                  .value?.videoTime ??
-                                              ''),
+                                          getTime(chatController.chatDataModel.value?.videoTime ?? ''),
                                           textAlign: TextAlign.right,
                                           style: const TextStyle(
                                             color: Colors.grey,
                                           ),
                                         ),
-                                        if (!check &&
-                                            chatController.chatDataModel.value
-                                                    ?.myStatus ==
-                                                'Pending')
+                                        if (!check && chatController.chatDataModel.value?.myStatus == 'Pending')
                                           Row(
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               GestureDetector(
-                                                behavior:
-                                                    HitTestBehavior.opaque,
+                                                behavior: HitTestBehavior.opaque,
                                                 onTap: () {
                                                   debugPrint('Hello');
                                                   chatController.updateStatus(
-                                                      secondUserId:
-                                                          chatController
-                                                                  .chatDataModel
-                                                                  .value
-                                                                  ?.senderId ??
-                                                              '',
+                                                      secondUserId: chatController.chatDataModel.value?.senderId ?? '',
                                                       status: "Accepted",
                                                       videoId: videoId ?? 0);
                                                 },
                                                 child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                                  borderRadius: BorderRadius.circular(10),
                                                   child: ColoredBox(
-                                                    color:
-                                                        AppColors.primaryColor,
+                                                    color: AppColors.primaryColor,
                                                     child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
+                                                      padding: const EdgeInsets.all(8.0),
                                                       child: Text(
                                                         'Accept Connection',
                                                         style: TextStyle(
                                                             fontSize: 12,
-                                                            color:
-                                                                AppColors.white,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
+                                                            color: AppColors.white,
+                                                            fontWeight: FontWeight.w500),
                                                       ),
                                                     ),
                                                   ),
@@ -418,32 +350,25 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                 width: 10,
                                               ),
                                               GestureDetector(
-                                                behavior:
-                                                    HitTestBehavior.opaque,
+                                                behavior: HitTestBehavior.opaque,
                                                 onTap: () {
                                                   chatController.updateStatus(
-                                                      secondUserId:
-                                                          secondUserId ?? '',
+                                                      secondUserId: secondUserId ?? '',
                                                       status: "Rejected",
                                                       videoId: videoId ?? 0);
                                                 },
                                                 child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
+                                                  borderRadius: BorderRadius.circular(10),
                                                   child: ColoredBox(
-                                                    color: AppColors.bgGrey
-                                                        .withOpacity(.3),
+                                                    color: AppColors.bgGrey.withOpacity(.3),
                                                     child: const Padding(
-                                                      padding:
-                                                          EdgeInsets.all(8.0),
+                                                      padding: EdgeInsets.all(8.0),
                                                       child: Text(
                                                         'Decline',
                                                         style: TextStyle(
                                                             fontSize: 12,
                                                             // color: AppColors.white,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w500),
+                                                            fontWeight: FontWeight.w500),
                                                       ),
                                                     ),
                                                   ),
@@ -462,118 +387,72 @@ class ChatDetailScreenNew extends StatelessWidget {
                         chatController.chatDataModel.value?.chatsId != null
                             ? StreamBuilder(
                                 stream: chatController.getMessages(
-                                    chatRoomId: chatController
-                                            .chatDataModel.value?.chatsId ??
-                                        ""),
-                                builder: (_,
-                                    AsyncSnapshot<QuerySnapshot<Object?>>
-                                        snapshot) {
+                                    chatRoomId: chatController.chatDataModel.value?.chatsId ?? ""),
+                                builder: (_, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
                                   if (snapshot.hasData) {
                                     return Column(
-                                      children: snapshot.data!.docs.reversed
-                                          .map((element) {
-                                        final chat = ChatDataModel.fromJson(
-                                            element.data()
-                                                as Map<String, dynamic>);
-                                        bool check = chat.senderId ==
-                                            (Get.find<UserDetail>()
-                                                        .userData
-                                                        .user
-                                                        ?.id ??
-                                                    0)
-                                                .toString();
+                                      children: snapshot.data!.docs.reversed.map((element) {
+                                        final chat = ChatDataModel.fromJson(element.data() as Map<String, dynamic>);
+                                        bool check =
+                                            chat.senderId == (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
                                         return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 5.0),
+                                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10),
                                           child: Align(
-                                            alignment: check
-                                                ? Alignment.topLeft
-                                                : Alignment.bottomRight,
+                                            alignment: check ? Alignment.topLeft : Alignment.bottomRight,
                                             child: Column(
                                               mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
+                                              crossAxisAlignment: CrossAxisAlignment.end,
                                               children: [
                                                 Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisSize: MainAxisSize.min,
                                                   children: [
                                                     if (check) ...[
                                                       UserAvatarImage(
-                                                          userAvatar: Get.find<
-                                                                  UserDetail>()
-                                                              .userData
-                                                              .user
-                                                              ?.avatar),
+                                                          userAvatar: Get.find<UserDetail>().userData.user?.avatar),
                                                       const SizedBox(
                                                         width: 5,
                                                       ),
                                                     ],
-                                                    if (chat.lastMessageType ==
-                                                        'video') ...[
+                                                    if (chat.lastMessageType == 'video') ...[
                                                       GestureDetector(
-                                                        behavior:
-                                                            HitTestBehavior
-                                                                .opaque,
+                                                        behavior: HitTestBehavior.opaque,
                                                         onTap: () {
                                                           Get.to(VideoView(
-                                                            url:
-                                                                chat.messageData ??
-                                                                    '',
+                                                            url: chat.messageData ?? '',
                                                           ));
                                                         },
                                                         child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(10),
-                                                          child:
-                                                              const ColoredBox(
+                                                          borderRadius: BorderRadius.circular(10),
+                                                          child: const ColoredBox(
                                                             color: Colors.black,
                                                             child: SizedBox(
                                                               height: 100,
                                                               width: 90,
                                                               child: Icon(
-                                                                Icons
-                                                                    .play_arrow,
-                                                                color: Colors
-                                                                    .white,
+                                                                Icons.play_arrow,
+                                                                color: Colors.white,
                                                               ),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                     ] else
-                                                      Expanded(
+                                                      Flexible(
                                                         child: ClipRRect(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(15),
+                                                          borderRadius: BorderRadius.circular(15),
                                                           child: ColoredBox(
                                                             color: check
-                                                                ? AppColors.bgGrey
-                                                                    .withOpacity(
-                                                                        .2)
-                                                                : AppColors
-                                                                    .primaryColorBottom,
+                                                                ? AppColors.bgGrey.withOpacity(.2)
+                                                                : AppColors.primaryColorBottom,
                                                             child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(10.0),
+                                                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
                                                               child: Text(
-                                                                chat.messageData ??
-                                                                    "",
+                                                                chat.messageData ?? "",
                                                                 style: TextStyle(
                                                                     fontSize: 16,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w400,
-                                                                    color: check
-                                                                        ? Colors
-                                                                            .black
-                                                                        : AppColors
-                                                                            .white),
+                                                                    fontWeight: FontWeight.w400,
+                                                                    color: check ? Colors.black : AppColors.white),
                                                                 maxLines: 100,
                                                               ),
                                                             ),
@@ -584,9 +463,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                       const SizedBox(
                                                         width: 5,
                                                       ),
-                                                      UserAvatarImage(
-                                                          userAvatar:
-                                                              userAvatar),
+                                                      UserAvatarImage(userAvatar: userAvatar),
                                                     ]
                                                   ],
                                                 ),
@@ -594,9 +471,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                   height: 5,
                                                 ),
                                                 Text(
-                                                  getTime(
-                                                      chat.lastMessageTime ??
-                                                          ''),
+                                                  getTime(chat.lastMessageTime ?? ''),
                                                   textAlign: TextAlign.right,
                                                   style: const TextStyle(
                                                     color: Colors.grey,
@@ -642,9 +517,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                   DecoratedBox(
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                          color: AppColors.primaryColorBottom.withOpacity(0.4),
-                          width: 5), // 5p
+                      border: Border.all(color: AppColors.primaryColorBottom.withOpacity(0.4), width: 5), // 5p
                     ),
                     child: Padding(
                       padding: const EdgeInsets.all(6.0),
@@ -652,18 +525,13 @@ class ChatDetailScreenNew extends StatelessWidget {
                         borderRadius: BorderRadius.circular(200),
                         child: ColoredBox(
                           color: AppColors.primaryColorBottom,
-                          child: GetBuilder(
-                              builder: (ChatDetailController controller) {
+                          child: GetBuilder(builder: (ChatDetailController controller) {
                             return GestureDetector(
                               onTap: () async {
                                 if (controller.chatDataModel.value == null) {
                                   String chatRoomId;
                                   if (int.parse(secondUserId ?? '0') >
-                                      (Get.find<UserDetail>()
-                                              .userData
-                                              .user
-                                              ?.id ??
-                                          0)) {
+                                      (Get.find<UserDetail>().userData.user?.id ?? 0)) {
                                     chatRoomId =
                                         '${int.parse(secondUserId ?? '0')}${Get.find<UserDetail>().userData.user?.id ?? 0}';
                                   }
@@ -688,34 +556,20 @@ class ChatDetailScreenNew extends StatelessWidget {
                                               avatar: userAvatar ?? '')
                                           .whenComplete(() {
                                         chatController.getSingleChatDetail(
-                                            secondUserId: secondUserId ?? '',
-                                            videoId: videoId ?? 0);
+                                            secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
                                       });
                                     },
                                   ));
-                                } else if (controller
-                                        .chatDataModel.value?.otherStatus ==
-                                    'Accepted') {
+                                } else if (controller.chatDataModel.value?.otherStatus == 'Accepted') {
                                   chatController.sendMessage(
-                                    chatRoomId: chatController
-                                            .chatDataModel.value?.chatsId ??
-                                        '',
+                                    chatRoomId: chatController.chatDataModel.value?.chatsId ?? '',
                                   );
                                   chatController.updateLastMessage(
-                                      secondUser: (controller.chatDataModel
-                                                      .value?.senderId ??
-                                                  '') ==
-                                              Database.userId
-                                          ? (controller.chatDataModel.value
-                                                  ?.receiverId ??
-                                              '')
-                                          : (controller.chatDataModel.value
-                                                  ?.senderId ??
-                                              ''),
+                                      secondUser: (controller.chatDataModel.value?.senderId ?? '') == Database.userId
+                                          ? (controller.chatDataModel.value?.receiverId ?? '')
+                                          : (controller.chatDataModel.value?.senderId ?? ''),
                                       videId: videoId ?? 0);
-                                } else if (controller
-                                        .chatDataModel.value?.otherStatus ==
-                                    'Rejected') {
+                                } else if (controller.chatDataModel.value?.otherStatus == 'Rejected') {
                                   Global.showToastAlert(
                                       context: context,
                                       strMsg: 'Chat request rejected',
@@ -723,17 +577,13 @@ class ChatDetailScreenNew extends StatelessWidget {
                                 } else {
                                   Global.showToastAlert(
                                       context: context,
-                                      strMsg:
-                                          'The Person has not accepted your request',
+                                      strMsg: 'The Person has not accepted your request',
                                       toastType: TOAST_TYPE.toastWarning);
                                 }
                               },
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Icon(
-                                    controller.chatDataModel.value == null
-                                        ? Icons.videocam
-                                        : Icons.send,
+                                child: Icon(controller.chatDataModel.value == null ? Icons.videocam : Icons.send,
                                     color: Colors.white),
                               ),
                             );
@@ -819,8 +669,7 @@ class UserAvatarImage extends StatelessWidget {
       radius: radius ?? 20,
       backgroundImage: isAbsolute
           ? NetworkImage(
-              userAvatar ??
-                  'https://wallpapers.com/images/hd/mr-bean-cartoon-riding-car-cxwhk07yek890rh1.jpg',
+              userAvatar ?? 'https://wallpapers.com/images/hd/mr-bean-cartoon-riding-car-cxwhk07yek890rh1.jpg',
             )
           : null,
       foregroundImage: !isAbsolute
@@ -875,9 +724,7 @@ getTime(dynamic val) {
 
   DateTime localTime = dateTimeUtcPlus5.toLocal();
 
-  timeDifferenceMicroseconds =
-      (DateTime.now().microsecondsSinceEpoch - localTime.microsecondsSinceEpoch)
-          .toInt();
+  timeDifferenceMicroseconds = (DateTime.now().microsecondsSinceEpoch - localTime.microsecondsSinceEpoch).toInt();
 
   Duration timeDifference = Duration(microseconds: timeDifferenceMicroseconds);
 

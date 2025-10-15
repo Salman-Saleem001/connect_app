@@ -18,30 +18,34 @@ import 'package:connect_app/widgets/error_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    EasyLoading.dismiss();
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    Future.delayed(Duration.zero, () {
+  bool login = false;
+  try {
+    await Firebase.initializeApp();
+    FlutterError.onError = (details) {
+      FlutterError.presentError(details);
       EasyLoading.dismiss();
-    });
-    return true;
-  };
-  ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
-    return CustomError(
-      errorDetails: errorDetails,
-    );
-  };
-  LocalNotificationChannel.initializer();
-  EasyLoading().dismissOnTap = false;
-  EasyLoading().userInteractions = false;
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      Future.delayed(Duration.zero, () {
+        EasyLoading.dismiss();
+      });
+      return true;
+    };
+    ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+      return CustomError(
+        errorDetails: errorDetails,
+      );
+    };
+    LocalNotificationChannel.initializer();
+    EasyLoading().dismissOnTap = false;
+    EasyLoading().userInteractions = false;
 
-  var user = Get.put(UserDetail());
-  await user.getUserData();
-  var login = await user.isLogin();
-
+    var user = Get.put(UserDetail());
+    await user.getUserData();
+    login = await user.isLogin();
+  } catch (e) {
+    debugPrint('Error: $e');
+  }
   runApp(OverlaySupport(child: BoosterMaterialApp(login: login)));
 }
 
@@ -53,8 +57,14 @@ class BoosterMaterialApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider(), lazy: true,),
-        ChangeNotifierProvider<GoogleMapScreenProvider>(create: (_) => GoogleMapScreenProvider(), lazy: true,),
+        ChangeNotifierProvider<HomeProvider>(
+          create: (_) => HomeProvider(),
+          lazy: true,
+        ),
+        ChangeNotifierProvider<GoogleMapScreenProvider>(
+          create: (_) => GoogleMapScreenProvider(),
+          lazy: true,
+        ),
       ],
       child: LayoutBuilder(
         builder: (context, constraint) {

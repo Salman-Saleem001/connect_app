@@ -35,43 +35,35 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-  share_plus: ^10.1.2
+  share_plus: ^12.0.0
   http: ^1.2.2
   shared_preferences: ^2.3.3
-  intl: ^0.19.0
+  intl: ^0.20.2
   overlay_support: ^2.1.0
   path_provider: ^2.1.5
   dartz: ^0.10.1
-  permission_handler: ^11.3.1
-  firebase_core: ^3.7.0
-  cloud_firestore: ^5.4.5
-  firebase_storage: ^12.3.5
+  permission_handler: ^12.0.1
+  firebase_core: ^4.1.1
+  cloud_firestore: ^6.0.2
+  firebase_storage: ^13.0.2
   cached_network_image: ^3.4.1
   get: ^4.6.6
   video_player: ^2.9.2
   image_picker: ^1.1.2
-  file_picker: ^8.1.4
+  file_picker: ^10.3.3
   google_maps_flutter: ^2.9.0
-  firebase_messaging: ^15.1.4
-  geolocator: ^13.0.1
+  firebase_messaging: ^16.0.2
+  geolocator: ^14.0.2
   camera: ^0.11.0+2
-  just_audio: ^0.9.42
-#  For Android
-#  ffmpeg_kit_flutter: ^6.0.3
-#For IOS
-  ffmpeg_kit_flutter:
-   git:
-    url: https://github.com/Sahad2701/ffmpeg-kit.git
-    path: flutter/flutter
-    ref: flutter_fix_retired_v6.0.3
+  just_audio: ^0.10.5
+  ffmpeg_kit_flutter_new:
   video_thumbnail: ^0.5.3
-  flutter_local_notifications: ^18.0.1
-#  tapioca: ^1.0.6+1
-  flutter_google_places_sdk: ^0.3.10
-  location: ^6.0.2
+  flutter_local_notifications: ^19.4.2
+  flutter_google_places_sdk: ^0.4.2+1
+  location: ^8.0.1
   provider: ^6.1.2
   flutter_easyloading: ^3.0.5
-  geocoding: ^3.0.0
+  geocoding: ^4.0.0
   shimmer: ^3.0.0
   visibility_detector: ^0.4.0+2
   timeago: ^3.7.0
@@ -79,6 +71,8 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   collection:
   tapioca_v2: ^1.0.0+2
+  sign_in_with_apple:
+
 
 
 dev_dependencies:
@@ -90,7 +84,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
