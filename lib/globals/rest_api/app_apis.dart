@@ -1,19 +1,26 @@
 class AppApis{
-  static String baseUrl = 'https://connect-giant.aliraza.xyz/api';
-  static String register = '/auth/register';
-  static String login = '/auth/login';
-  static String posts = '/posts';
-  static String userProfile = '/user/me';
-  static String postsTimeLine = '$posts/timeline';
-  static String toggleLikes = '$posts/like-toggle/';
-  static String deleteVideoApi = '$baseUrl$posts/';
-  static String statsOfVideoApi = '$baseUrl$posts/stats/';
-  static String getTags= '$baseUrl/tags';
-  static String getSearchData= '$baseUrl/search';
-  static String getTrendingPosts= '$posts/trending';
-  static String getRecommendedPosts= '$posts/recommended';
-  static String viewedPostApi= '$baseUrl$posts/viewed/';
-  static String ratePostApi= '$baseUrl$posts/rate/';
-  static String followUserApi= '$baseUrl/user/follow/';
-  static String unFollowUserApi= '$baseUrl/user/unfollow/';
+  static const String baseUrl = 'https://api.connectgiant.com/api';
+  static const String register = '/auth/register';
+  static const String login = '/auth/login';
+  static const String socialLogin = '/auth/social-login';
+  static const String posts = '/posts';
+  static const String report = '$baseUrl$posts/report/';
+  static const String userProfile = '/user/me';
+  static const String postsTimeLine = '$posts/timeline';
+  static const String toggleLikes = '$posts/like-toggle/';
+  static const String deleteVideoApi = '$baseUrl$posts/';
+  static const String statsOfVideoApi = '$baseUrl$posts/stats/';
+  static const String getTags= '$baseUrl/tags';
+  static const String getSearchData= '$baseUrl/search';
+  static const String getTrendingPosts= '$posts/trending';
+  static const String getRecommendedPosts= '$posts/recommended';
+  static const String viewedPostApi= '$baseUrl$posts/viewed/';
+  static const String ratePostApi= '$baseUrl$posts/rate/';
+  static const String followUserApi= '$baseUrl/user/follow/';
+  static const String unFollowUserApi= '$baseUrl/user/unfollow/';
+  static const String block= '$baseUrl/user/block/';
+  static const String unBlock= '$baseUrl/user/unblock/';
+  static const String blocked= '$baseUrl/user/blocked/';
+
+  static String get deleteProfileApi => '$baseUrl/user/me';
 }

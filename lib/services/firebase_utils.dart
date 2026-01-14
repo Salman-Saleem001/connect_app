@@ -44,7 +44,7 @@ class FirebaseUtils {
     return deviceId;
   }
 
-  deleteToken()async{
+  Future<void> deleteToken()async{
    try{
     await  _firebaseMessaging.deleteToken();
    }catch(e){

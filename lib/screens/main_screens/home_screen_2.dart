@@ -139,7 +139,7 @@ class SecondaryHomeScreenState extends State<SecondaryHomeScreen> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              customTextFieldOptionalPreffix(
+              customTextFieldOptionalPrefix(
                 notesController,
                 notesNode,
                 [],

@@ -95,11 +95,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),),
                             SocialButton(
                               onTap: (){
-                                Get.to(() => const SignUpScreen());
+                                controller.handleGoogleSignIn(context: context);
                               },
                             ),
                             if(GetPlatform.isIOS)
-                              SocialButton(onTap: (){},icon: const Icon(
+                              SocialButton(onTap: (){
+                                controller.handleAppleSignIn(context: context);
+                              },icon: const Icon(
                                 Icons.apple,
                                 color: Colors.black,
                               ),),

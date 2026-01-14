@@ -135,7 +135,7 @@ class SearchScreen extends StatelessWidget {
                                 index: index,
                                 onTap: () {
                                   homeController.selectedCategory.value='Recommended';
-                                  homeController.recommendedPosts?.posts?.clear();
+                                  homeController.recommendedPosts.posts?.clear();
                                   homeController.recommendedPosts= searchController.recommendedPosts.value;
                                   navBar.changeTab(0);
                                   homeController.pageController.animateToPage(

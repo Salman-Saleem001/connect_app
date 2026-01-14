@@ -9,9 +9,9 @@ import 'package:connect_app/widgets/appbars.dart';
 
 import '../../controllers/mainScreen_controllers/navbar_controller.dart';
 import '../../utils/login_details.dart';
+import '../../widgets/primary_button.dart';
 import '../auth_screens/forget_password.dart';
 import '../profile/edit_details.dart';
-import '../profile/stats_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({
@@ -23,11 +23,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       appBar: customAppBar(
         backButton: true,
         title: "Settings",
@@ -41,24 +39,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                 icon: Icons.person,
                 title: 'Personal Details',
-                onTap: (){
+                onTap: () {
                   Get.to(() => const EditDetails());
                 },
               ),
               SettingsTile(
                 icon: Icons.bar_chart,
                 title: 'Views Stats',
-                onTap: (){
+                onTap: () {
                   // var profileController = Get.put(ProfileController());
-                  Get.to(()=> ViewAllStats());
+                  Get.to(() => ViewAllStats());
                 },
               ),
               SettingsTile(
                 icon: Icons.lock,
                 title: 'Password & Security',
-                onTap: (){
-                  Get.to(()=> ForgetPassword(fromChangePassword: true,));
-
+                onTap: () {
+                  Get.to(() => ForgetPassword(
+                        fromChangePassword: true,
+                      ));
                 },
               ),
             ],
@@ -72,11 +71,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'PREFERENCES & ACTIVITY',
             tiles: [
               SettingsTile(
-                  icon: Icons.notifications,
-                  title: 'Notifications',
-                  // toScreen: NotificationSettingsScreen(),
-                onTap: (){
-                    Get.to(()=> NotificationSettingsScreen());
+                icon: Icons.notifications,
+                title: 'Notifications',
+                // toScreen: NotificationSettingsScreen(),
+                onTap: () {
+                  Get.to(() => NotificationSettingsScreen());
                 },
               ),
               SettingsTile(
@@ -86,14 +85,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SettingsTile(
                 icon: Icons.logout,
                 title: 'Logout Device',
-                onTap: ()async{
-                  var nav= Get.put(NavBarController());
-                  var profile= Get.put(ProfileController());
+                onTap: () async {
+                  var nav = Get.put(NavBarController());
+                  var profile = Get.put(ProfileController());
                   profile.clear();
                   profile.dispose();
                   nav.clear();
                   Get.find<UserDetail>().logout();
                   // Get.deleteAll();
+                },
+              ),
+              SettingsTile(
+                icon: Icons.no_accounts,
+                title: 'Delete Account',
+                onTap: () {
+                  showDialog(
+                      context: context,
+                      builder: (_) {
+                        return Dialog(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text("Delete Account", style: headingText()),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Text(
+                                  "Are you sure you want to delete your account?",
+                                  style: normalText(),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: BorderedButton(
+                                        text: "Cancel",
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Expanded(
+                                      child: PrimaryButton(
+                                        label: 'Delete',
+                                        // whiteButton: true,
+                                        onPress: () {
+                                          final profile = Get.put(ProfileController());
+                                          profile.deleteProfile().then((val) {
+                                            if (val) {
+                                              var nav = Get.put(NavBarController());
+                                              profile.clear();
+                                              profile.dispose();
+                                              nav.clear();
+                                              Get.find<UserDetail>().logout();
+                                            }
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              ],
+                            ),
+                          ),
+                        );
+                      });
                 },
               ),
             ],
@@ -156,9 +219,11 @@ class SettingsTile extends StatelessWidget {
   final String title;
   final VoidCallback? onTap;
 
-  SettingsTile({
+  const SettingsTile({
+    super.key,
     required this.icon,
-    required this.title, this.onTap,
+    required this.title,
+    this.onTap,
   });
 
   @override

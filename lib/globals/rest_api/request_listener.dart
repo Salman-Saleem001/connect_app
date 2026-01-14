@@ -19,12 +19,6 @@ class ReqListener {
       required HashMap<String, Object> requestParams,
       required ReqType mReqType,
       required ParamType mParamType}) async {
-    // var connectivityResult = await (Connectivity().checkConnectivity());
-    // if (connectivityResult != ConnectivityResult.mobile &&
-    //     connectivityResult != ConnectivityResult.wifi) {
-    //   // I am connected to a mobile network.
-    //   return 'internet';
-    // }
     HashMap<String, String> lHeaders = HashMap();
 
     final prefs = await SharedPreferences.getInstance();

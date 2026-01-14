@@ -9,14 +9,6 @@ import 'package:connect_app/models/user.dart';
 import 'package:connect_app/screens/splash/splash_screen.dart';
 
 class UserDetail extends GetxController {
-  // String userId = '';
-  // String fname = '';
-  // String lname = '';
-  // String image = '';
-  // String email = '';
-  // String phone = '';
-
-
   UserModel userData = UserModel();
 
   Future<void> getUserData() async {
@@ -71,7 +63,7 @@ class UserDetail extends GetxController {
     update();
   }
 
-  rebuild(){
+  void rebuild(){
     update();
   }
 

@@ -81,7 +81,7 @@ class FollowRequestsScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          customTextFieldOptionalPreffix(notesController, notesNode, [],
+          customTextFieldOptionalPrefix(notesController, notesNode, [],
               suffixIcon: Icon(
                 Icons.search,
                 color: AppColors.textLight,

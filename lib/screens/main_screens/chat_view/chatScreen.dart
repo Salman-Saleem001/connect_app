@@ -506,7 +506,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                     onPressed: () {},
                   ),
                   Expanded(
-                      child: customTextFieldOptionalPreffix(
+                      child: customTextFieldOptionalPrefix(
                           borderRadius: 1000,
                           hint: 'Type as message...',
                           chatController.controllerMessage,

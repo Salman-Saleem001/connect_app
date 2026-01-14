@@ -218,19 +218,19 @@ class ChatDetailController extends GetxController {
     }
   }
 
-  imgFromGallery2() async {
+  Future<void> imgFromGallery2() async {
     try {
-      ImagePicker _picker = ImagePicker();
-      final pickedFile = await _picker.pickMultiImage();
-      imageCompressor(pickedFile!);
+      ImagePicker picker = ImagePicker();
+      final pickedFile = await picker.pickMultiImage();
+      imageCompressor(pickedFile);
     } catch (e) {
-      print('image picker error: $e');
+      debugPrint('image picker error: $e');
     }
   }
 
   var loading = false;
 
-  imageCompressor(List<XFile> selectedImage) async {
+  Future<void> imageCompressor(List<XFile> selectedImage) async {
     try {
       loading = true;
       update();
@@ -285,7 +285,7 @@ class ChatDetailController extends GetxController {
     });
   }
 
-  createChatRoom({required String secondUser,
+  Future<void> createChatRoom({required String secondUser,
     required String chatRoomId,
     required String userName,
     required String description,

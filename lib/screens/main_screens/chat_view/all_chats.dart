@@ -46,7 +46,7 @@ class ChatScreenState extends State<ChatScreen> {
       child: Column(
         children: [
           10.hp,
-          customTextFieldOptionalPreffix(search, FocusNode(), [],
+          customTextFieldOptionalPrefix(search, FocusNode(), [],
               suffixIcon: Icon(
                 Icons.search,
                 color: AppColors.textLight,

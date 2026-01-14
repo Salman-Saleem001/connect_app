@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:get/get.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';

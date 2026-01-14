@@ -1,3 +1,4 @@
+import 'package:connect_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
@@ -11,6 +12,7 @@ import 'package:connect_app/utils/size_config.dart';
 import 'package:connect_app/utils/text_styles.dart';
 
 import '../../globals/network_image.dart';
+import '../../widgets/report_widget.dart';
 
 class HomePageFeed extends StatelessWidget {
   const HomePageFeed({super.key});
@@ -28,15 +30,12 @@ class HomePageFeed extends StatelessWidget {
               PostModel? selectedPostModel;
               bool isLoading;
               // Determine the content to display based on the selected category
-
-              debugPrint(controller.selectedCategory.value);
               switch (controller.selectedCategory.value) {
                 case 'My feed':
                   controller.featuredPosts.posts?.clear();
                   controller.recommendedPosts.posts?.clear();
                   selectedPostModel = controller.trendingPosts;
                   isLoading = controller.fetchingTrending.value;
-
                   break;
                 case 'Trending':
                   controller.trendingPosts.posts?.clear();
@@ -47,8 +46,7 @@ class HomePageFeed extends StatelessWidget {
                 default:
                   controller.trendingPosts.posts?.clear();
                   controller.featuredPosts.posts?.clear();
-                  selectedPostModel =
-                      controller.recommendedPosts;
+                  selectedPostModel = controller.recommendedPosts;
                   isLoading = controller.fetchingRecommended.value;
                   break;
               }
@@ -63,8 +61,7 @@ class HomePageFeed extends StatelessWidget {
                               child: Center(
                                 child: Text(
                                   'No Latest Videos',
-                                  style: subHeadingText()
-                                      .copyWith(color: Colors.white),
+                                  style: subHeadingText().copyWith(color: Colors.white),
                                 ),
                               ),
                             ),
@@ -90,21 +87,17 @@ class HomePageFeed extends StatelessWidget {
                                   left: 11,
                                   right: 70,
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       GestureDetector(
                                         onTap: () {},
                                         child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(50),
+                                              borderRadius: BorderRadius.circular(50),
                                               child: NetworkImageCustom(
-                                                image:
-                                                    video?.user?.avatar ?? '',
+                                                image: video?.user?.avatar ?? '',
                                                 fit: BoxFit.cover,
                                                 height: 50,
                                                 width: 50,
@@ -115,9 +108,7 @@ class HomePageFeed extends StatelessWidget {
                                             ),
                                             Text(
                                               '@${video?.user?.firstName?.toLowerCase() ?? ''}',
-                                              style: subHeadingText()
-                                                  .copyWith(
-                                                      color: Colors.white),
+                                              style: subHeadingText().copyWith(color: Colors.white),
                                             ),
                                           ],
                                         ),
@@ -129,26 +120,21 @@ class HomePageFeed extends StatelessWidget {
                                         width: 200,
                                         child: Text(
                                           video?.info ?? '',
-                                          style: normalText(size: 12)
-                                              .copyWith(color: Colors.white),
+                                          style: normalText(size: 12).copyWith(color: Colors.white),
                                         ),
                                       ),
                                       if (video?.id != null)
                                         Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.start,
                                           children: [
                                             Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.start,
                                               children: [
                                                 Image.asset(
                                                   'assets/images/ic_video_camera.png',
                                                   height: 18,
-                                                  errorBuilder:
-                                                      (_, error, trace) {
-                                                    return const SizedBox
-                                                        .shrink();
+                                                  errorBuilder: (_, error, trace) {
+                                                    return const SizedBox.shrink();
                                                   },
                                                 ),
                                                 const SizedBox(
@@ -156,10 +142,7 @@ class HomePageFeed extends StatelessWidget {
                                                 ),
                                                 Text(
                                                   video?.title ?? '',
-                                                  style: normalText(size: 12)
-                                                      .copyWith(
-                                                          color:
-                                                              Colors.white),
+                                                  style: normalText(size: 12).copyWith(color: Colors.white),
                                                 ),
                                               ],
                                             ),
@@ -171,20 +154,17 @@ class HomePageFeed extends StatelessWidget {
                                     ],
                                   ),
                                 ),
-                                GetBuilder<HomeFeedController>(
-                                    builder: (value) {
+                                GetBuilder<HomeFeedController>(builder: (value) {
                                   return Positioned(
                                     top: 252,
                                     left: 10,
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         GestureDetector(
                                           onTap: () {},
                                           child: ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(100),
+                                            borderRadius: BorderRadius.circular(100),
                                             child: Image.asset(
                                               'assets/images/kora_logo.png',
                                               scale: 2.2,
@@ -197,64 +177,38 @@ class HomePageFeed extends StatelessWidget {
                                         GestureDetector(
                                             onTap: () {
                                               value.toggle(video?.id ?? 0);
-                                              video?.isLiked =
-                                                  !(video.isLiked ?? false);
+                                              video?.isLiked = !(video.isLiked ?? false);
                                               if (video?.isLiked ?? false) {
-                                                video?.likesCount =
-                                                    (video.likesCount ?? 0) +
-                                                        1;
+                                                video?.likesCount = (video.likesCount ?? 0) + 1;
                                               }
                                               value.update();
                                             },
                                             child: Image.asset(
                                               'assets/images/ic_heart.png',
                                               height: 40,
-                                              color: (video?.isLiked ?? false)
-                                                  ? Colors.red
-                                                  : Colors.white,
+                                              color: (video?.isLiked ?? false) ? Colors.red : Colors.white,
                                             )),
                                         Text(
                                           "${(video?.likesCount ?? 0)} Likes",
-                                          style: normalText()
-                                              .copyWith(color: Colors.white),
+                                          style: normalText().copyWith(color: Colors.white),
                                         ),
                                         const SizedBox(
                                           height: 20,
                                         ),
                                         Opacity(
-                                          opacity: video?.userId ==
-                                                  Get.find<UserDetail>()
-                                                      .userData
-                                                      .user!
-                                                      .id
-                                              ? 0.4
-                                              : 1,
+                                          opacity: video?.userId == Get.find<UserDetail>().userData.user!.id ? 0.4 : 1,
                                           child: GestureDetector(
                                               onTap: () async {
                                                 if ((video?.userId ?? 0) !=
-                                                    (Get.find<UserDetail>()
-                                                            .userData
-                                                            .user
-                                                            ?.id ??
-                                                        0)) {
-                                                  Get.to(() =>
-                                                      ChatDetailScreenNew(
-                                                        secondUserId:
-                                                            (video?.userId ??
-                                                                    0)
-                                                                .toString(),
-                                                        userName: video
-                                                            ?.user?.firstName
-                                                            ?.toLowerCase(),
+                                                    (Get.find<UserDetail>().userData.user?.id ?? 0)) {
+                                                  Get.to(() => ChatDetailScreenNew(
+                                                        secondUserId: (video?.userId ?? 0).toString(),
+                                                        userName: video?.user?.firstName?.toLowerCase(),
                                                         tags: video?.tags,
                                                         videoId: video?.id,
-                                                        description:
-                                                            video?.info,
-                                                        userAvatar: video
-                                                            ?.user?.avatar,
-                                                        bio:
-                                                            video?.user?.bio ??
-                                                                '',
+                                                        description: video?.info,
+                                                        userAvatar: video?.user?.avatar,
+                                                        bio: video?.user?.bio ?? '',
                                                       ));
                                                 }
                                               },
@@ -266,23 +220,18 @@ class HomePageFeed extends StatelessWidget {
                                         ),
                                         Text(
                                           "Connect",
-                                          style: normalText()
-                                              .copyWith(color: Colors.white),
+                                          style: normalText().copyWith(color: Colors.white),
                                         ),
                                         const SizedBox(
                                           height: 20,
                                         ),
-
                                         InkWell(
                                             onTap: () async {
-                                              final result =
-                                                  await Share.share(
-                                                      video?.video ?? "");
+                                              final result = await SharePlus.instance
+                                                  .share(ShareParams(uri: Uri.tryParse(video?.video ?? "")));
 
-                                              if (result.status ==
-                                                  ShareResultStatus.success) {
-                                                debugPrint(
-                                                    'Thank you for sharing my website!');
+                                              if (result.status == ShareResultStatus.success) {
+                                                debugPrint('Thank you for sharing my website!');
                                               }
                                             },
                                             child: Image.asset(
@@ -292,8 +241,51 @@ class HomePageFeed extends StatelessWidget {
                                             )),
                                         Text(
                                           "Share",
-                                          style: normalText()
-                                              .copyWith(color: Colors.white),
+                                          style: normalText().copyWith(color: Colors.white),
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        InkWell(
+                                          onTap: () {
+                                            showModalBottomSheet(
+                                                context: context,
+                                                isScrollControlled: true,
+                                                builder: (sheetContext) {
+                                                  return ReportWidget(
+                                                    onSubmit: (String val) {
+                                                      controller
+                                                          .reportPost(postId: video?.id ?? 0, reason: val)
+                                                          .then((val) {
+                                                        if (val) {
+                                                          switch (controller.selectedCategory.value) {
+                                                            case 'My feed':
+                                                              controller.trendingPosts.posts?.removeAt(index);
+                                                              selectedPostModel = controller.trendingPosts;
+                                                              break;
+                                                            case 'Trending':
+                                                              controller.featuredPosts.posts?.removeAt(index);
+                                                              selectedPostModel = controller.featuredPosts;
+                                                              break;
+                                                            default:
+                                                              controller.recommendedPosts.posts?.removeAt(index);
+                                                              selectedPostModel = controller.recommendedPosts;
+                                                              break;
+                                                          }
+                                                        }
+                                                      });
+                                                    },
+                                                  );
+                                                });
+                                          },
+                                          child: Icon(
+                                            Icons.report_gmailerrorred,
+                                            color: AppColors.white,
+                                          ),
+                                        ),
+                                        Text(
+                                          "Report",
+                                          style: normalText().copyWith(color: Colors.white),
                                         ),
                                         const SizedBox(
                                           height: 10,
@@ -326,10 +318,7 @@ class HomePageFeed extends StatelessWidget {
                           child: Text(
                             'My feed',
                             style: subHeadingText(
-                              color: controller.selectedCategory.value ==
-                                      'My feed'
-                                  ? Colors.white
-                                  : Colors.grey,
+                              color: controller.selectedCategory.value == 'My feed' ? Colors.white : Colors.grey,
                             ),
                           ),
                         ),
@@ -342,27 +331,20 @@ class HomePageFeed extends StatelessWidget {
                           child: Text(
                             'Trending',
                             style: subHeadingText(
-                              color: controller.selectedCategory.value ==
-                                      'Trending'
-                                  ? Colors.white
-                                  : Colors.grey,
+                              color: controller.selectedCategory.value == 'Trending' ? Colors.white : Colors.grey,
                             ),
                           ),
                         ),
                         const SizedBox(width: 18),
                         GestureDetector(
                           onTap: () {
-
                             controller.selectedCategory.value = 'Recommended';
                             controller.getRecommendedContent();
                           },
                           child: Text(
                             'Recommended',
                             style: subHeadingText(
-                              color: controller.selectedCategory.value ==
-                                      'Recommended'
-                                  ? Colors.white
-                                  : Colors.grey,
+                              color: controller.selectedCategory.value == 'Recommended' ? Colors.white : Colors.grey,
                             ),
                           ),
                         ),
@@ -379,16 +361,12 @@ class HomePageFeed extends StatelessWidget {
               child: Center(
                 child: GestureDetector(
                   onTap: () {
-                    Get.off(() => CameraScreen(
-                        cameras: controller.cameras));
+                    Get.off(() => CameraScreen(cameras: controller.cameras));
                   },
                   child: Container(
                     height: 68,
                     width: 68,
-                    decoration: BoxDecoration(
-                        color: const Color(0xffE92A4F),
-                        borderRadius:
-                        BorderRadius.circular(80)),
+                    decoration: BoxDecoration(color: const Color(0xffE92A4F), borderRadius: BorderRadius.circular(80)),
                     child: const Icon(
                       Icons.add,
                       size: 30,

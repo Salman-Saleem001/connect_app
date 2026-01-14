@@ -38,7 +38,7 @@ class _NavBarScreenState extends State<NavBarScreen>
         vsync: this, duration: const Duration(milliseconds: 250));
   }
 
-  initializeUser()async{
+  Future<void> initializeUser()async{
     var user = Get.put(UserDetail());
     await user.getUserData();
     Database().initializeUser();

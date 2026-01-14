@@ -92,7 +92,6 @@ class HttpsServices {
       var headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer 2|78eV3YjxHPBB8MzYPjfbBpwUbHc9hyqObD8p3P2A8ae52ac0'
       };
       var request =
           http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.login));
@@ -116,6 +115,40 @@ class HttpsServices {
       return null;
     }
   }
+
+  static Future<dynamic> socialLogin({
+    required String provider,
+    required String socialToken,
+    required String fcmToken
+  }) async {
+    try {
+      var headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      var request =
+      http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.socialLogin));
+      request.body = json.encode({"provider":provider,"access_token": socialToken, "fcm_token": fcmToken});
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var temp = await response.stream.bytesToString();
+        var tempJson = jsonDecode(temp);
+        return UserModel.fromJson(tempJson);
+      } else {
+        var temp = await response.stream.bytesToString();
+        var tempJson = jsonDecode(temp);
+        debugPrint(response.reasonPhrase);
+        return tempJson['message'];
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
 
   static Future<dynamic> getPostsHome({
     required String token,
