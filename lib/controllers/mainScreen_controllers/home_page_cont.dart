@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:connect_app/screens/location_permission/location_permission.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geocoding/geocoding.dart' hide Location;
@@ -11,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../globals/enum.dart';
 import '../../globals/global.dart';
@@ -23,6 +25,7 @@ import '../../services/google_map/google_address_model.dart';
 import '../../services/google_map/map_key.dart';
 import '../../services/http_services.dart';
 import '../../utils/login_details.dart';
+import '../../widgets/take_tour.dart';
 
 class HomeFeedController extends GetxController {
   List<CameraDescription> cameras = <CameraDescription>[];
@@ -70,7 +73,6 @@ class HomeFeedController extends GetxController {
     getFeaturedContent();
     // getEventContent();
     getCameras();
-    getLocation();
     super.onInit();
   }
 
@@ -80,7 +82,6 @@ class HomeFeedController extends GetxController {
     loadingNext.value = !loadingNext.value;
     update();
   }
-
 
   Future<void> getContent() async {
     // debugPrint("Getting Run====>${Get.find<UserDetail>().userData.token.toString()}");
@@ -113,7 +114,7 @@ class HomeFeedController extends GetxController {
 
     var response = await HttpsServices.getPostsHome(
         token: Get.find<UserDetail>().userData.token.toString(), type: AppApis.getRecommendedPosts);
-
+    log(response.toString());
     if (response != null && response is PostModel) {
       recommendedPosts = response; // Update the recommended posts
       // debugPrint("Here is my response===> ${recommendedPosts?.toJson().toString()}");
@@ -154,16 +155,30 @@ class HomeFeedController extends GetxController {
   }
 
   Future<bool> reportPost({required int postId, required String reason}) async {
-    try{
-
+    try {
       final response = await HttpsServices.postApiCall(
         url: '${AppApis.report}$postId',
-        body: {'rating': 0,'reason': reason},
+        body: {'rating': 0, 'reason': reason},
       );
-      if(response!= null){
+      if (response != null) {
+        log("Response for reporting ====> $response");
         return true;
       }
-    }catch(e){
+    } catch (e) {
+      debugPrint('Some thing Went wrong====>$e');
+    }
+    return false;
+  }
+
+  Future<bool> blockUser({required int userId}) async {
+    try {
+      final response = await HttpsServices.postApiCall(
+        url: '${AppApis.block}$userId',
+      );
+      if (response != null) {
+        return true;
+      }
+    } catch (e) {
       debugPrint('Some thing Went wrong====>$e');
     }
     return false;
@@ -300,21 +315,35 @@ class HomeFeedController extends GetxController {
     cameras = await availableCameras();
   }
 
-  Future<void> getLocation() async {
-    Permission permission = Permission.location;
-    if (await permission.status.isDenied || await permission.status.isPermanentlyDenied) {
-      permission.request().then((val) {
-        if (val.isDenied || val.isPermanentlyDenied) {
-          debugPrint("Permission denied");
-        }
-      });
+  Future<void> getLocation([VoidCallback? onComplete]) async {
+    log("Getting Address==> ");
+    try{
+      Permission permission = Permission.locationWhenInUse;
+      if (await permission.status.isDenied || await permission.status.isPermanentlyDenied) {
+        Get.to(() => LocationPermissionScreen())?.whenComplete(() async {
+          if (await permission.status.isGranted) {
+             await setLocation();
+          }
+        });
+      }else{
+        await setLocation();
+      }
+
+      onComplete?.call();
+    }catch(e){
+      log("Error while getting Permission $e");
     }
-    position = await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.best));
+    // debugPrint(addresses.first.toJson().toString());
+
+    update();
+  }
+
+  Future<void> setLocation() async{
+    position =
+        await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.best));
     debugPrint('location: ${position?.latitude}');
     var data = await placemarkFromCoordinates(position?.latitude ?? 0.0, position?.longitude ?? 0.0);
     addresses.value = data;
-    debugPrint(addresses.first.toJson().toString());
-    update();
   }
 
   Future<bool> sendReview(int id) async {

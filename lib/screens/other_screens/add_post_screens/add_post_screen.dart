@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:connect_app/extensions/string_extensions.dart';
@@ -63,8 +64,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     super.initState();
   }
 
-  setListOfTags() async {
+  Future<void> setListOfTags() async {
     if (getController.addresses.isEmpty) {
+      log("Address ===> ${getController.addresses.toJson()}");
       await getController.getLocation();
     }
     await getController.getTags();

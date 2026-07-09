@@ -56,10 +56,10 @@ dependencies:
   geolocator: ^14.0.2
   camera: ^0.11.0+2
   just_audio: ^0.10.5
-  ffmpeg_kit_flutter_new:
+  ffmpeg_kit_flutter_new: 4.0.0
   video_thumbnail: ^0.5.3
-  flutter_local_notifications: ^19.4.2
-  flutter_google_places_sdk: ^0.4.2+1
+  flutter_local_notifications: ^20.1.0
+  flutter_google_places_sdk: ^0.4.3
   location: ^8.0.1
   provider: ^6.1.2
   flutter_easyloading: ^3.0.5
@@ -73,8 +73,15 @@ dependencies:
   tapioca_v2: ^1.0.0+2
   sign_in_with_apple:
   google_sign_in: ^7.2.0
+  showcaseview: ^5.0.1
+  record: ^6.2.0
+  audio_waveforms: ^1.0.5
+  audioplayers:
+  flutter_native_image_v2:
+  url_launcher:
 
-
+dependency_overrides:
+  flutter_google_places_sdk_android: 0.2.0
 
 dev_dependencies:
   flutter_test:

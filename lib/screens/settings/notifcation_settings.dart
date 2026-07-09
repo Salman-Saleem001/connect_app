@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../services/firebase_utils.dart';
 
@@ -17,6 +17,7 @@ class _NotificationSettingsScreenState
   @override
   void initState() {
     // TODO: implement initState
+    receiveAlerts= true;
     setData();
     super.initState();
   }

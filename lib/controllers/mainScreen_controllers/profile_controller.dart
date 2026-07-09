@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -18,6 +19,7 @@ class ProfileController extends GetxController {
   Rx<PostModel> myPosts = PostModel(posts: []).obs;
 
   RxBool isDataFetched = false.obs;
+  RxList<User> blockedUser = <User>[].obs;
 
   void clear() {
     myPosts.value.posts?.clear();
@@ -135,9 +137,40 @@ class ProfileController extends GetxController {
     return false;
   }
 
+  Future<bool> unBlockUser({required int userId, required int index}) async {
+    try {
+      final response = await HttpsServices.postApiCall(
+        url: '${AppApis.unBlock}$userId',
+      );
+      if (response != null) {
+        blockedUser.removeAt(index);
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Some thing Went wrong====>$e');
+    }
+    return false;
+  }
+
+  Future<void> getBlockedUser() async {
+    try {
+      dynamic response = await HttpsServices.getApiCall(url: AppApis.blocked);
+      if (response != null) {
+        final blockedUsers= jsonDecode(response);
+        log("Response $blockedUsers");
+        blockedUser.addAll((blockedUsers['blocked_users'] as List?)?.map((element) => User.fromJson(element)) ?? []);
+      }
+    } catch (e) {
+      debugPrint('Error while getting Blocked users $e');
+    } finally {
+      update();
+    }
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
+    blockedUser.clear();
     super.dispose();
   }
 }

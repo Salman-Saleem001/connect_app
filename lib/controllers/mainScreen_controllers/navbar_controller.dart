@@ -14,12 +14,12 @@ class NavBarController extends GetxController {
   Widget currentPage = Container();
   PageType currentPageType = PageType.home;
 
-  changeTab(int index) {
+  void changeTab(int index) {
     currentIndex = index;
     update();
   }
 
-  onChangeBottomBar(int index) {
+  void onChangeBottomBar(int index) {
     update();
     switch (index) {
       case 0:
@@ -73,4 +73,31 @@ class NavBarController extends GetxController {
   void toggle() => animationController.isDismissed
       ? animationController.forward()
       : animationController.reverse();
+  late GlobalKey likeButton;
+  late GlobalKey commentButton;
+  late GlobalKey shareButton;
+  late GlobalKey moreButton;
+  late GlobalKey feedTab;
+  late GlobalKey trendingTab;
+  late GlobalKey recommendedTab;
+  late GlobalKey homePage;
+  late GlobalKey searchPage;
+  late GlobalKey chatPage;
+  late GlobalKey createVideo;
+  late GlobalKey profilePage;
+
+  void initKeys(){
+    likeButton = GlobalKey();
+    commentButton = GlobalKey();
+    shareButton = GlobalKey();
+    moreButton= GlobalKey();
+    feedTab= GlobalKey();
+    trendingTab= GlobalKey();
+    recommendedTab= GlobalKey();
+    homePage = GlobalKey();
+    searchPage= GlobalKey();
+    chatPage= GlobalKey();
+    createVideo= GlobalKey();
+    profilePage= GlobalKey();
+  }
 }

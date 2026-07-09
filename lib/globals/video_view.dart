@@ -18,13 +18,14 @@ class VideoView extends StatefulWidget {
   final String url;
   final BoxFit? fit;
   final int? id;
+  final VideoPlayerController? videoController;
   const VideoView(
       {super.key,
       this.isContained = false,
       this.isLocal = false,
       this.url = '',
       this.isAsset = false,
-      this.isFullScreen = false, this.id, this.fit, });
+      this.isFullScreen = false, this.id, this.fit, this.videoController, });
 
   @override
   State<VideoView> createState() => _VideoViewState();
@@ -41,31 +42,37 @@ class _VideoViewState extends State<VideoView> {
   void initState() {
     play = false;
     super.initState();
-    if (widget.isAsset) {
-      _controller = VideoPlayerController.asset(widget.url,
-          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
-        ..initialize().then((_) {
-          setState(() {});
-        })
-        ..setLooping(true);
-    } else if (widget.isLocal) {
-      _controller = VideoPlayerController.file(File(widget.url))
-        ..initialize().then((_) {
-          setState(() {});
-        })
-        ..setLooping(true);
-    } else {
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url.isEmpty
-          ? 'http://3.123.149.87/storage/videos/QbKX9HXAwWrwLYmgbHVRI944dTWUJ4FMrF8hg6XK.mp4'
-          : widget.url,),)
-        ..initialize().then((_) {
-          setState(() {});
-        })
-        ..setLooping(true);
+    if(widget.videoController==null){
+      if (widget.isAsset) {
+        _controller = VideoPlayerController.asset(widget.url,
+            videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
+          ..initialize().then((_) {
+            setState(() {});
+          })
+          ..setLooping(true);
+      } else if (widget.isLocal) {
+        _controller = VideoPlayerController.file(File(widget.url))
+          ..initialize().then((_) {
+            setState(() {});
+          })
+          ..setLooping(true);
+      } else {
+        _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url.isEmpty
+            ? 'http://3.123.149.87/storage/videos/QbKX9HXAwWrwLYmgbHVRI944dTWUJ4FMrF8hg6XK.mp4'
+            : widget.url,),)
+          ..initialize().then((_) {
+            setState(() {});
+          })
+          ..setLooping(true);
+      }
+    }else{
+      _controller=widget.videoController!;
     }
     if(widget.id!=null){
-      var homeController= Get.put(HomeFeedController());
-      homeController.postView(widget.id??0);
+      final homeController= Get.put(HomeFeedController());
+      if(homeController.addresses.isNotEmpty){
+        homeController.postView(widget.id??0);
+      }
     }
   }
   void playVideo() {

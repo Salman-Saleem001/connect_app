@@ -1,8 +1,8 @@
+import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
+import 'package:connect_app/utils/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
-import 'package:connect_app/utils/app_colors.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});

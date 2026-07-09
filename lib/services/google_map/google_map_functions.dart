@@ -1,14 +1,14 @@
 import 'dart:developer';
 
+import 'package:connect_app/globals/enum.dart';
+import 'package:connect_app/globals/global.dart';
+import 'package:connect_app/services/google_map/map_key.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 // import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter_platform_interface/src/types/location.dart' as lt;
 import 'package:location/location.dart' as loc;
-import 'package:connect_app/globals/enum.dart';
-import 'package:connect_app/globals/global.dart';
-import 'package:connect_app/services/google_map/map_key.dart';
 
 
 class GoogleMapFunctions {

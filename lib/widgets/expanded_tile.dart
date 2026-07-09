@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:connect_app/globals/container_properties.dart';
 import 'package:connect_app/utils/text_styles.dart';
+import 'package:flutter/material.dart';
 
 class ExpandedTile extends StatefulWidget {
   final String title;

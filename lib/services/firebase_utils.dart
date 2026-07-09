@@ -1,9 +1,10 @@
 
 import 'dart:io';
+
+import 'package:connect_app/services/local_notifications_helper.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:connect_app/services/local_notifications_helper.dart';
 
 class FirebaseUtils {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;

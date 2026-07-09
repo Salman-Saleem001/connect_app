@@ -1,15 +1,17 @@
 
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connect_app/utils/login_details.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/controllers/chat/chat_detail_controller.dart';
 import 'package:connect_app/globals/database.dart';
-import 'package:connect_app/screens/main_screens/chat_view/chatScreen.dart';
+import 'package:connect_app/screens/main_screens/chat_view/chat_screen.dart';
 import 'package:connect_app/utils/app_colors.dart';
+import 'package:connect_app/utils/login_details.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/text_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../models/chat_model_data.dart';
 
@@ -116,7 +118,7 @@ class FollowRequestsScreen extends StatelessWidget {
                     avatarUrl: chat.userAvatar ?? '',
                     name: chat.userName ?? '',
                     location: '',
-                    commentTime: getTime(chat.lastMessageTime ?? ''),
+                    commentTime: getTime(chat.lastMessageType),
                     onTapYes: () {
                       chatController.updateStatus(
                           secondUserId: chat.senderId ?? '',

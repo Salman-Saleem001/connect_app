@@ -8,21 +8,21 @@ class NetworkImageCustom extends StatelessWidget {
   final BoxFit? fit;
 
   const NetworkImageCustom(
-      {super.key,
-      this.height = double.infinity,
-      this.width = double.infinity,
-      this.image,
-      this.fit});
+      {super.key, this.height = double.infinity, this.width = double.infinity, this.image, this.fit});
 
   @override
   Widget build(BuildContext context) {
     // bool isAbsolute= Uri.parse(image??'').isAbsolute;
     return CachedNetworkImage(
         // placeholder: ((context, url) => Image.asset(AppImages.ic_place_holder)),
-        imageUrl: image??'',
+        imageUrl: image ?? '',
         height: height,
         width: width,
-        errorWidget: (context, url, error) =>  Icon(Icons.account_circle,size: 90,color: Colors.grey,),
-        fit: fit?? BoxFit.contain);
+        errorWidget: (context, url, error) => Icon(
+              Icons.account_circle,
+              size: width,
+              color: Colors.grey,
+            ),
+        fit: fit ?? BoxFit.contain);
   }
 }

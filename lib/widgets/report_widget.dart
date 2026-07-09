@@ -47,7 +47,7 @@ class _ReportWidgetState extends State<ReportWidget> {
           ValueListenableBuilder<int>(
             valueListenable: isOtherSelected,
             builder: (BuildContext context, value, Widget? child) {
-              if (value==3) {
+              if (value == 3) {
                 return multiLinesTextField(
                   textEditingController,
                   FocusNode(),
@@ -64,12 +64,12 @@ class _ReportWidgetState extends State<ReportWidget> {
                         if (element.value == 'Other') {
                           textEditingController.clear();
                         } else {
-                          textEditingController.text= element.value;
+                          textEditingController.text = element.value;
                         }
                         isOtherSelected.value = element.key;
                       },
                       child: Text(
-                        "${value== element.key? "✓ ": ""}${element.value}\n",
+                        "${value == element.key ? "✓ " : ""}${element.value}\n",
                         style: normalText().copyWith(fontSize: 16),
                       ),
                     );
@@ -93,6 +93,7 @@ class _ReportWidgetState extends State<ReportWidget> {
               if (textEditingController.text.isEmpty) {
                 return;
               }
+              widget.onSubmit(textEditingController.text);
               Navigator.pop(context);
             },
           ),

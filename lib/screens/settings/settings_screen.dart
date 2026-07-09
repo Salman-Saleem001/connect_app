@@ -1,11 +1,12 @@
-import 'package:connect_app/screens/other_screens/view_all_stats.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
+import 'package:connect_app/screens/other_screens/view_all_stats.dart';
+import 'package:connect_app/screens/settings/blocked_users.dart';
 import 'package:connect_app/screens/settings/notifcation_settings.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../controllers/mainScreen_controllers/navbar_controller.dart';
 import '../../utils/login_details.dart';
@@ -83,11 +84,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: 'Language & Region',
               ),
               SettingsTile(
+                icon: Icons.no_accounts_outlined,
+                title: 'Blocked Users',
+                onTap: (){
+                  final profile = Get.put(ProfileController());
+                  profile.getBlockedUser();
+                  Get.to(()=> BlockedUsers());
+                },
+              ),
+              SettingsTile(
                 icon: Icons.logout,
                 title: 'Logout Device',
                 onTap: () async {
                   var nav = Get.put(NavBarController());
-                  var profile = Get.put(ProfileController());
+                  final profile = Get.put(ProfileController());
                   profile.clear();
                   profile.dispose();
                   nav.clear();

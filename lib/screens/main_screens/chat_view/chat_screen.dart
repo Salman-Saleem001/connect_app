@@ -1,21 +1,27 @@
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/controllers/chat/chat_detail_controller.dart';
+import 'package:connect_app/controllers/chat/voice_recording_controller.dart';
 import 'package:connect_app/globals/database.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
+import 'package:connect_app/screens/main_screens/chat_view/widget/attachment_widget.dart';
+import 'package:connect_app/screens/main_screens/chat_view/widget/chat_list_item.dart';
+import 'package:connect_app/screens/main_screens/chat_view/widget/voice_recording_button.dart';
 import 'package:connect_app/screens/other_screens/addRating_screen.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/camera_screens.dart';
 import 'package:connect_app/screens/other_screens/add_post_screens/video_view.dart';
 import 'package:connect_app/utils/app_colors.dart';
+import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/text_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../controllers/mainScreen_controllers/home_page_cont.dart';
-import '../../../models/chat_model_data.dart';
+import '../../../models/chat_model.dart';
+import '../../../models/local_chat_model.dart';
 import '../../../utils/login_details.dart';
 
 class ChatDetailScreenNew extends StatelessWidget {
@@ -39,7 +45,6 @@ class ChatDetailScreenNew extends StatelessWidget {
     var homeFeedController = Get.put(HomeFeedController());
     var chatController = Get.put(ChatDetailController());
     if (chatController.chatDataModel.value == null) {
-      // debugPrint("Here");
       chatController.getSingleChatDetail(secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
     }
 
@@ -103,26 +108,6 @@ class ChatDetailScreenNew extends StatelessWidget {
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              // Column(
-                              //   crossAxisAlignment: CrossAxisAlignment.start,
-                              //   children: [
-                              //
-                              //     const SizedBox(height: 5),
-                              //     Text('Last seen 5 mins ago',
-                              //         style: normalText(
-                              //             size: 14, color: Colors.grey)),
-                              //   ],
-                              // ),
-                              // Column(
-                              //   crossAxisAlignment: CrossAxisAlignment.start,
-                              //   children: [
-                              //
-                              //     const SizedBox(height: 5),
-                              //     Text('Last seen 5 mins ago',
-                              //         style: normalText(
-                              //             size: 14, color: Colors.grey)),
-                              //   ],
-                              // ),
                             ],
                           ),
                         ),
@@ -186,7 +171,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                             await Get.to(CameraScreen(
                                               cameras: homeFeedController.cameras,
                                               fromMessage: true,
-                                              onSend: () async {
+                                              onSend: (val) async {
                                                 String? tag;
                                                 tags?.forEach((element) {
                                                   tag = (tag ?? '') + element;
@@ -360,7 +345,7 @@ class ChatDetailScreenNew extends StatelessWidget {
                                                 child: ClipRRect(
                                                   borderRadius: BorderRadius.circular(10),
                                                   child: ColoredBox(
-                                                    color: AppColors.bgGrey.withOpacity(.3),
+                                                    color: AppColors.bgGrey.withValues(alpha: .3),
                                                     child: const Padding(
                                                       padding: EdgeInsets.all(8.0),
                                                       child: Text(
@@ -384,111 +369,101 @@ class ChatDetailScreenNew extends StatelessWidget {
                             ],
                           ),
                         ),
-                        chatController.chatDataModel.value?.chatsId != null
-                            ? StreamBuilder(
-                                stream: chatController.getMessages(
-                                    chatRoomId: chatController.chatDataModel.value?.chatsId ?? ""),
-                                builder: (_, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-                                  if (snapshot.hasData) {
-                                    return Column(
-                                      children: snapshot.data!.docs.reversed.map((element) {
-                                        final chat = ChatDataModel.fromJson(element.data() as Map<String, dynamic>);
-                                        bool check =
-                                            chat.senderId == (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10),
-                                          child: Align(
-                                            alignment: check ? Alignment.topLeft : Alignment.bottomRight,
-                                            child: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              children: [
-                                                Row(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    if (check) ...[
-                                                      UserAvatarImage(
-                                                          userAvatar: Get.find<UserDetail>().userData.user?.avatar),
-                                                      const SizedBox(
-                                                        width: 5,
-                                                      ),
-                                                    ],
-                                                    if (chat.lastMessageType == 'video') ...[
-                                                      GestureDetector(
-                                                        behavior: HitTestBehavior.opaque,
-                                                        onTap: () {
-                                                          Get.to(VideoView(
-                                                            url: chat.messageData ?? '',
-                                                          ));
-                                                        },
-                                                        child: ClipRRect(
-                                                          borderRadius: BorderRadius.circular(10),
-                                                          child: const ColoredBox(
-                                                            color: Colors.black,
-                                                            child: SizedBox(
-                                                              height: 100,
-                                                              width: 90,
-                                                              child: Icon(
-                                                                Icons.play_arrow,
-                                                                color: Colors.white,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ] else
-                                                      Flexible(
-                                                        child: ClipRRect(
-                                                          borderRadius: BorderRadius.circular(15),
-                                                          child: ColoredBox(
-                                                            color: check
-                                                                ? AppColors.bgGrey.withOpacity(.2)
-                                                                : AppColors.primaryColorBottom,
-                                                            child: Padding(
-                                                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                                                              child: Text(
-                                                                chat.messageData ?? "",
-                                                                style: TextStyle(
-                                                                    fontSize: 16,
-                                                                    fontWeight: FontWeight.w400,
-                                                                    color: check ? Colors.black : AppColors.white),
-                                                                maxLines: 100,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    if (!check) ...[
-                                                      const SizedBox(
-                                                        width: 5,
-                                                      ),
-                                                      UserAvatarImage(userAvatar: userAvatar),
-                                                    ]
+                        if (chatController.chatDataModel.value?.chatsId != null)
+                          StreamBuilder(
+                              stream: chatController.getMessages(
+                                  chatRoomId: chatController.chatDataModel.value?.chatsId ?? ""),
+                              builder: (_, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+                                if (snapshot.hasData) {
+                                  return Column(
+                                    children: snapshot.data!.docs.reversed.map((element) {
+                                      final chatModel = ChatModel.fromMap(element);
+                                      bool check =
+                                          chatModel.from == (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
+                                      LocalChatModel chat = LocalChatModel(
+                                          time: chatModel.timeStamp,
+                                          message: chatModel.message,
+                                          files: chatModel.files,
+                                          status: chatModel.status ?? 'Active',
+                                          messageType: chatModel.messageType,
+                                          voiceData: chatModel.voiceData,
+                                          mMsgType: chatModel.from == Database.userId ? MsgType.right : MsgType.left);
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10),
+                                        child: Align(
+                                          alignment: check ? Alignment.topLeft : Alignment.bottomRight,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  if (check) ...[
+                                                    UserAvatarImage(
+                                                        userAvatar: Get.find<UserDetail>().userData.user?.avatar),
+                                                    const SizedBox(
+                                                      width: 5,
+                                                    ),
                                                   ],
+                                                  if (chatModel.messageType == MessageType.video) ...[
+                                                    GestureDetector(
+                                                      behavior: HitTestBehavior.opaque,
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                            ChatVideoView(url: chatModel.voiceData?["url"] ?? ''));
+                                                      },
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        child: const ColoredBox(
+                                                          color: Colors.black,
+                                                          child: SizedBox(
+                                                            height: 100,
+                                                            width: 90,
+                                                            child: Icon(
+                                                              Icons.play_arrow,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ] else
+                                                    ChatListItemNew(
+                                                      mChatModel: chat,
+                                                      onTap: () {},
+                                                      audioPlayerController: chatController.audioPlayerController,
+                                                    ),
+                                                  if (!check) ...[
+                                                    const SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    UserAvatarImage(userAvatar: userAvatar),
+                                                  ]
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                getTime(chatModel.timeStamp),
+                                                textAlign: TextAlign.right,
+                                                style: const TextStyle(
+                                                  color: Colors.grey,
                                                 ),
-                                                const SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Text(
-                                                  getTime(chat.lastMessageTime ?? ''),
-                                                  textAlign: TextAlign.right,
-                                                  style: const TextStyle(
-                                                    color: Colors.grey,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                              ),
+                                            ],
                                           ),
-                                        );
-                                      }).toList(),
-                                    );
-                                    // final chat = ChatDataModel.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>);
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                })
-                            : const SizedBox.shrink(),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  );
+                                  // final chat = ChatDataModel.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>);
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              })
                       ],
                     ),
                   );
@@ -503,95 +478,186 @@ class ChatDetailScreenNew extends StatelessWidget {
                 children: [
                   IconButton(
                     icon: const Icon(Icons.attach_file, color: Colors.grey),
-                    onPressed: () {},
+                    onPressed: () {
+                      showModalBottomSheet(
+                          backgroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          ),
+                          context: context,
+                          builder: (BuildContext bc) {
+                            return AttachmentWidget();
+                          });
+                    },
                   ),
                   Expanded(
-                      child: customTextFieldOptionalPrefix(
+                    child: GetBuilder<VoiceRecordingController>(
+                      init: chatController.voiceRecordingController,
+                      builder: (VoiceRecordingController controller) {
+                        if (controller.isRecording) {
+                          int seconds = controller.recordingDuration.inSeconds % 60;
+                          int minutes = controller.recordingDuration.inMinutes;
+
+                          return DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.txtGrey),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsGeometry.all(10),
+                              child: Row(
+                                spacing: 10,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.fiber_manual_record_rounded,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    "0$minutes:${seconds / 10 < 1 ? '0$seconds' : seconds}",
+                                    style: normalText(color: AppColors.bgGrey),
+                                  ),
+
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: (){
+                                        controller.stopRecording();
+                                      },
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        return customTextFieldOptionalPrefix(
                           borderRadius: 1000,
                           hint: 'Type as message...',
                           chatController.controllerMessage,
                           lines: null,
                           FocusNode(),
-                          [])),
+                          [],
+                          onchange: chatController.changeText,
+                        );
+                      },
+                    ),
+                  ),
                   const SizedBox(width: 10),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.primaryColorBottom.withOpacity(0.4), width: 5), // 5p
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(6.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(200),
-                        child: ColoredBox(
-                          color: AppColors.primaryColorBottom,
-                          child: GetBuilder(builder: (ChatDetailController controller) {
-                            return GestureDetector(
-                              onTap: () async {
-                                if (controller.chatDataModel.value == null) {
-                                  String chatRoomId;
-                                  if (int.parse(secondUserId ?? '0') >
-                                      (Get.find<UserDetail>().userData.user?.id ?? 0)) {
-                                    chatRoomId =
-                                        '${int.parse(secondUserId ?? '0')}${Get.find<UserDetail>().userData.user?.id ?? 0}';
-                                  }
-                                  chatRoomId =
-                                      '${Get.find<UserDetail>().userData.user?.id ?? 0}${int.parse(secondUserId ?? '0')}';
-                                  Get.to(CameraScreen(
-                                    cameras: homeFeedController.cameras,
-                                    fromMessage: true,
-                                    onSend: () async {
-                                      String? tag;
-                                      tags?.forEach((element) {
-                                        tag = (tag ?? '') + element;
-                                      });
-                                      await chatController
-                                          .createChatRoom(
-                                              secondUser: secondUserId ?? '',
-                                              chatRoomId: chatRoomId,
-                                              userName: userName ?? '',
-                                              tags: tag ?? '',
-                                              description: description ?? '',
-                                              videoId: videoId ?? 0,
-                                              avatar: userAvatar ?? '')
-                                          .whenComplete(() {
-                                        chatController.getSingleChatDetail(
-                                            secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
-                                      });
+                  GetBuilder<ChatDetailController>(builder: (value) {
+                    if (value.showSendButton || chatController.chatDataModel.value?.otherStatus == 'Rejected') {
+                      return Visibility(
+                        visible: value.loading || value.isUploadingVoice,
+                        replacement: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: AppColors.primaryColorBottom.withValues(alpha: 0.4), width: 5), // 5p
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(200),
+                              child: ColoredBox(
+                                color: AppColors.primaryColorBottom,
+                                child: GetBuilder(builder: (ChatDetailController controller) {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      if (controller.chatDataModel.value == null) {
+                                        String chatRoomId;
+                                        if (int.parse(secondUserId ?? '0') >
+                                            (Get.find<UserDetail>().userData.user?.id ?? 0)) {
+                                          chatRoomId =
+                                              '${int.parse(secondUserId ?? '0')}${Get.find<UserDetail>().userData.user?.id ?? 0}';
+                                        } else {
+                                          chatRoomId =
+                                              '${Get.find<UserDetail>().userData.user?.id ?? 0}${int.parse(secondUserId ?? '0')}';
+                                        }
+                                        Get.to(CameraScreen(
+                                          cameras: homeFeedController.cameras,
+                                          fromMessage: true,
+                                          onSend: (val) async {
+                                            String? tag;
+                                            tags?.forEach((element) {
+                                              tag = (tag ?? '') + element;
+                                            });
+                                            await chatController
+                                                .createChatRoom(
+                                                    secondUser: secondUserId ?? '',
+                                                    chatRoomId: chatRoomId,
+                                                    userName: userName ?? '',
+                                                    tags: tag ?? '',
+                                                    description: description ?? '',
+                                                    videoId: videoId ?? 0,
+                                                    avatar: userAvatar ?? '')
+                                                .whenComplete(() {
+                                              chatController.getSingleChatDetail(
+                                                  secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
+                                            });
+                                          },
+                                        ));
+                                      } else if (controller.chatDataModel.value?.otherStatus == 'Accepted') {
+                                        chatController.sendMessage();
+                                        chatController.updateLastMessage(
+                                            secondUser:
+                                                (controller.chatDataModel.value?.senderId ?? '') == Database.userId
+                                                    ? (controller.chatDataModel.value?.receiverId ?? '')
+                                                    : (controller.chatDataModel.value?.senderId ?? ''),
+                                            videId: videoId ?? 0);
+                                      } else if (controller.chatDataModel.value?.otherStatus == 'Rejected') {
+                                        Global.showToastAlert(
+                                            context: context,
+                                            strMsg: 'Chat request rejected',
+                                            toastType: TOAST_TYPE.toastWarning);
+                                      } else {
+                                        Global.showToastAlert(
+                                            context: context,
+                                            strMsg: 'The Person has not accepted your request',
+                                            toastType: TOAST_TYPE.toastWarning);
+                                      }
                                     },
-                                  ));
-                                } else if (controller.chatDataModel.value?.otherStatus == 'Accepted') {
-                                  chatController.sendMessage(
-                                    chatRoomId: chatController.chatDataModel.value?.chatsId ?? '',
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(controller.chatDataModel.value == null ? Icons.videocam : Icons.send,
+                                          color: Colors.white),
+                                    ),
                                   );
-                                  chatController.updateLastMessage(
-                                      secondUser: (controller.chatDataModel.value?.senderId ?? '') == Database.userId
-                                          ? (controller.chatDataModel.value?.receiverId ?? '')
-                                          : (controller.chatDataModel.value?.senderId ?? ''),
-                                      videId: videoId ?? 0);
-                                } else if (controller.chatDataModel.value?.otherStatus == 'Rejected') {
-                                  Global.showToastAlert(
-                                      context: context,
-                                      strMsg: 'Chat request rejected',
-                                      toastType: TOAST_TYPE.toastWarning);
-                                } else {
-                                  Global.showToastAlert(
-                                      context: context,
-                                      strMsg: 'The Person has not accepted your request',
-                                      toastType: TOAST_TYPE.toastWarning);
-                                }
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Icon(controller.chatDataModel.value == null ? Icons.videocam : Icons.send,
-                                    color: Colors.white),
+                                }),
                               ),
-                            );
-                          }),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                  )
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: value.isUploadingVoice ? value.uploadProgress : null,
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation(AppColors.primaryColor),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      return VoiceRecordingButton(
+                        controller: chatController.voiceRecordingController,
+                        onSendVoiceMessage: () {
+                          chatController.sendVoiceMessage(
+                              chatController.chatDataModel.value?.chatsId ?? "", secondUserId ?? "");
+                        },
+                      );
+                    }
+                  }),
                 ],
               ),
             ),
@@ -605,7 +671,7 @@ class ChatDetailScreenNew extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
@@ -636,16 +702,26 @@ class ChatVideoView extends StatelessWidget {
         Positioned(
           top: 60,
           left: 20,
-          child: GestureDetector(
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppColors.primaryColorBottom,
+            ),
+            child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: () {
                 Get.back();
               },
-              child: Icon(
-                Icons.arrow_back_ios,
-                size: 32,
-                color: AppColors.white,
-              )),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12.0, 8.0, 0.0, 8.0),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  size: 32,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
+          ),
         ),
       ],
     );
@@ -682,28 +758,8 @@ class UserAvatarImage extends StatelessWidget {
   }
 }
 
-getTime(dynamic val) {
+String getTime(dynamic val) {
   int timeDifferenceMicroseconds = 0;
-  // try {
-  //   timeDifferenceMicroseconds = DateTime.now().microsecondsSinceEpoch -
-  //       DateTime.parse(val).microsecondsSinceEpoch;
-  // } catch (e) {
-
-  // String dateTimeStr = (val??"2025-02-15T15:32:12+05:00").toString();
-  //
-  // debugPrint("My Date==>  $dateTimeStr");
-  //
-  // // Parse the string into a DateTime object
-  // DateTime dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
-  //
-  // debugPrint("My after conversion Date==>$dateTimeStr");
-  //
-  //
-  // // Convert to local time
-  // DateTime localTime = dateTimeUtcPlus5.toLocal();
-  //
-  // // Print the converted time
-  // print("Local time: $localTime");
 
   DateTime dateTimeUtcPlus5;
 

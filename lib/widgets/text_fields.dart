@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:connect_app/globals/container_properties.dart';
 import 'package:connect_app/utils/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../utils/text_styles.dart';
 
@@ -20,10 +20,10 @@ Container customTextFiled(
   int? lines,
   TextInputType textInputType = TextInputType.text,
   String hint = '',
+  bool? enabled,
 }) {
   return Container(
-    decoration: ContainerProperties.simpleDecoration(
-        radius: 15, color: color ?? const Color.fromARGB(0, 0, 0, 0)),
+    decoration: ContainerProperties.simpleDecoration(radius: 15, color: color ?? const Color.fromARGB(0, 0, 0, 0)),
     child: TextField(
       // cursorHeight: 20,
       keyboardType: textInputType,
@@ -33,7 +33,7 @@ Container customTextFiled(
       obscureText: obscure,
       controller: controller,
       onChanged: onchange,
-
+      enabled: enabled,
       // cursorColor: Colors.white,
       style: regularText(size: 15).copyWith(),
       readOnly: onTap != null,
@@ -55,17 +55,14 @@ Container customTextFiled(
                   width: 40,
                   child: icon,
                 ),
-          suffixIcon:
-              dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+          suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.borderColor),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
           focusedBorder: OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: AppColors.primaryColorBottom, width: 2),
+              borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 10, vertical: lines == null ? 0 : 5),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: lines == null ? 0 : 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15))),
@@ -73,14 +70,14 @@ Container customTextFiled(
   );
 }
 
-Widget customTextFieldOptionalPrefix(TextEditingController? controller,
-    FocusNode? focusNode, List<TextInputFormatter>? textInputFormatter,
+Widget customTextFieldOptionalPrefix(
+    TextEditingController? controller, FocusNode? focusNode, List<TextInputFormatter>? textInputFormatter,
     {bool obscure = false,
     bool dropdown = false,
     dynamic prefixIcon, // Added prefixIcon parameter
     dynamic suffixIcon,
     Color? color,
-    Function(String? val)? onchange,
+    void Function(String val)? onchange,
     void Function()? onTap,
     int? lines,
     double borderRadius = 16,
@@ -111,8 +108,7 @@ Widget customTextFieldOptionalPrefix(TextEditingController? controller,
                 child: prefixIcon,
               )
             : null,
-        suffixIcon:
-            dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+        suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.borderColor),
           borderRadius: BorderRadius.circular(borderRadius),
@@ -121,8 +117,7 @@ Widget customTextFieldOptionalPrefix(TextEditingController? controller,
           borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         // Increased vertical padding
         border: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.borderColor),
@@ -136,8 +131,8 @@ Widget customTextFieldOptionalPrefix(TextEditingController? controller,
   );
 }
 
-Container simpleCustomTextFiled(TextEditingController controller, FocusNode focusNode,
-    List<TextInputFormatter>? textInputFormatter, dynamic icon,
+Container simpleCustomTextFiled(
+    TextEditingController controller, FocusNode focusNode, List<TextInputFormatter>? textInputFormatter, dynamic icon,
     {bool obscure = false,
     bool dropdown = false,
     dynamic suffixIcon,
@@ -148,8 +143,7 @@ Container simpleCustomTextFiled(TextEditingController controller, FocusNode focu
     TextInputType textInputType = TextInputType.text,
     String hint = ''}) {
   return Container(
-    decoration: ContainerProperties.simpleDecoration(
-        radius: 15, color: color ?? Colors.transparent),
+    decoration: ContainerProperties.simpleDecoration(radius: 15, color: color ?? Colors.transparent),
     child: TextField(
       // cursorHeight: 20,
       keyboardType: textInputType,
@@ -165,18 +159,15 @@ Container simpleCustomTextFiled(TextEditingController controller, FocusNode focu
       onTap: onTap == null ? () {} : onTap(),
       decoration: InputDecoration(
           labelText: hint,
-          labelStyle:
-              normalText().copyWith(color: Colors.grey.withValues(alpha: 0.9)),
-          suffixIcon:
-              dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+          labelStyle: normalText().copyWith(color: Colors.grey.withValues(alpha: 0.9)),
+          suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 10, vertical: lines == null ? 0 : 5),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: lines == null ? 0 : 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15))),
@@ -199,7 +190,8 @@ class CustomTextFieldMulti extends StatefulWidget {
   final TextInputType textInputType;
   final String hint;
 
-  const CustomTextFieldMulti({super.key,
+  const CustomTextFieldMulti({
+    super.key,
     this.controller,
     this.focusNode,
     this.textInputFormatter,
@@ -256,9 +248,7 @@ class CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
         decoration: InputDecoration(
           labelText: widget.hint,
           labelStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.9)),
-          suffixIcon: widget.dropdown
-              ? const Icon(Icons.keyboard_arrow_down)
-              : (_showIcon ? widget.suffixIcon : null),
+          suffixIcon: widget.dropdown ? const Icon(Icons.keyboard_arrow_down) : (_showIcon ? widget.suffixIcon : null),
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.circular(widget.icon == null ? 8 : 15),
@@ -267,8 +257,7 @@ class CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
             borderSide: const BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.circular(widget.icon == null ? 8 : 15),
           ),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 10, vertical: widget.lines == null ? 0 : 5),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: widget.lines == null ? 0 : 5),
           border: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.circular(widget.icon == null ? 8 : 15),
@@ -279,17 +268,13 @@ class CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
   }
 }
 
-GestureDetector customTextFiledMenu(TextEditingController controller, FocusNode focusNode,
-    List<TextInputFormatter> textInputFormatter, dynamic icon,
-    {bool obscure = false,
-    dynamic onTap,
-    TextInputType textInputType = TextInputType.text,
-    String hint = ''}) {
+GestureDetector customTextFiledMenu(
+    TextEditingController controller, FocusNode focusNode, List<TextInputFormatter> textInputFormatter, dynamic icon,
+    {bool obscure = false, dynamic onTap, TextInputType textInputType = TextInputType.text, String hint = ''}) {
   return GestureDetector(
     onTap: onTap,
     child: Container(
-      decoration: ContainerProperties.simpleDecoration(
-          radius: 15, color: Colors.transparent),
+      decoration: ContainerProperties.simpleDecoration(radius: 15, color: Colors.transparent),
       child: TextField(
         focusNode: focusNode,
         controller: controller,
@@ -307,8 +292,7 @@ GestureDetector customTextFiledMenu(TextEditingController controller, FocusNode 
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
@@ -348,25 +332,14 @@ SizedBox customTextFiledSimple(TextEditingController controller, FocusNode focus
           maxLength: maxChar,
           controller: controller,
           cursorColor: cursorColor ?? Colors.black,
-          style: regularText(size: textSize)
-              .copyWith(color: textColor ?? Colors.white),
+          style: regularText(size: textSize).copyWith(color: textColor ?? Colors.white),
           decoration: InputDecoration(
               hintText: hint,
-              suffixIcon: Container(
-                  alignment: Alignment.center,
-                  width: 30,
-                  height: 30,
-                  child: icon),
+              suffixIcon: Container(alignment: Alignment.center, width: 30, height: 30, child: icon),
               hintStyle: regularText(color: AppColors.borderColor),
-              enabledBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(width: 1.5, color: AppColors.borderColor)),
-              focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(width: 1.5, color: AppColors.borderColor)),
-              border: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(width: 1.5, color: AppColors.borderColor))),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(width: 1.5, color: AppColors.borderColor)),
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(width: 1.5, color: AppColors.borderColor)),
+              border: UnderlineInputBorder(borderSide: BorderSide(width: 1.5, color: AppColors.borderColor))),
         ),
       ],
     ),
@@ -405,19 +378,14 @@ SizedBox multiLinesTextField(
         hintText: hint,
         hintStyle: hintStyle,
         enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.borderColor),
-            borderRadius: BorderRadius.circular(15)),
+            borderSide: BorderSide(color: AppColors.borderColor), borderRadius: BorderRadius.circular(15)),
         focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(color: AppColors.primaryColorBottom, width: 2),
+            borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
             borderRadius: BorderRadius.circular(15)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.bgGrey),
-            borderRadius: BorderRadius.circular(15)),
+            borderSide: BorderSide(color: AppColors.bgGrey), borderRadius: BorderRadius.circular(15)),
       ),
     ),
   );
 }
-

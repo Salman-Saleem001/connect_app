@@ -1,9 +1,9 @@
 import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/primary_button.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../controllers/mainScreen_controllers/home_page_cont.dart';
 import '../../main_screens/bottom_bar_screen.dart';

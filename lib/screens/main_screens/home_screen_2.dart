@@ -1,10 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/controllers/searchScreen_controller.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/text_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SecondaryHomeScreen extends StatefulWidget {
   const SecondaryHomeScreen({Key? key}) : super(key: key);

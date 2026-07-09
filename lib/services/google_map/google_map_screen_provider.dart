@@ -1,16 +1,17 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:flutter/cupertino.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_flutter_platform_interface/src/types/location.dart' as lt;
-import 'package:location/location.dart' as loc;
+
+import 'package:collection/collection.dart';
 import 'package:connect_app/services/google_map/address_model.dart';
 import 'package:connect_app/services/google_map/api_service.dart';
 import 'package:connect_app/services/google_map/google_map_functions.dart';
 import 'package:connect_app/services/google_map/google_map_lat_long_model.dart';
 import 'package:connect_app/services/google_map/map_key.dart';
 import 'package:connect_app/widgets/loader.dart';
-import 'package:collection/collection.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter_platform_interface/src/types/location.dart' as lt;
+import 'package:location/location.dart' as loc;
 
 class GoogleMapScreenProvider extends ChangeNotifier{
   GoogleMapController? mapsController;

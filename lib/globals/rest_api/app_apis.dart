@@ -21,6 +21,7 @@ class AppApis{
   static const String block= '$baseUrl/user/block/';
   static const String unBlock= '$baseUrl/user/unblock/';
   static const String blocked= '$baseUrl/user/blocked/';
+  static const String stories= '$baseUrl/stories';
 
   static String get deleteProfileApi => '$baseUrl/user/me';
 }

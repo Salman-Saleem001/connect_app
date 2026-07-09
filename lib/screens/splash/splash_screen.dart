@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/globals/container_properties.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/screens/auth_screens/login.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/primary_button.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -59,8 +59,12 @@ class _SplashScreenState extends State<SplashScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Image.asset(
-                        'assets/images/kora_logo.png',
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(18.0),
+                        child: Image.asset(
+                          'assets/images/kora_logo.png',
+                          scale: 9.0,
+                        ),
                       ),
                     ],
                   ),
