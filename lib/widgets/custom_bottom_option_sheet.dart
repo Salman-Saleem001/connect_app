@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/globals/container_properties.dart';
 import 'package:connect_app/utils/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 customBottomSheet(List<String> options, int selected, Function onTap) {
   return Get.bottomSheet(SingleChildScrollView(

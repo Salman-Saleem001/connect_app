@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/navbar_controller.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
@@ -10,12 +8,18 @@ import 'package:connect_app/screens/other_screens/home_page.dart';
 import 'package:connect_app/screens/profile/profile_screen.dart';
 import 'package:connect_app/screens/search/search_screen.dart';
 import 'package:connect_app/utils/text_styles.dart';
+import 'package:connect_app/widgets/show_case_widget.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 import '../../controllers/searchScreen_controller.dart';
 import '../../globals/adaptive_helper.dart';
 import '../../globals/database.dart';
 import '../../utils/app_colors.dart';
 import '../../utils/login_details.dart';
+import '../../widgets/take_tour.dart';
 import 'chat_view/all_chats.dart';
 
 class NavBarScreen extends StatefulWidget {
@@ -25,23 +29,54 @@ class NavBarScreen extends StatefulWidget {
   State<NavBarScreen> createState() => _NavBarScreenState();
 }
 
-class _NavBarScreenState extends State<NavBarScreen>
-    with SingleTickerProviderStateMixin {
+class _NavBarScreenState extends State<NavBarScreen> with SingleTickerProviderStateMixin {
   var controller = Get.put(NavBarController());
+  var homeController = Get.put(HomeFeedController());
 
   @override
   void initState() {
     super.initState();
+    controller.initKeys();
     controller.changeTab(0);
     initializeUser();
-    controller.animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 250));
+    controller.animationController = AnimationController(vsync: this, duration: const Duration(milliseconds: 250));
+    ShowcaseView.register(autoPlay: false);
+    SharedPreferences.getInstance().then((val) {
+      final permission = val.getBool("isLocationPermissionAsked") ?? false;
+      debugPrint("Permission Already given $permission");
+      if (!permission) {
+        homeController.getLocation(() {
+          final hasUserCanceledAppOverView = val.getBool("hasUserCanceledAppOverView") ?? false;
+          // debugPrint("Permission Already given $hasUserCanceledAppOverView");
+          if (hasUserCanceledAppOverView) return;
+          WidgetsBinding.instance.addPostFrameCallback((duration) {
+            display();
+          });
+        });
+      } else {
+        debugPrint("Permission......");
+
+        bool hasUserCanceledAppOverView = val.getBool('hasUserCanceledAppOverView') ?? false;
+        // debugPrint("Permission Already given $hasUserCanceledAppOverView");
+        if (!hasUserCanceledAppOverView) {
+          WidgetsBinding.instance.addPostFrameCallback((duration) {
+            display();
+          });
+        }
+      }
+    });
   }
 
-  initializeUser()async{
+  Future<void> initializeUser() async {
     var user = Get.put(UserDetail());
     await user.getUserData();
     Database().initializeUser();
+  }
+
+  @override
+  void dispose() {
+    ShowcaseView.get().unregister();
+    super.dispose();
   }
 
   @override
@@ -113,25 +148,27 @@ class _NavBarScreenState extends State<NavBarScreen>
                   padding: padd(),
                   child: Column(
                     children: [
-                      Image.asset(
-                        'assets/images/ic_home.png',
-                        height: 25,
-                        color: _iconColor(0, value),
+                      AppShowCaseWidget(
+                        globalKey: controller.homePage,
+                        tooltipPosition: TooltipPosition.top,
+                        title: 'Home Feed',
+                        description: 'Navigate to your personalized home feed with trending and recommended content',
+                        child: Image.asset(
+                          'assets/images/ic_home.png',
+                          height: 25,
+                          color: _iconColor(0, value),
+                        ),
                       ),
                       Expanded(
                         child: Text(
                           'Home',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: _iconColor(0, value)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: _iconColor(0, value)),
                         ),
                       ),
                       Container(
                         width: 30,
                         height: 4,
-                        decoration: ContainerProperties.simpleDecoration(
-                            color: _lineColor(0, value)),
+                        decoration: ContainerProperties.simpleDecoration(color: _lineColor(0, value)),
                       )
                     ],
                   ),
@@ -154,26 +191,27 @@ class _NavBarScreenState extends State<NavBarScreen>
                   padding: padd(),
                   child: Column(
                     children: [
-                      Image.asset(
-                        'assets/images/ic_search.png',
-                        height: 25,
-                        color: _iconColor(1, value),
+                      AppShowCaseWidget(
+                        globalKey: controller.searchPage,
+                        tooltipPosition: TooltipPosition.top,
+                        title: 'Search',
+                        description: 'Explore and discover content based on your interests and preferences',
+                        child: Image.asset(
+                          'assets/images/ic_search.png',
+                          height: 25,
+                          color: _iconColor(1, value),
+                        ),
                       ),
                       Expanded(
                         child: Text(
                           'Search',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: _iconColor(1, value)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: _iconColor(1, value)),
                         ),
                       ),
-
                       Container(
                         width: 30,
                         height: 4,
-                        decoration: ContainerProperties.simpleDecoration(
-                            color: _lineColor(1, value)),
+                        decoration: ContainerProperties.simpleDecoration(color: _lineColor(1, value)),
                       )
                     ],
                   ),
@@ -191,25 +229,27 @@ class _NavBarScreenState extends State<NavBarScreen>
                   padding: padd(),
                   child: Column(
                     children: [
-                      Image.asset(
-                        'assets/images/ic_message.png',
-                        height: 25,
-                        color: _iconColor(2, value),
+                      AppShowCaseWidget(
+                        globalKey: controller.chatPage,
+                        tooltipPosition: TooltipPosition.top,
+                        title: 'Chats',
+                        description: 'Connect and communicate with other users through direct messages',
+                        child: Image.asset(
+                          'assets/images/ic_message.png',
+                          height: 25,
+                          color: _iconColor(2, value),
+                        ),
                       ),
                       Expanded(
                         child: Text(
                           'Chats',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: _iconColor(2, value)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: _iconColor(2, value)),
                         ),
                       ),
                       Container(
                         width: 30,
                         height: 4,
-                        decoration: ContainerProperties.simpleDecoration(
-                            color: _lineColor(2, value)),
+                        decoration: ContainerProperties.simpleDecoration(color: _lineColor(2, value)),
                       )
                     ],
                   ),
@@ -233,26 +273,27 @@ class _NavBarScreenState extends State<NavBarScreen>
                   padding: padd(),
                   child: Column(
                     children: [
-                      Image.asset(
-                        'assets/images/ic_person.png',
-                        height: 25,
-                        color: _iconColor(3, value),
+                      AppShowCaseWidget(
+                        globalKey: controller.profilePage,
+                        tooltipPosition: TooltipPosition.top,
+                        title: 'Profile',
+                        description: 'View and manage your profile, posts, and personal information',
+                        child: Image.asset(
+                          'assets/images/ic_person.png',
+                          height: 25,
+                          color: _iconColor(3, value),
+                        ),
                       ),
                       Expanded(
                         child: Text(
                           'Profile',
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: _iconColor(3, value)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: _iconColor(3, value)),
                         ),
                       ),
-
                       Container(
                         width: 30,
                         height: 4,
-                        decoration: ContainerProperties.simpleDecoration(
-                            color: _lineColor(3, value)),
+                        decoration: ContainerProperties.simpleDecoration(color: _lineColor(3, value)),
                       )
                     ],
                   ),
@@ -266,24 +307,16 @@ class _NavBarScreenState extends State<NavBarScreen>
   }
 
   TextStyle style(int i, NavBarController value) {
-    return regularText(
-        size: 10,
-        color: controller.currentIndex != i
-            ? HexColor('#667085')
-            : AppColors.primaryColor);
+    return regularText(size: 10, color: controller.currentIndex != i ? HexColor('#667085') : AppColors.primaryColor);
   }
 
   EdgeInsets padd() => const EdgeInsets.symmetric(horizontal: 3);
 
   EdgeInsets _mar() => EdgeInsets.only(top: ht(5), bottom: 2);
   Color _iconColor(int index, NavBarController value) =>
-      controller.currentIndex != index
-          ? Colors.black.withOpacity(0.2)
-          : AppColors.primaryColor;
+      controller.currentIndex != index ? Colors.black.withOpacity(0.2) : AppColors.primaryColor;
   Color _lineColor(int index, NavBarController value) =>
-      controller.currentIndex != index
-          ? Colors.transparent
-          : AppColors.primaryColor;
+      controller.currentIndex != index ? Colors.transparent : AppColors.primaryColor;
 }
 
 class HexagonPainter extends CustomPainter {
@@ -301,8 +334,7 @@ class HexagonPainter extends CustomPainter {
     Path path = Path();
 
     for (int i = 0; i < 6; i++) {
-      double angle =
-          (pi / 3) * i - pi / 2; // Adjusted angle to start from the top
+      double angle = (pi / 3) * i - pi / 2; // Adjusted angle to start from the top
       double x = centerX + radius * cos(angle);
       double y = centerY + radius * sin(angle);
 

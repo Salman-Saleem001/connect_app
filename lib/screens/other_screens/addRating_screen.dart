@@ -1,17 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:get/get.dart';
-import 'package:overlay_support/overlay_support.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/primary_button.dart';
 import 'package:connect_app/widgets/text_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 
 import '../../globals/enum.dart';
 import '../../globals/global.dart';
-import '../main_screens/chat_view/chatScreen.dart';
+import '../main_screens/chat_view/chat_screen.dart';
 
 // ignore: must_be_immutable
 class RatingScreen extends StatelessWidget {

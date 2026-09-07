@@ -1,11 +1,11 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:connect_app/globals/container_properties.dart';
 import 'package:connect_app/utils/app_colors.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../utils/text_styles.dart';
 
-customTextFiled(
+Container customTextFiled(
   TextEditingController controller,
   FocusNode focusNode,
   List<TextInputFormatter>? textInputFormatter,
@@ -16,14 +16,14 @@ customTextFiled(
   Color? color,
   void Function(String? val)? onchange,
   void Function(PointerDownEvent)? onTapOutSide,
-  Function? ontap,
+  Function? onTap,
   int? lines,
   TextInputType textInputType = TextInputType.text,
   String hint = '',
+  bool? enabled,
 }) {
   return Container(
-    decoration: ContainerProperties.simpleDecoration(
-        radius: 15, color: color ?? const Color.fromARGB(0, 0, 0, 0)),
+    decoration: ContainerProperties.simpleDecoration(radius: 15, color: color ?? const Color.fromARGB(0, 0, 0, 0)),
     child: TextField(
       // cursorHeight: 20,
       keyboardType: textInputType,
@@ -33,13 +33,13 @@ customTextFiled(
       obscureText: obscure,
       controller: controller,
       onChanged: onchange,
-
+      enabled: enabled,
       // cursorColor: Colors.white,
       style: regularText(size: 15).copyWith(),
-      readOnly: ontap != null,
+      readOnly: onTap != null,
       onTap: () {
-        if (ontap != null) {
-          ontap();
+        if (onTap != null) {
+          onTap();
         }
       },
       onTapOutside: onTapOutSide,
@@ -55,17 +55,14 @@ customTextFiled(
                   width: 40,
                   child: icon,
                 ),
-          suffixIcon:
-              dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+          suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.borderColor),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
           focusedBorder: OutlineInputBorder(
-              borderSide:
-                  BorderSide(color: AppColors.primaryColorBottom, width: 2),
+              borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 10, vertical: lines == null ? 0 : 5),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: lines == null ? 0 : 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15))),
@@ -73,15 +70,15 @@ customTextFiled(
   );
 }
 
-Widget customTextFieldOptionalPreffix(TextEditingController? controller,
-    FocusNode? focusNode, List<TextInputFormatter>? textInputFormatter,
+Widget customTextFieldOptionalPrefix(
+    TextEditingController? controller, FocusNode? focusNode, List<TextInputFormatter>? textInputFormatter,
     {bool obscure = false,
     bool dropdown = false,
     dynamic prefixIcon, // Added prefixIcon parameter
     dynamic suffixIcon,
     Color? color,
-    Function(String? val)? onchange,
-    void Function()? ontap,
+    void Function(String val)? onchange,
+    void Function()? onTap,
     int? lines,
     double borderRadius = 16,
     TextInputType textInputType = TextInputType.text,
@@ -99,8 +96,8 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
       obscureText: obscure,
       controller: controller,
       onChanged: onchange,
-      readOnly: ontap != null,
-      onTap: ontap,
+      readOnly: onTap != null,
+      onTap: onTap,
       decoration: InputDecoration(
         hintText: hint,
         labelStyle: const TextStyle(color: Colors.grey),
@@ -111,8 +108,7 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
                 child: prefixIcon,
               )
             : null,
-        suffixIcon:
-            dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+        suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.borderColor),
           borderRadius: BorderRadius.circular(borderRadius),
@@ -121,8 +117,7 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
           borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
           borderRadius: BorderRadius.circular(borderRadius),
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
         // Increased vertical padding
         border: OutlineInputBorder(
           borderSide: BorderSide(color: AppColors.borderColor),
@@ -136,20 +131,19 @@ Widget customTextFieldOptionalPreffix(TextEditingController? controller,
   );
 }
 
-simplecustomTextFiled(TextEditingController controller, FocusNode focusNode,
-    List<TextInputFormatter>? textInputFormatter, dynamic icon,
+Container simpleCustomTextFiled(
+    TextEditingController controller, FocusNode focusNode, List<TextInputFormatter>? textInputFormatter, dynamic icon,
     {bool obscure = false,
     bool dropdown = false,
     dynamic suffixIcon,
     Color? color,
     dynamic onchange,
-    Function? ontap,
+    Function? onTap,
     int? lines,
     TextInputType textInputType = TextInputType.text,
     String hint = ''}) {
   return Container(
-    decoration: ContainerProperties.simpleDecoration(
-        radius: 15, color: color ?? Colors.transparent),
+    decoration: ContainerProperties.simpleDecoration(radius: 15, color: color ?? Colors.transparent),
     child: TextField(
       // cursorHeight: 20,
       keyboardType: textInputType,
@@ -161,22 +155,19 @@ simplecustomTextFiled(TextEditingController controller, FocusNode focusNode,
       onChanged: onchange,
       cursorColor: Colors.black,
       style: regularText(size: 15).copyWith(color: Colors.black),
-      readOnly: ontap != null,
-      onTap: ontap == null ? () {} : ontap(),
+      readOnly: onTap != null,
+      onTap: onTap == null ? () {} : onTap(),
       decoration: InputDecoration(
           labelText: hint,
-          labelStyle:
-              normalText().copyWith(color: Colors.grey.withOpacity(0.9)),
-          suffixIcon:
-              dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
+          labelStyle: normalText().copyWith(color: Colors.grey.withValues(alpha: 0.9)),
+          suffixIcon: dropdown ? const Icon(Icons.keyboard_arrow_down) : suffixIcon,
           enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 10, vertical: lines == null ? 0 : 5),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: lines == null ? 0 : 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.lightBorder),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15))),
@@ -194,12 +185,13 @@ class CustomTextFieldMulti extends StatefulWidget {
   final dynamic suffixIcon;
   final Color? color;
   final void Function(String)? onchange;
-  final Function? ontap;
+  final Function? onTap;
   final int? lines;
   final TextInputType textInputType;
   final String hint;
 
-  CustomTextFieldMulti({
+  const CustomTextFieldMulti({
+    super.key,
     this.controller,
     this.focusNode,
     this.textInputFormatter,
@@ -209,17 +201,17 @@ class CustomTextFieldMulti extends StatefulWidget {
     this.suffixIcon,
     this.color,
     this.onchange,
-    this.ontap,
+    this.onTap,
     this.lines,
     this.textInputType = TextInputType.text,
     this.hint = '',
   });
 
   @override
-  _CustomTextFieldMultiState createState() => _CustomTextFieldMultiState();
+  CustomTextFieldMultiState createState() => CustomTextFieldMultiState();
 }
 
-class _CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
+class CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
   bool _showIcon = true;
 
   @override
@@ -251,14 +243,12 @@ class _CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
         maxLines: widget.lines,
         cursorColor: Colors.black,
         style: const TextStyle(fontSize: 15, color: Colors.black),
-        readOnly: widget.ontap != null,
-        onTap: widget.ontap == null ? null : () => widget.ontap!(),
+        readOnly: widget.onTap != null,
+        onTap: widget.onTap == null ? null : () => widget.onTap!(),
         decoration: InputDecoration(
           labelText: widget.hint,
-          labelStyle: TextStyle(color: Colors.grey.withOpacity(0.9)),
-          suffixIcon: widget.dropdown
-              ? const Icon(Icons.keyboard_arrow_down)
-              : (_showIcon ? widget.suffixIcon : null),
+          labelStyle: TextStyle(color: Colors.grey.withValues(alpha: 0.9)),
+          suffixIcon: widget.dropdown ? const Icon(Icons.keyboard_arrow_down) : (_showIcon ? widget.suffixIcon : null),
           enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.circular(widget.icon == null ? 8 : 15),
@@ -267,8 +257,7 @@ class _CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
             borderSide: const BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.circular(widget.icon == null ? 8 : 15),
           ),
-          contentPadding: EdgeInsets.symmetric(
-              horizontal: 10, vertical: widget.lines == null ? 0 : 5),
+          contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: widget.lines == null ? 0 : 5),
           border: OutlineInputBorder(
             borderSide: const BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.circular(widget.icon == null ? 8 : 15),
@@ -279,17 +268,13 @@ class _CustomTextFieldMultiState extends State<CustomTextFieldMulti> {
   }
 }
 
-customTextFiledMenu(TextEditingController controller, FocusNode focusNode,
-    List<TextInputFormatter> textInputFormatter, dynamic icon,
-    {bool obscure = false,
-    dynamic ontap,
-    TextInputType textInputType = TextInputType.text,
-    String hint = ''}) {
+GestureDetector customTextFiledMenu(
+    TextEditingController controller, FocusNode focusNode, List<TextInputFormatter> textInputFormatter, dynamic icon,
+    {bool obscure = false, dynamic onTap, TextInputType textInputType = TextInputType.text, String hint = ''}) {
   return GestureDetector(
-    onTap: ontap,
+    onTap: onTap,
     child: Container(
-      decoration: ContainerProperties.simpleDecoration(
-          radius: 15, color: Colors.transparent),
+      decoration: ContainerProperties.simpleDecoration(radius: 15, color: Colors.transparent),
       child: TextField(
         focusNode: focusNode,
         controller: controller,
@@ -307,8 +292,7 @@ customTextFiledMenu(TextEditingController controller, FocusNode focusNode,
           focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           border: OutlineInputBorder(
               borderSide: BorderSide(color: AppColors.bgGrey),
               borderRadius: BorderRadius.circular(icon == null ? 8 : 15)),
@@ -318,7 +302,7 @@ customTextFiledMenu(TextEditingController controller, FocusNode focusNode,
   );
 }
 
-customTextFiledSimple(TextEditingController controller, FocusNode focusNode,
+SizedBox customTextFiledSimple(TextEditingController controller, FocusNode focusNode,
     {bool obscure = false,
     int? maxChar,
     List<TextInputFormatter> textInputFormatter = const [],
@@ -331,13 +315,13 @@ customTextFiledSimple(TextEditingController controller, FocusNode focusNode,
     TextStyle? hintStyle,
     TextInputType textInputType = TextInputType.text,
     String hint = '',
-    String lable = ''}) {
+    String label = ''}) {
   return SizedBox(
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          lable,
+          label,
           style: regularText(size: 12, color: const Color(0xFFFFF5E1)),
         ),
         TextField(
@@ -348,32 +332,21 @@ customTextFiledSimple(TextEditingController controller, FocusNode focusNode,
           maxLength: maxChar,
           controller: controller,
           cursorColor: cursorColor ?? Colors.black,
-          style: regularText(size: textSize)
-              .copyWith(color: textColor ?? Colors.white),
+          style: regularText(size: textSize).copyWith(color: textColor ?? Colors.white),
           decoration: InputDecoration(
               hintText: hint,
-              suffixIcon: Container(
-                  alignment: Alignment.center,
-                  width: 30,
-                  height: 30,
-                  child: icon),
+              suffixIcon: Container(alignment: Alignment.center, width: 30, height: 30, child: icon),
               hintStyle: regularText(color: AppColors.borderColor),
-              enabledBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(width: 1.5, color: AppColors.borderColor)),
-              focusedBorder: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(width: 1.5, color: AppColors.borderColor)),
-              border: UnderlineInputBorder(
-                  borderSide:
-                      BorderSide(width: 1.5, color: AppColors.borderColor))),
+              enabledBorder: UnderlineInputBorder(borderSide: BorderSide(width: 1.5, color: AppColors.borderColor)),
+              focusedBorder: UnderlineInputBorder(borderSide: BorderSide(width: 1.5, color: AppColors.borderColor)),
+              border: UnderlineInputBorder(borderSide: BorderSide(width: 1.5, color: AppColors.borderColor))),
         ),
       ],
     ),
   );
 }
 
-multiLinesTextField(
+SizedBox multiLinesTextField(
   TextEditingController controller,
   FocusNode focusNode,
   List<TextInputFormatter> textInputFormatter, {
@@ -405,24 +378,14 @@ multiLinesTextField(
         hintText: hint,
         hintStyle: hintStyle,
         enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.borderColor),
-            borderRadius: BorderRadius.circular(15)),
+            borderSide: BorderSide(color: AppColors.borderColor), borderRadius: BorderRadius.circular(15)),
         focusedBorder: OutlineInputBorder(
-            borderSide:
-                BorderSide(color: AppColors.primaryColorBottom, width: 2),
+            borderSide: BorderSide(color: AppColors.primaryColorBottom, width: 2),
             borderRadius: BorderRadius.circular(15)),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
         border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.bgGrey),
-            borderRadius: BorderRadius.circular(15)),
+            borderSide: BorderSide(color: AppColors.bgGrey), borderRadius: BorderRadius.circular(15)),
       ),
     ),
   );
-}
-
-OutlineInputBorder _outlineBorder(Color? borderColor) {
-  return OutlineInputBorder(
-      borderSide: BorderSide(color: borderColor ?? const Color(0xFF000000)),
-      borderRadius: BorderRadius.circular(5));
 }

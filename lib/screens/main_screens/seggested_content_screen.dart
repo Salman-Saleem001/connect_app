@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
+import 'package:flutter/material.dart';
 
 class SuggestedConnectionsPage extends StatelessWidget {
   final List<Map<String, String>> videos = [

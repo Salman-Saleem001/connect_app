@@ -1,10 +1,5 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/profile_controller.dart';
 import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/globals/enum.dart';
@@ -16,6 +11,11 @@ import 'package:connect_app/widgets/appbars.dart';
 import 'package:connect_app/widgets/custom_bottom_option_sheet.dart';
 import 'package:connect_app/widgets/primary_button.dart';
 import 'package:connect_app/widgets/text_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 class EditDetails extends StatefulWidget {
   const EditDetails({super.key});
@@ -271,7 +271,7 @@ class _EditDetailsState extends State<EditDetails> {
         SizedBox(
           height: ht(12),
         ),
-        customTextFiled(emailCont, emailFocus, [], null, hint: 'Email'),
+        customTextFiled(emailCont, emailFocus, [], null, hint: 'Email', enabled: false),
         SizedBox(
           height: ht(12),
         ),

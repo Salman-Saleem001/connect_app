@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
 import 'package:connect_app/globals/container_properties.dart';
 import 'package:connect_app/globals/network_image.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/primary_button.dart';
+import 'package:flutter/material.dart';
 
 class CartItemComponent extends StatelessWidget {
   const CartItemComponent({

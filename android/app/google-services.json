@@ -7,12 +7,17 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:17932145134:android:90293665cb1b762a45beff",
+        "mobilesdk_app_id": "1:17932145134:android:fb77f3e703ba8ae645beff",
         "android_client_info": {
-          "package_name": "com.example.connect_app"
+          "package_name": "com.connect_giant.android"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "17932145134-2j8lcb6e9koneqqin3hh7gfb09kuii91.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyA-nY2JIt6DlXTGpRuV63ZnVWSoSoCsm9I"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "17932145134-2j8lcb6e9koneqqin3hh7gfb09kuii91.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "17932145134-2dli95el2bj5smrp3bnbkufqe8ejutk3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ios.connectGiant"
+              }
+            }
+          ]
         }
       }
     }

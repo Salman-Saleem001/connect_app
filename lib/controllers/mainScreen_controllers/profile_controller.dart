@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -14,31 +15,28 @@ import '../../models/posts_model.dart';
 import '../../services/http_services.dart';
 import '../../utils/login_details.dart';
 
-class ProfileController extends GetxController{
+class ProfileController extends GetxController {
+  Rx<PostModel> myPosts = PostModel(posts: []).obs;
 
-  Rx<PostModel> myPosts= PostModel(posts: []).obs;
+  RxBool isDataFetched = false.obs;
+  RxList<User> blockedUser = <User>[].obs;
 
-  RxBool isDataFetched= false.obs;
-
-  clear(){
+  void clear() {
     myPosts.value.posts?.clear();
   }
 
-  getMyOwnPost()async{
-    try{
-      dynamic response= await HttpsServices.getApiCall(url: AppApis.baseUrl + AppApis.posts);
-      
+  Future<void> getMyOwnPost() async {
+    try {
+      dynamic response = await HttpsServices.getApiCall(url: AppApis.baseUrl + AppApis.posts);
 
-      myPosts.value= PostModel.fromJson(jsonDecode(response));
-
-
+      myPosts.value = PostModel.fromJson(jsonDecode(response));
 
       List<Future<void>> thumbnailFutures = [];
 
       myPosts.value.posts?.forEach((element) {
         // Add each thumbnail generation task to the list
         debugPrint("element====> ${element.thumbnail}");
-        if(element.thumbnail?.isEmpty==true){
+        if (element.thumbnail?.isEmpty == true) {
           var thumbnailFuture = createThumbNai(element.video ?? '').then((thumbnail) {
             element.thumbnail = thumbnail;
           });
@@ -49,16 +47,14 @@ class ProfileController extends GetxController{
       // Wait for all thumbnail generation tasks to complete
       await Future.wait(thumbnailFutures);
       thumbnailFutures.clear();
-      isDataFetched.value= true;
+      isDataFetched.value = true;
       update();
-
-    }catch(e){
+    } catch (e) {
       debugPrint('Error while getting Video');
     }
   }
 
-
-  createThumbNai(String url) async {
+  Future<String?> createThumbNai(String url) async {
     final fileName = await VideoThumbnail.thumbnailFile(
       video: url,
       thumbnailPath: (await getTemporaryDirectory()).path,
@@ -69,25 +65,35 @@ class ProfileController extends GetxController{
     return fileName;
   }
 
+  Future<bool> deleteProfile() async {
+    try {
+      final response = await HttpsServices.deleteApiCall(url: AppApis.deleteProfileApi);
+      if (response != null) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Error while deleting Profile');
+    }
+    return false;
+  }
 
-
-
-
-  Future<void> updateProfile({required File image,
-      required String firstName,
-      required String lastName,
-      required String email,
-      required String dob,})async {
-
-    try{
+  Future<void> updateProfile({
+    required File image,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String dob,
+  }) async {
+    try {
       EasyLoading.show();
 
       debugPrint('DateOf Birth==> $dob');
-      dynamic response= await HttpsServices.updateUser(image: image, firstName: firstName, lastName: lastName, email: email, dob: dob);
+      dynamic response = await HttpsServices.updateUser(
+          image: image, firstName: firstName, lastName: lastName, email: email, dob: dob);
 
-      dynamic data= jsonDecode(response);
+      dynamic data = jsonDecode(response);
 
-      if(response!=null){
+      if (response != null) {
         Global.showToastAlert(
             context: Get.overlayContext!,
             strTitle: "Success",
@@ -95,8 +101,7 @@ class ProfileController extends GetxController{
             toastType: TOAST_TYPE.toastSuccess);
         debugPrint(data['user']['avatar'].toString());
         Get.find<UserDetail>().updateProfile(firstName, lastName, data['user']['avatar']);
-        
-      }else{
+      } else {
         Global.showToastAlert(
             context: Get.overlayContext!,
             strTitle: "Failure",
@@ -104,40 +109,68 @@ class ProfileController extends GetxController{
             toastType: TOAST_TYPE.toastError);
       }
 
-      response=null;
-      data= null;
-    }catch(e){
+      response = null;
+      data = null;
+    } catch (e) {
       debugPrint('Error while updating Profile====>$e ');
-    }finally{
+    } finally {
       // newString= null;
 
       EasyLoading.dismiss();
     }
   }
 
-
-  Future<bool> deleteVideo(int id)async{
+  Future<bool> deleteVideo(int id) async {
     EasyLoading.show();
-    try{
+    try {
       debugPrint('url ${AppApis.deleteVideoApi}$id');
-      var response=await  HttpsServices.deleteApiCall(url: '${AppApis.deleteVideoApi}$id');
-      if(response !=null){
+      var response = await HttpsServices.deleteApiCall(url: '${AppApis.deleteVideoApi}$id');
+      if (response != null) {
         debugPrint("Here is the delete response===>$response");
         EasyLoading.dismiss();
         return true;
       }
-
-
-    }catch(e){
+    } catch (e) {
       debugPrint('Some thing Went wrong====>$e');
     }
     EasyLoading.dismiss();
     return false;
   }
 
+  Future<bool> unBlockUser({required int userId, required int index}) async {
+    try {
+      final response = await HttpsServices.postApiCall(
+        url: '${AppApis.unBlock}$userId',
+      );
+      if (response != null) {
+        blockedUser.removeAt(index);
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Some thing Went wrong====>$e');
+    }
+    return false;
+  }
+
+  Future<void> getBlockedUser() async {
+    try {
+      dynamic response = await HttpsServices.getApiCall(url: AppApis.blocked);
+      if (response != null) {
+        final blockedUsers= jsonDecode(response);
+        log("Response $blockedUsers");
+        blockedUser.addAll((blockedUsers['blocked_users'] as List?)?.map((element) => User.fromJson(element)) ?? []);
+      }
+    } catch (e) {
+      debugPrint('Error while getting Blocked users $e');
+    } finally {
+      update();
+    }
+  }
+
   @override
   void dispose() {
     // TODO: implement dispose
+    blockedUser.clear();
     super.dispose();
   }
 }

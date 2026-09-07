@@ -1,0 +1,802 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect_app/controllers/chat/chat_detail_controller.dart';
+import 'package:connect_app/controllers/chat/voice_recording_controller.dart';
+import 'package:connect_app/globals/database.dart';
+import 'package:connect_app/globals/enum.dart';
+import 'package:connect_app/globals/global.dart';
+import 'package:connect_app/screens/main_screens/chat_view/widget/attachment_widget.dart';
+import 'package:connect_app/screens/main_screens/chat_view/widget/chat_list_item.dart';
+import 'package:connect_app/screens/main_screens/chat_view/widget/voice_recording_button.dart';
+import 'package:connect_app/screens/other_screens/addRating_screen.dart';
+import 'package:connect_app/screens/other_screens/add_post_screens/camera_screens.dart';
+import 'package:connect_app/screens/other_screens/add_post_screens/video_view.dart';
+import 'package:connect_app/utils/app_colors.dart';
+import 'package:connect_app/utils/text_styles.dart';
+import 'package:connect_app/widgets/appbars.dart';
+import 'package:connect_app/widgets/text_fields.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../../../controllers/mainScreen_controllers/home_page_cont.dart';
+import '../../../models/chat_model.dart';
+import '../../../models/local_chat_model.dart';
+import '../../../utils/login_details.dart';
+
+class ChatDetailScreenNew extends StatelessWidget {
+  const ChatDetailScreenNew({
+    super.key,
+    this.secondUserId,
+    this.userName,
+    this.tags,
+    this.description,
+    this.videoId,
+    this.userAvatar,
+    this.bio,
+  });
+
+  final String? secondUserId, userName, description, userAvatar, bio;
+  final int? videoId;
+  final List<String>? tags;
+
+  @override
+  Widget build(BuildContext context) {
+    var homeFeedController = Get.put(HomeFeedController());
+    var chatController = Get.put(ChatDetailController());
+    if (chatController.chatDataModel.value == null) {
+      chatController.getSingleChatDetail(secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
+    }
+
+    return PopScope(
+      onPopInvokedWithResult: (val, result) {
+        chatController.chatDataModel.value = null;
+        chatController.deleteSingleFile();
+      },
+      child: Scaffold(
+        appBar: customAppBar(backButton: true, marginTop: 25, actions: [
+          GestureDetector(
+            onTap: () {
+              Get.to(RatingScreen(
+                userAvatar: userAvatar,
+                videoId: videoId,
+                name: userName,
+                bio: bio,
+              ))?.whenComplete(() {
+                homeFeedController.rating = null;
+                homeFeedController.reviewDescrioption = null;
+              });
+            },
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: AppColors.borderColor,
+                  width: 1.0,
+                ),
+              ),
+              child: Center(child: Image.asset('assets/images/ic_support.png')),
+            ),
+          )
+        ]),
+        body: Column(
+          children: [
+            Expanded(
+              child: GetBuilder(builder: (ChatDetailController chatController) {
+                if (chatController.isDataFetched.value) {
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.only(bottom: 100),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            // crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              UserAvatarImage(
+                                userAvatar: userAvatar,
+                                radius: 35,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                '@${userName ?? ''}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 16, left: 16),
+                          child: Divider(
+                            color: AppColors.borderColor,
+                            thickness: 0.5,
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.fromLTRB(16, 5, 16, 15),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColorBottom,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                description ?? 'Anyone heading to Phoenix Game Tonight?',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: tags?.map((val) {
+                                      return hashtagChip(val);
+                                    }).toList() ??
+                                    [],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Column(
+                            children: [
+                              Obx(() {
+                                if (chatController.chatDataModel.value == null) {
+                                  return Row(
+                                    children: [
+                                      UserAvatarImage(userAvatar: userAvatar),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () async {
+                                            String chatRoomId;
+                                            if (int.parse(secondUserId ?? '0') >
+                                                (Get.find<UserDetail>().userData.user?.id ?? 0)) {
+                                              chatRoomId =
+                                                  '${int.parse(secondUserId ?? '0')}${Get.find<UserDetail>().userData.user?.id ?? 0}$videoId';
+                                            } else {
+                                              chatRoomId =
+                                                  '${Get.find<UserDetail>().userData.user?.id ?? 0}${int.parse(secondUserId ?? '0')}$videoId';
+                                            }
+                                            await Get.to(CameraScreen(
+                                              cameras: homeFeedController.cameras,
+                                              fromMessage: true,
+                                              onSend: (val) async {
+                                                String? tag;
+                                                tags?.forEach((element) {
+                                                  tag = (tag ?? '') + element;
+                                                });
+                                                await chatController
+                                                    .createChatRoom(
+                                                        secondUser: secondUserId ?? '',
+                                                        chatRoomId: chatRoomId,
+                                                        userName: userName ?? '',
+                                                        tags: tag ?? '',
+                                                        description: description ?? '',
+                                                        videoId: videoId ?? 0,
+                                                        avatar: userAvatar ?? '')
+                                                    .whenComplete(() {
+                                                  chatController.getSingleChatDetail(
+                                                      secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
+                                                });
+                                              },
+                                            ));
+                                          },
+                                          child: Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey[200],
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: Text(
+                                                    'Record Video Reply to connect with ${userName ?? ''}',
+                                                    style: const TextStyle(
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey,
+                                                    // Set the background color to grey
+                                                    borderRadius: BorderRadius.circular(1000), // Circular shape
+                                                  ),
+                                                  padding: const EdgeInsets.all(8.0),
+                                                  // Optional: Add padding if needed
+                                                  child: const Icon(
+                                                    Icons.videocam,
+                                                    color: Colors.white, // Set the icon color to white
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  bool check = chatController.chatDataModel.value?.senderId ==
+                                      (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
+                                  return Align(
+                                    alignment: check ? Alignment.topLeft : Alignment.bottomRight,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            if (check) ...[
+                                              UserAvatarImage(userAvatar: Get.find<UserDetail>().userData.user?.avatar),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                            ],
+                                            Builder(builder: (_) {
+                                              if (chatController.thumbnail != null) {
+                                                return GestureDetector(
+                                                  behavior: HitTestBehavior.opaque,
+                                                  onTap: () {
+                                                    Get.to(
+                                                      () => ChatVideoView(
+                                                          url: chatController.chatDataModel.value?.messageData),
+                                                    );
+                                                  },
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                    child: Stack(
+                                                      alignment: Alignment.center,
+                                                      children: [
+                                                        Image.file(
+                                                          File(chatController.thumbnail ?? ''),
+                                                          height: 100,
+                                                          width: 90,
+                                                          fit: BoxFit.cover,
+                                                        ),
+                                                        const Icon(
+                                                          Icons.play_arrow,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              }
+                                              chatController.generateThumbnail(
+                                                  chatController.chatDataModel.value?.messageData ?? '');
+                                              return CircularProgressIndicator(
+                                                color: AppColors.primaryColor,
+                                              );
+                                            }),
+                                            if (!check) ...[
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              UserAvatarImage(userAvatar: userAvatar),
+                                            ]
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 5,
+                                        ),
+                                        Text(
+                                          getTime(chatController.chatDataModel.value?.videoTime ?? ''),
+                                          textAlign: TextAlign.right,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                        if (!check && chatController.chatDataModel.value?.myStatus == 'Pending')
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              GestureDetector(
+                                                behavior: HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  debugPrint('Hello');
+                                                  chatController.updateStatus(
+                                                      secondUserId: chatController.chatDataModel.value?.senderId ?? '',
+                                                      status: "Accepted",
+                                                      videoId: videoId ?? 0);
+                                                },
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  child: ColoredBox(
+                                                    color: AppColors.primaryColor,
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(8.0),
+                                                      child: Text(
+                                                        'Accept Connection',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: AppColors.white,
+                                                            fontWeight: FontWeight.w500),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 10,
+                                              ),
+                                              GestureDetector(
+                                                behavior: HitTestBehavior.opaque,
+                                                onTap: () {
+                                                  chatController.updateStatus(
+                                                      secondUserId: secondUserId ?? '',
+                                                      status: "Rejected",
+                                                      videoId: videoId ?? 0);
+                                                },
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  child: ColoredBox(
+                                                    color: AppColors.bgGrey.withValues(alpha: .3),
+                                                    child: const Padding(
+                                                      padding: EdgeInsets.all(8.0),
+                                                      child: Text(
+                                                        'Decline',
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            // color: AppColors.white,
+                                                            fontWeight: FontWeight.w500),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                      ],
+                                    ),
+                                  );
+                                }
+                              }),
+                            ],
+                          ),
+                        ),
+                        if (chatController.chatDataModel.value?.chatsId != null)
+                          StreamBuilder(
+                              stream: chatController.getMessages(
+                                  chatRoomId: chatController.chatDataModel.value?.chatsId ?? ""),
+                              builder: (_, AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
+                                if (snapshot.hasData) {
+                                  return Column(
+                                    children: snapshot.data!.docs.reversed.map((element) {
+                                      final chatModel = ChatModel.fromMap(element);
+                                      bool check =
+                                          chatModel.from == (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
+                                      LocalChatModel chat = LocalChatModel(
+                                          time: chatModel.timeStamp,
+                                          message: chatModel.message,
+                                          files: chatModel.files,
+                                          status: chatModel.status ?? 'Active',
+                                          messageType: chatModel.messageType,
+                                          voiceData: chatModel.voiceData,
+                                          mMsgType: chatModel.from == Database.userId ? MsgType.right : MsgType.left);
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10),
+                                        child: Align(
+                                          alignment: check ? Alignment.topLeft : Alignment.bottomRight,
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            children: [
+                                              Row(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  if (check) ...[
+                                                    UserAvatarImage(
+                                                        userAvatar: Get.find<UserDetail>().userData.user?.avatar),
+                                                    const SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                  ],
+                                                  if (chatModel.messageType == MessageType.video) ...[
+                                                    GestureDetector(
+                                                      behavior: HitTestBehavior.opaque,
+                                                      onTap: () {
+                                                        Get.to(() =>
+                                                            ChatVideoView(url: chatModel.voiceData?["url"] ?? ''));
+                                                      },
+                                                      child: ClipRRect(
+                                                        borderRadius: BorderRadius.circular(10),
+                                                        child: const ColoredBox(
+                                                          color: Colors.black,
+                                                          child: SizedBox(
+                                                            height: 100,
+                                                            width: 90,
+                                                            child: Icon(
+                                                              Icons.play_arrow,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ] else
+                                                    ChatListItemNew(
+                                                      mChatModel: chat,
+                                                      onTap: () {},
+                                                      audioPlayerController: chatController.audioPlayerController,
+                                                    ),
+                                                  if (!check) ...[
+                                                    const SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    UserAvatarImage(userAvatar: userAvatar),
+                                                  ]
+                                                ],
+                                              ),
+                                              const SizedBox(
+                                                height: 5,
+                                              ),
+                                              Text(
+                                                getTime(chatModel.timeStamp),
+                                                textAlign: TextAlign.right,
+                                                style: const TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  );
+                                  // final chat = ChatDataModel.fromJson(snapshot.data!.docs[index].data() as Map<String, dynamic>);
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              })
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SizedBox();
+                }
+              }),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 10, bottom: 10, top: 10),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.attach_file, color: Colors.grey),
+                    onPressed: () {
+                      showModalBottomSheet(
+                          backgroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          ),
+                          context: context,
+                          builder: (BuildContext bc) {
+                            return AttachmentWidget();
+                          });
+                    },
+                  ),
+                  Expanded(
+                    child: GetBuilder<VoiceRecordingController>(
+                      init: chatController.voiceRecordingController,
+                      builder: (VoiceRecordingController controller) {
+                        if (controller.isRecording) {
+                          int seconds = controller.recordingDuration.inSeconds % 60;
+                          int minutes = controller.recordingDuration.inMinutes;
+
+                          return DecoratedBox(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: AppColors.txtGrey),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsetsGeometry.all(10),
+                              child: Row(
+                                spacing: 10,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.fiber_manual_record_rounded,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  Text(
+                                    "0$minutes:${seconds / 10 < 1 ? '0$seconds' : seconds}",
+                                    style: normalText(color: AppColors.bgGrey),
+                                  ),
+
+                                  Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                      onTap: (){
+                                        controller.stopRecording();
+                                      },
+                                      child: Icon(
+                                        Icons.delete,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }
+                        return customTextFieldOptionalPrefix(
+                          borderRadius: 1000,
+                          hint: 'Type as message...',
+                          chatController.controllerMessage,
+                          lines: null,
+                          FocusNode(),
+                          [],
+                          onchange: chatController.changeText,
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  GetBuilder<ChatDetailController>(builder: (value) {
+                    if (value.showSendButton || chatController.chatDataModel.value?.otherStatus == 'Rejected') {
+                      return Visibility(
+                        visible: value.loading || value.isUploadingVoice,
+                        replacement: DecoratedBox(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: AppColors.primaryColorBottom.withValues(alpha: 0.4), width: 5), // 5p
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(6.0),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(200),
+                              child: ColoredBox(
+                                color: AppColors.primaryColorBottom,
+                                child: GetBuilder(builder: (ChatDetailController controller) {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      if (controller.chatDataModel.value == null) {
+                                        String chatRoomId;
+                                        if (int.parse(secondUserId ?? '0') >
+                                            (Get.find<UserDetail>().userData.user?.id ?? 0)) {
+                                          chatRoomId =
+                                              '${int.parse(secondUserId ?? '0')}${Get.find<UserDetail>().userData.user?.id ?? 0}';
+                                        } else {
+                                          chatRoomId =
+                                              '${Get.find<UserDetail>().userData.user?.id ?? 0}${int.parse(secondUserId ?? '0')}';
+                                        }
+                                        Get.to(CameraScreen(
+                                          cameras: homeFeedController.cameras,
+                                          fromMessage: true,
+                                          onSend: (val) async {
+                                            String? tag;
+                                            tags?.forEach((element) {
+                                              tag = (tag ?? '') + element;
+                                            });
+                                            await chatController
+                                                .createChatRoom(
+                                                    secondUser: secondUserId ?? '',
+                                                    chatRoomId: chatRoomId,
+                                                    userName: userName ?? '',
+                                                    tags: tag ?? '',
+                                                    description: description ?? '',
+                                                    videoId: videoId ?? 0,
+                                                    avatar: userAvatar ?? '')
+                                                .whenComplete(() {
+                                              chatController.getSingleChatDetail(
+                                                  secondUserId: secondUserId ?? '', videoId: videoId ?? 0);
+                                            });
+                                          },
+                                        ));
+                                      } else if (controller.chatDataModel.value?.otherStatus == 'Accepted') {
+                                        chatController.sendMessage();
+                                        chatController.updateLastMessage(
+                                            secondUser:
+                                                (controller.chatDataModel.value?.senderId ?? '') == Database.userId
+                                                    ? (controller.chatDataModel.value?.receiverId ?? '')
+                                                    : (controller.chatDataModel.value?.senderId ?? ''),
+                                            videId: videoId ?? 0);
+                                      } else if (controller.chatDataModel.value?.otherStatus == 'Rejected') {
+                                        Global.showToastAlert(
+                                            context: context,
+                                            strMsg: 'Chat request rejected',
+                                            toastType: TOAST_TYPE.toastWarning);
+                                      } else {
+                                        Global.showToastAlert(
+                                            context: context,
+                                            strMsg: 'The Person has not accepted your request',
+                                            toastType: TOAST_TYPE.toastWarning);
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(controller.chatDataModel.value == null ? Icons.videocam : Icons.send,
+                                          color: Colors.white),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ),
+                        ),
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(2),
+                            child: LinearProgressIndicator(
+                              value: value.isUploadingVoice ? value.uploadProgress : null,
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation(AppColors.primaryColor),
+                            ),
+                          ),
+                        ),
+                      );
+                    } else {
+                      return VoiceRecordingButton(
+                        controller: chatController.voiceRecordingController,
+                        onSendVoiceMessage: () {
+                          chatController.sendVoiceMessage(
+                              chatController.chatDataModel.value?.chatsId ?? "", secondUserId ?? "");
+                        },
+                      );
+                    }
+                  }),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget hashtagChip(String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class ChatVideoView extends StatelessWidget {
+  const ChatVideoView({
+    super.key,
+    this.url,
+  });
+
+  final String? url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        VideoView(
+          url: url ?? '',
+        ),
+        Positioned(
+          top: 60,
+          left: 20,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: AppColors.primaryColorBottom,
+            ),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                Get.back();
+              },
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12.0, 8.0, 0.0, 8.0),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  size: 32,
+                  color: AppColors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class UserAvatarImage extends StatelessWidget {
+  const UserAvatarImage({
+    super.key,
+    required this.userAvatar,
+    this.radius,
+  });
+
+  final String? userAvatar;
+  final double? radius;
+
+  @override
+  Widget build(BuildContext context) {
+    bool isAbsolute = Uri.parse(userAvatar ?? '').isAbsolute;
+    return CircleAvatar(
+      radius: radius ?? 20,
+      backgroundImage: isAbsolute
+          ? NetworkImage(
+              userAvatar ?? 'https://wallpapers.com/images/hd/mr-bean-cartoon-riding-car-cxwhk07yek890rh1.jpg',
+            )
+          : null,
+      foregroundImage: !isAbsolute
+          ? const NetworkImage(
+              'https://cdn-icons-png.flaticon.com/512/61/61205.png',
+            )
+          : null,
+      backgroundColor: AppColors.white,
+    );
+  }
+}
+
+String getTime(dynamic val) {
+  int timeDifferenceMicroseconds = 0;
+
+  DateTime dateTimeUtcPlus5;
+
+  try {
+    if (val is Timestamp) {
+      // Convert Firestore Timestamp to DateTime
+      dateTimeUtcPlus5 = val.toDate();
+      debugPrint(dateTimeUtcPlus5.toString());
+    } else {
+      // If val is not a Timestamp, treat it as a string
+      String dateTimeStr = (val ?? "2025-02-15T15:32:12+05:00").toString();
+      dateTimeUtcPlus5 = DateTime.parse(dateTimeStr);
+    }
+  } catch (parseError) {
+    // Fallback to current date-time if all parsing fails
+    dateTimeUtcPlus5 = DateTime.now();
+  }
+
+  DateTime localTime = dateTimeUtcPlus5.toLocal();
+
+  timeDifferenceMicroseconds = (DateTime.now().microsecondsSinceEpoch - localTime.microsecondsSinceEpoch).toInt();
+
+  Duration timeDifference = Duration(microseconds: timeDifferenceMicroseconds);
+
+  String formattedTimeDifference;
+  if (timeDifference.inDays > 0) {
+    formattedTimeDifference = '${timeDifference.inDays} days ago';
+  } else if (timeDifference.inHours > 0) {
+    formattedTimeDifference = '${timeDifference.inHours} hours ago';
+  } else if (timeDifference.inMinutes > 0) {
+    formattedTimeDifference = '${timeDifference.inMinutes} minutes ago';
+  } else {
+    if (timeDifference.inSeconds < 60) {
+      formattedTimeDifference = 'just Now';
+    } else {
+      formattedTimeDifference = '${timeDifference.inSeconds} seconds ago';
+    }
+  }
+  return formattedTimeDifference;
+}

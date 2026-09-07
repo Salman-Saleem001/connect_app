@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connect_app/models/chat_model.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -15,50 +16,49 @@ import '../models/order_model.dart';
 import '../models/request_model.dart';
 import '../utils/login_details.dart';
 
-
-
 class Database {
   static final Database _instance = Database._internal();
 
   Database._internal();
 
   factory Database() => _instance;
-  
+
   static FirebaseFirestore firestoreInstance = FirebaseFirestore.instance;
   static FirebaseStorage storageInstance = FirebaseStorage.instance;
-  static String userId =  (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
-  initializeUser(){
-    userId= (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
-    }
+  static String userId = (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
+  void initializeUser() {
+    userId = (Get.find<UserDetail>().userData.user?.id ?? 0).toString();
+  }
 
   Stream<QuerySnapshot<Object?>>? getChats({required int selected}) {
-    if(selected==0){
+    if (selected == 0) {
       debugPrint('userId==>$userId');
       return firestoreInstance
           .collection('chatRooms')
           .doc(userId)
-          .collection(userId).where('senderId', isEqualTo: userId )
+          .collection(userId)
+          .where('senderId', isEqualTo: userId)
           .snapshots();
-    }else {
+    } else {
       return firestoreInstance
           .collection('chatRooms')
           .doc(userId)
-          .collection(userId).where('receiverId', isEqualTo: userId )
+          .collection(userId)
+          .where('receiverId', isEqualTo: userId)
           .snapshots();
     }
   }
 
-
   Stream<QuerySnapshot<Object?>>? getRequestOnVideos({required int videoId}) {
     debugPrint(userId);
-      return firestoreInstance
-          .collection('chatRooms')
-          .doc(userId)
-          .collection(userId).where('receiverId', isEqualTo: userId ).where('videoId', isEqualTo: videoId)
-          .snapshots();
-
+    return firestoreInstance
+        .collection('chatRooms')
+        .doc(userId)
+        .collection(userId)
+        .where('receiverId', isEqualTo: userId)
+        .where('videoId', isEqualTo: videoId)
+        .snapshots();
   }
-
 
   getSingleChatDetail({required String secondUserId, required int videoId}) async {
     try {
@@ -68,8 +68,7 @@ class Database {
           .collection(userId)
           .doc('$secondUserId$videoId')
           .get();
-      debugPrint(
-          "Here is my document==> ${documentReference.data().toString()}");
+      debugPrint("Here is my document==> ${documentReference.data().toString()}");
       return documentReference.data();
     } on FirebaseException catch (e) {
       debugPrint("Error while getting Single Chat Detail $e");
@@ -85,8 +84,7 @@ class Database {
       final String storageId = (millSeconds.toString() + userId);
       final String today = ('$month-$date');
 
-      Reference ref =
-          storageInstance.ref().child("video").child(today).child(storageId);
+      Reference ref = storageInstance.ref().child("video").child(today).child(storageId);
       UploadTask uploadTask = ref.putFile(
           file,
           SettableMetadata(
@@ -98,7 +96,6 @@ class Database {
       debugPrint(' Video Uploaded');
       String downloadUrl = await taskSnapshot.ref.getDownloadURL();
       if (downloadUrl.isNotEmpty) {
-
         return downloadUrl;
       }
     } catch (error) {
@@ -108,16 +105,16 @@ class Database {
     return null;
   }
 
-  Future createChatRoom(
-      {required String secondUser,
-      required String chatRoomId,
-      required String userName,
-      required String description,
-      required String tags,
-      required String videoUrl,
-      required String userAvatar,
-      required int videId,
-      }) async {
+  Future createChatRoom({
+    required String secondUser,
+    required String chatRoomId,
+    required String userName,
+    required String description,
+    required String tags,
+    required String videoUrl,
+    required String userAvatar,
+    required int videId,
+  }) async {
     try {
       firestoreInstance
           .collection('chatRooms')
@@ -125,7 +122,7 @@ class Database {
           .collection(userId)
           .doc('$secondUser$videId')
           .set(<String, dynamic>{
-            'videoId': videId,
+        'videoId': videId,
         'senderId': userId,
         'receiverId': secondUser,
         'userName': userName,
@@ -140,12 +137,7 @@ class Database {
         'videoTime': FieldValue.serverTimestamp(),
         'chatsId': chatRoomId,
       });
-      firestoreInstance
-          .collection('chatRooms')
-          .doc(secondUser)
-          .collection(secondUser)
-          .doc('$userId$videId')
-          .set({
+      firestoreInstance.collection('chatRooms').doc(secondUser).collection(secondUser).doc('$userId$videId').set({
         'videoId': videId,
         'senderId': userId,
         'receiverId': secondUser,
@@ -166,36 +158,26 @@ class Database {
     }
   }
 
-
-  Future updateChatRoom(
-      {required String secondUser,
-        required int videId,
-      }) async {
+  Future updateChatRoom({
+    required String secondUser,
+    required int videId,
+  }) async {
     try {
-      firestoreInstance
-          .collection('chatRooms')
-          .doc(userId)
-          .collection(userId)
-          .doc('$secondUser$videId')
-          .update({
-           'lastMessageTime': FieldValue.serverTimestamp(),
+      firestoreInstance.collection('chatRooms').doc(userId).collection(userId).doc('$secondUser$videId').update({
+        'lastMessageTime': FieldValue.serverTimestamp(),
       });
-      firestoreInstance
-          .collection('chatRooms')
-          .doc(secondUser)
-          .collection(secondUser)
-          .doc('$userId$videId')
-          .update({
-           'lastMessageTime': FieldValue.serverTimestamp(),});
+      firestoreInstance.collection('chatRooms').doc(secondUser).collection(secondUser).doc('$userId$videId').update({
+        'lastMessageTime': FieldValue.serverTimestamp(),
+      });
     } on FirebaseException catch (e) {
       debugPrint("while updating last time $e");
     }
   }
 
-  Future<bool> setAcceptanceStatus({required String secondUserId, required String status,required int videoId}) async {
+  Future<bool> setAcceptanceStatus({required String secondUserId, required String status, required int videoId}) async {
     try {
       debugPrint({"sender": secondUserId, "status": status}.toString());
-        await firestoreInstance
+      await firestoreInstance
           .collection('chatRooms')
           .doc(secondUserId)
           .collection(secondUserId)
@@ -215,43 +197,29 @@ class Database {
     }
   }
 
-  sendMessage({required String chatRoomId,required ChatDataModel model})async{
-    try{
-
-      firestoreInstance.collection('chats').doc(chatRoomId).collection(chatRoomId).add({
-        'senderId': userId,
-        'userName': Get.find<UserDetail>().userData.user?.username,
-        'lastMessageType': model.lastMessageType,
-        'messageData': model.messageData,
-        'lastMessageTime': FieldValue.serverTimestamp(),
-      });
-
-
-    }on FirebaseException catch(e){
+  Future<void> sendMessage({required String chatRoomId, required ChatModel model}) async {
+    try {
+      model.from = userId;
+      firestoreInstance.collection('chatsData').doc(chatRoomId).collection(chatRoomId).add(model.toMap());
+    } on FirebaseException catch (e) {
       debugPrint('Error while  sendMessage $e');
     }
   }
 
-
-
-
-
-  getMessages({required String chatRoomId}){
+  Stream<QuerySnapshot<Map<String, dynamic>>> getMessages({required String chatRoomId}) {
+    log("Hello $chatRoomId");
     return firestoreInstance
-          .collection('chats')
-          .doc(chatRoomId)
-          .collection(chatRoomId).orderBy('lastMessageTime',descending: true)
-          .snapshots();
+        .collection('chatsData')
+        .doc(chatRoomId)
+        .collection(chatRoomId)
+        .orderBy('timestamp', descending: true)
+        .snapshots();
   }
-
 
   static Future<bool> listItem(ItemModel itemModel) async {
     try {
       if (itemModel.id != '') {
-        await firestoreInstance
-            .collection("items")
-            .doc(itemModel.id)
-            .update(itemModel.toMap());
+        await firestoreInstance.collection("items").doc(itemModel.id).update(itemModel.toMap());
       } else {
         await firestoreInstance.collection("items").add(itemModel.toMap());
       }
@@ -287,10 +255,9 @@ class Database {
   static Future<bool> addToWishlist(String itemId) async {
     try {
       EasyLoading.show();
-      await firestoreInstance.collection("wishlist").add({
-        'itemId': itemId,
-        'userId': Get.find<UserDetail>().userData.user!.id.toString()
-      });
+      await firestoreInstance
+          .collection("wishlist")
+          .add({'itemId': itemId, 'userId': Get.find<UserDetail>().userData.user!.id.toString()});
       EasyLoading.dismiss();
       return true;
     } catch (e) {
@@ -327,20 +294,13 @@ class Database {
     }
   }
 
-  static Future<bool> updateOrderStatus(
-      String id, String status, List picture) async {
+  static Future<bool> updateOrderStatus(String id, String status, List picture) async {
     try {
       EasyLoading.show();
       if (status == OrderStatus.ordered) {
-        await firestoreInstance
-            .collection("orders")
-            .doc(id)
-            .update({'status': status, 'pictures': picture});
+        await firestoreInstance.collection("orders").doc(id).update({'status': status, 'pictures': picture});
       } else {
-        await firestoreInstance
-            .collection("orders")
-            .doc(id)
-            .update({'status': status, 'dropPicture': picture});
+        await firestoreInstance.collection("orders").doc(id).update({'status': status, 'dropPicture': picture});
       }
       EasyLoading.dismiss();
       return true;
@@ -373,8 +333,7 @@ class Database {
       var query = await firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
-              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
-              toFirestore: (r, _) => r.toMap())
+              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
           .where(
             'ratingDone',
             isEqualTo: false,
@@ -398,8 +357,7 @@ class Database {
         .doc(userId)
         .collection('data')
         .withConverter<DocModel>(
-            fromFirestore: (r, _) => DocModel.fromDocumentSnapshot(r),
-            toFirestore: (r, _) => r.toMap())
+            fromFirestore: (r, _) => DocModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
         .where(
           'type',
           isEqualTo: type,
@@ -413,8 +371,7 @@ class Database {
         .doc(userId)
         .collection('data')
         .withConverter<DocModel>(
-            fromFirestore: (r, _) => DocModel.fromDocumentSnapshot(r),
-            toFirestore: (r, _) => r.toMap())
+            fromFirestore: (r, _) => DocModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
         .where(
           'type',
           isEqualTo: type,
@@ -426,21 +383,17 @@ class Database {
     return firestoreInstance
         .collection('items')
         .withConverter<ItemModel>(
-            fromFirestore: (r, _) => ItemModel.fromDocumentSnapshot(r),
-            toFirestore: (r, _) => r.toMap())
+            fromFirestore: (r, _) => ItemModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
         .where(
           'userId',
           isEqualTo: Get.find<UserDetail>().userData.user!.id.toString(),
         )
-        .where('status',
-            whereIn: [ItemStatus.available, ItemStatus.inUse]).snapshots();
+        .where('status', whereIn: [ItemStatus.available, ItemStatus.inUse]).snapshots();
   }
 
   static Stream<QuerySnapshot<Map<String, dynamic>>> checkWishlist(String id) {
     return firestoreInstance
         .collection('wishlist')
-
-
         .where(
           'userId',
           isEqualTo: Get.find<UserDetail>().userData.user!.id.toString(),
@@ -463,27 +416,21 @@ class Database {
     return firestoreInstance
         .collection('requests')
         .withConverter<RequestModel>(
-            fromFirestore: (r, _) => RequestModel.fromDocumentSnapshot(r),
-            toFirestore: (r, _) => r.toMap())
+            fromFirestore: (r, _) => RequestModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
         .where(
           'requestBy',
           isEqualTo: Get.find<UserDetail>().userData.user!.id.toString(),
         )
-        .where('status', whereIn: [
-      RequestStatus.requested,
-      RequestStatus.accepted
-    ]).snapshots();
+        .where('status', whereIn: [RequestStatus.requested, RequestStatus.accepted]).snapshots();
   }
 
-  static Stream<QuerySnapshot<OrderModel>> getMyOrder(int status,
-      {bool getIncoming = false}) {
+  static Stream<QuerySnapshot<OrderModel>> getMyOrder(int status, {bool getIncoming = false}) {
     String key = getIncoming ? 'requestTo' : 'requestBy';
     if (status == 0) {
       return firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
-              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
-              toFirestore: (r, _) => r.toMap())
+              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
           .where(
             key,
             isEqualTo: Get.find<UserDetail>().userData.user!.id.toString(),
@@ -493,8 +440,7 @@ class Database {
       return firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
-              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
-              toFirestore: (r, _) => r.toMap())
+              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
           .where(
             key,
             isEqualTo: Get.find<UserDetail>().userData.user!.id.toString(),
@@ -505,8 +451,7 @@ class Database {
       return firestoreInstance
           .collection('orders')
           .withConverter<OrderModel>(
-              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r),
-              toFirestore: (r, _) => r.toMap())
+              fromFirestore: (r, _) => OrderModel.fromDocumentSnapshot(r), toFirestore: (r, _) => r.toMap())
           .where(
             key,
             isEqualTo: Get.find<UserDetail>().userData.user!.id.toString(),
@@ -520,22 +465,17 @@ class Database {
     return FirebaseFirestore.instance
         .collection('chats')
         .withConverter<ChatGroupModel>(
-            fromFirestore: (r, _) => ChatGroupModel.fromMap(r),
-            toFirestore: (r, _) => r.toMap())
+            fromFirestore: (r, _) => ChatGroupModel.fromMap(r), toFirestore: (r, _) => r.toMap())
         .doc(id)
         .get();
   }
 
-  static Stream<QuerySnapshot<ChatGroupModel>> getChatRoomStatus(
-      String userId) {
+  static Stream<QuerySnapshot<ChatGroupModel>> getChatRoomStatus(String userId) {
     return firestoreInstance
         .collection('chats')
         .withConverter<ChatGroupModel>(
-            fromFirestore: (r, _) => ChatGroupModel.fromMap(r),
-            toFirestore: (r, _) => r.toMap())
-        .where('check',
-            arrayContains:
-                '${userId}${Get.find<UserDetail>().userData.user!.id.toString()}')
+            fromFirestore: (r, _) => ChatGroupModel.fromMap(r), toFirestore: (r, _) => r.toMap())
+        .where('check', arrayContains: '${userId}${Get.find<UserDetail>().userData.user!.id.toString()}')
         // .where('jobId', isEqualTo: jobId)
         .snapshots();
     // .data();

@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
+import 'package:flutter/material.dart';
 
 // All rights reserved by Healer
 
@@ -55,9 +55,9 @@ class PrimaryButton extends StatelessWidget {
         child: ElevatedButton(
           onPressed: onPress,
           style: ButtonStyle(
-            shadowColor: MaterialStateProperty.all(Colors.transparent),
-            backgroundColor: MaterialStateProperty.all(Colors.transparent),
-            shape: MaterialStateProperty.all(
+            shadowColor: WidgetStateProperty.all(Colors.transparent),
+            backgroundColor: WidgetStateProperty.all(Colors.transparent),
+            shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(whiteButton ? 15 : radius),
               ),
@@ -80,7 +80,7 @@ class BorderedButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
 
-  BorderedButton({required this.text, required this.onPressed});
+  const BorderedButton({required this.text, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {

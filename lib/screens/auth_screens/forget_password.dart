@@ -26,71 +26,57 @@ class ForgetPassword extends StatelessWidget {
       body: SafeArea(
         child: ListView(
           // padding: EdgeInsets.symmetric(horizontal: wd(30), vertical: ht(15)),
+          padding: const EdgeInsets.only(right: 20, left: 20, top: 40, bottom: 10),
+
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
+            Align(
+              alignment: Alignment.topLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
                   'assets/images/kora_logo.png',
-                  width: wd(150),
-                  height: ht(180),
+                  scale: 10.0,
                 ),
-              ],
+              ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(right: 20, left: 20),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      fromChangePassword?'Change Password!':'Forgot Password!',
-                      style: headingText(size: 28),
-                    ),
-                    SizedBox(
-                      height: ht(8),
-                    ),
-                    Text(
-                      'Recover Password.',
-                      style: normalText(size: 16),
-                    ),
-                    SizedBox(
-                      height: ht(34),
-                    ),
-                  ]),
+            SizedBox(height: ht(30),),
+            Text(
+              fromChangePassword?'Change Password!':'Forgot Password!',
+              style: headingText(size: 28),
             ),
-            Container(
-              padding: EdgeInsets.only(top: 20, left: 20, right: 20),
-              child: Column(
+            SizedBox(
+              height: ht(8),
+            ),
+            Text(
+              'Recover Password.',
+              style: normalText(size: 16),
+            ),
+            SizedBox(
+              height: ht(34),
+            ),
+            GetBuilder<SignUpController>(
+              init: SignUpController(),
+                builder: (value) {
+              return Column(
                 children: [
+                  _userSignUp(value),
                   SizedBox(
                     height: ht(20),
                   ),
-                  GetBuilder<SignUpController>(
-                    init: SignUpController(),
-                      builder: (value) {
-                    return Column(
-                      children: [
-                        _userSignUp(value),
-                        SizedBox(
-                          height: ht(20),
-                        ),
-                        PrimaryButton(
-                          label: 'Submit',
-                          onPress: () {
-                            Get.to(() => OTPScreen(
-                                  otp: '0000',
-                                ),
+                  PrimaryButton(
+                    label: 'Submit',
+                    onPress: () {
+                      Get.to(() => OTPScreen(
+                            otp: '0000',
+                          ),
 
-                            );
-                            // controller.resestPassowrd();
-                          },
-                        ),
-                      ],
-                    );
-                  }),
+                      );
+                      // controller.resestPassowrd();
+                    },
+                  ),
                 ],
-              ),
-            ),
+              );
+            }),
             SizedBox(height: ht(40)),
             if(!fromChangePassword)
             Row(

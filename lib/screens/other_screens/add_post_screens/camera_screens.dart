@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:connect_app/globals/enum.dart';
 import 'package:connect_app/globals/global.dart';
@@ -18,16 +19,17 @@ import '../../main_screens/bottom_bar_screen.dart';
 /// Camera example home widget.
 class CameraScreen extends StatefulWidget {
   final List<CameraDescription> cameras;
-  final Function? onSend;
+  final Function(String)? onSend;
+  final bool fromMessage;
+  final bool fromStory;
 
   const CameraScreen({
     super.key,
     required this.cameras,
     this.fromMessage = false,
+    this.fromStory = false,
     this.onSend,
   });
-
-  final bool fromMessage;
 
   @override
   State<CameraScreen> createState() {
@@ -43,8 +45,7 @@ void _logError(String code, String? message) {
   }
 }
 
-class _CameraScreenState extends State<CameraScreen>
-    with WidgetsBindingObserver, TickerProviderStateMixin {
+class _CameraScreenState extends State<CameraScreen> with WidgetsBindingObserver, TickerProviderStateMixin {
   CameraType cameraType = CameraType.rear;
   CustomMediaType mediaType = CustomMediaType.video;
   VideoStates videoState = VideoStates.idle;
@@ -70,7 +71,7 @@ class _CameraScreenState extends State<CameraScreen>
   // Counting pointers (number of user fingers on screen)
   int _pointers = 0;
 
-  recordingTimer() {
+  void recordingTimer() {
     log(recordedSeconds.toString());
     timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (_isRecording) {
@@ -83,6 +84,7 @@ class _CameraScreenState extends State<CameraScreen>
                     isVideo: true,
                     fromMessage: widget.fromMessage,
                     onSend: widget.onSend,
+                    fromStory: widget.fromStory,
                   ));
               paddingValue = 0;
               videoState = VideoStates.idle;
@@ -168,13 +170,14 @@ class _CameraScreenState extends State<CameraScreen>
                     right: 0,
                     top: 0,
                     child: customAppBarTransparent(
-                      backButton: true,
-                      title: 'Create Video',
-                      marginTop: 25,
-                      onTap: !widget.fromMessage? (){
-                        Get.off(()=> NavBarScreen());
-                      }: null
-                    ),
+                        backButton: true,
+                        title: 'Create Video',
+                        marginTop: 25,
+                        onTap: !widget.fromMessage
+                            ? () {
+                                Get.off(() => NavBarScreen());
+                              }
+                            : null),
                   ),
                   _topToggleOptions(),
                   _captureButton(),
@@ -191,8 +194,7 @@ class _CameraScreenState extends State<CameraScreen>
                             ),
                             Text(
                               'Upload',
-                              style: regularText(size: 12)
-                                  .copyWith(color: Colors.white),
+                              style: regularText(size: 12).copyWith(color: Colors.white),
                             )
                           ],
                         ),
@@ -203,8 +205,7 @@ class _CameraScreenState extends State<CameraScreen>
                       left: 20,
                       child: DecoratedBox(
                         decoration: BoxDecoration(
-                            color: AppColors.white.withOpacity(.25),
-                            borderRadius: BorderRadius.circular(50)),
+                            color: AppColors.white.withValues(alpha: .25), borderRadius: BorderRadius.circular(50)),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -269,6 +270,7 @@ class _CameraScreenState extends State<CameraScreen>
                 filePath: image.path,
                 fromMessage: widget.fromMessage,
                 onSend: widget.onSend,
+                fromStory: widget.fromStory,
               ));
         }
       }
@@ -290,6 +292,7 @@ class _CameraScreenState extends State<CameraScreen>
                 isVideo: true,
                 fromMessage: widget.fromMessage,
                 onSend: widget.onSend,
+                fromStory: widget.fromStory,
               ));
         }
       }
@@ -331,27 +334,20 @@ class _CameraScreenState extends State<CameraScreen>
                             curve: Curves.easeInOut,
                             child: ElevatedButton(
                               style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                    _isImage
-                                        ? Colors.white
-                                        : HexColor('#F15A31'),
+                                  backgroundColor: WidgetStateProperty.all(
+                                    _isImage ? Colors.white : HexColor('#F15A31'),
                                   ),
-                                  overlayColor:
-                                      MaterialStateProperty.resolveWith(
+                                  overlayColor: WidgetStateProperty.resolveWith(
                                     (states) {
-                                      return states
-                                              .contains(MaterialState.pressed)
-                                          ? Colors.grey.shade400
-                                          : null;
+                                      return states.contains(WidgetState.pressed) ? Colors.grey.shade400 : null;
                                     },
                                   ),
-                                  shape: MaterialStateProperty.all(
+                                  shape: WidgetStateProperty.all(
                                     RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(200),
                                     ),
                                   )),
-                              onPressed:
-                                  _isImage ? _onPressImage : _onPressVideo,
+                              onPressed: _isImage ? _onPressImage : _onPressVideo,
                               child: const Text(''),
                             ))),
                   ),
@@ -381,9 +377,7 @@ class _CameraScreenState extends State<CameraScreen>
 
   void _onPressImage() {
     final CameraController? cameraController = controller;
-    if (cameraController != null &&
-        cameraController.value.isInitialized &&
-        !cameraController.value.isRecordingVideo) {
+    if (cameraController != null && cameraController.value.isInitialized && !cameraController.value.isRecordingVideo) {
       onTakePictureButtonPressed();
     }
   }
@@ -421,8 +415,7 @@ class _CameraScreenState extends State<CameraScreen>
                 }
               }),
             if (!_isRecording)
-              _iconOption(
-                  _getMediaIcon(mediaType), _isImage ? 'Video' : 'Image', () {
+              _iconOption(_getMediaIcon(mediaType), _isImage ? 'Video' : 'Image', () {
                 if (_isImage) {
                   setState(() {
                     mediaType = CustomMediaType.video;
@@ -447,8 +440,7 @@ class _CameraScreenState extends State<CameraScreen>
           child: ColoredBox(
             color: Colors.white,
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 5.0, vertical: 10),
               child: Image.asset(icon, color: Colors.grey, height: 25),
             ),
           ),
@@ -476,12 +468,10 @@ class _CameraScreenState extends State<CameraScreen>
         onPointerUp: (_) => _pointers--,
         child: CameraPreview(
           controller!,
-          child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
+          child: LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
             return GestureDetector(
               behavior: HitTestBehavior.opaque,
-              onTapDown: (TapDownDetails details) =>
-                  onViewFinderTap(details, constraints),
+              onTapDown: (TapDownDetails details) => onViewFinderTap(details, constraints),
             );
           }),
         ),
@@ -494,8 +484,7 @@ class _CameraScreenState extends State<CameraScreen>
   String timestamp() => DateTime.now().millisecondsSinceEpoch.toString();
 
   void showInSnackBar(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void onViewFinderTap(TapDownDetails details, BoxConstraints constraints) {
@@ -522,7 +511,7 @@ class _CameraScreenState extends State<CameraScreen>
 
     final CameraController cameraController = CameraController(
       cameraDescription,
-      ResolutionPreset.low ,
+      ResolutionPreset.low,
       enableAudio: enableAudio,
       imageFormatGroup: ImageFormatGroup.jpeg,
     );
@@ -535,8 +524,7 @@ class _CameraScreenState extends State<CameraScreen>
         setState(() {});
       }
       if (cameraController.value.hasError) {
-        showInSnackBar(
-            'Camera error ${cameraController.value.errorDescription}');
+        showInSnackBar('Camera error ${cameraController.value.errorDescription}');
       }
     });
 
@@ -591,6 +579,7 @@ class _CameraScreenState extends State<CameraScreen>
                 filePath: file.path,
                 fromMessage: widget.fromMessage,
                 onSend: widget.onSend,
+                fromStory: widget.fromStory,
               ));
         }
       }
@@ -661,18 +650,20 @@ class _CameraScreenState extends State<CameraScreen>
       }
       if (file != null) {
         videoFile = file;
-        recordedSeconds=0;
+        recordedSeconds = 0;
         paddingValue = 0;
         videoState = VideoStates.idle;
         recordedSeconds = 0;
-        if(timer.isActive){
+        if (timer.isActive) {
           timer.cancel();
         }
-        Get.off(() => VideoEditScreen(
+        Get.off(
+          () => VideoEditScreen(
             filePath: file.path,
             isVideo: true,
             fromMessage: widget.fromMessage,
             onSend: widget.onSend,
+            fromStory: widget.fromStory,
           ),
         );
         // invoke(file);
@@ -881,18 +872,14 @@ class TimeSelectedText extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(100),
       child: ColoredBox(
-        color: selectedTime == int.parse(title)
-            ? AppColors.white
-            : Colors.transparent,
+        color: selectedTime == int.parse(title) ? AppColors.white : Colors.transparent,
         child: GestureDetector(
           onTap: onTap,
           child: Text(
             title,
             style: TextStyle(
                 fontSize: selectedTime == int.parse(title) ? 18 : 14,
-                color: selectedTime == int.parse(title)
-                    ? Colors.black
-                    : AppColors.white),
+                color: selectedTime == int.parse(title) ? Colors.black : AppColors.white),
           ).paddingAll(5),
         ),
       ),

@@ -26,120 +26,112 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Scaffold(
       body: SafeArea(
         child: ListView(
+          padding: const EdgeInsets.only(right: 20, left: 20, top: 40, bottom: 10),
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Image.asset(
+            Align(
+              alignment: Alignment.topLeft,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
                   'assets/images/kora_logo.png',
-                  width: wd(150),
-                  height: ht(180),
+                  scale: 10.0,
                 ),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Welcome!',
-                    style: headingText(size: 28),
-                  ),
-                  SizedBox(
-                    height: ht(8),
-                  ),
-                  Text(
-                    'Let’s get started!',
-                    style: normalText(size: 16),
-                  ),
-                  SizedBox(
-                    height: ht(34),
-                  ),
-                  GetBuilder<SignUpController>(builder: (value) {
-                    return Column(
-                      children: [
-                        _userSignUp(value),
-                        SizedBox(
-                          height: ht(20),
-                        ),
-                        _preferences(value),
-                        SizedBox(
-                          height: ht(20),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            controller.changeTerms();
-                          },
-                          child: Row(
-                            children: [
-                              GetBuilder<SignUpController>(builder: (value) {
-                                return Container(
-                                  margin: const EdgeInsets.only(left: 3),
-                                  height: 20,
-                                  width: 20,
-                                  child: Checkbox(
-                                      activeColor: AppColors.primaryColor,
-                                      value: value.terms,
-                                      onChanged: (check) =>
-                                          controller.changeTerms()),
-                                );
-                              }),
-                              Expanded(
-                                child: Text(
-                                  '  Accept terms & conditions',
-                                  style: normalText(
-                                      size: 13, color: AppColors.borderColor),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: ht(20),
-                        ),
-                        PrimaryButton(
-                          label: 'Continue',
-                          onPress: () async {
-                            if (await controller.initvalidation()) {
-                              controller.createUser();
-                            }
-                            // Get.offAll(() => const NavBarScreen());
-                          },
-                        ),
-                        SizedBox(
-                          height: ht(20),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Get.back();
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Already have an account? ',
-                                style: normalText(
-                                    size: 13, color: AppColors.borderColor),
-                              ),
-                              Text(
-                                'Sign in here',
-                                style: regularText(
-                                    size: 13, color: AppColors.primaryColor),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: ht(40),
-                        ),
-                      ],
-                    );
-                  }),
-                ],
               ),
             ),
+            Text(
+              'Welcome!',
+              style: headingText(size: 28),
+            ),
+            SizedBox(
+              height: ht(8),
+            ),
+            Text(
+              'Let’s get started!',
+              style: normalText(size: 16),
+            ),
+            SizedBox(
+              height: ht(34),
+            ),
+            GetBuilder<SignUpController>(builder: (value) {
+              return Column(
+                children: [
+                  _userSignUp(value),
+                  SizedBox(
+                    height: ht(20),
+                  ),
+                  _preferences(value),
+                  SizedBox(
+                    height: ht(20),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      controller.changeTerms();
+                    },
+                    child: Row(
+                      children: [
+                        GetBuilder<SignUpController>(builder: (value) {
+                          return Container(
+                            margin: const EdgeInsets.only(left: 3),
+                            height: 20,
+                            width: 20,
+                            child: Checkbox(
+                                activeColor: AppColors.primaryColor,
+                                value: value.terms,
+                                onChanged: (check) =>
+                                    controller.changeTerms()),
+                          );
+                        }),
+                        Expanded(
+                          child: Text(
+                            '  Accept terms & conditions',
+                            style: normalText(
+                                size: 13, color: AppColors.borderColor),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: ht(20),
+                  ),
+                  PrimaryButton(
+                    label: 'Continue',
+                    onPress: () async {
+                      if (await controller.initvalidation()) {
+                        controller.createUser();
+                      }
+                      // Get.offAll(() => const NavBarScreen());
+                    },
+                  ),
+                  SizedBox(
+                    height: ht(20),
+                  ),
+                  InkWell(
+                    onTap: () {
+                      Get.back();
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Already have an account? ',
+                          style: normalText(
+                              size: 13, color: AppColors.borderColor),
+                        ),
+                        Text(
+                          'Sign in here',
+                          style: regularText(
+                              size: 13, color: AppColors.primaryColor),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: ht(40),
+                  ),
+                ],
+              );
+            }),
           ],
         ),
       ),
@@ -241,7 +233,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
-            hint: 'Phone',
+            hint: 'Phone (Optional)',
             textInputType: TextInputType.number),
         SizedBox(
           height: ht(12),

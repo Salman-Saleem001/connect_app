@@ -1,8 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/globals/adaptive_helper.dart';
 import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/text_styles.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 PreferredSize customAppBar(
     {String title = '',
@@ -48,12 +48,14 @@ PreferredSize customAppBar(
                         ),
                       ),
                     )
-                  : Container(
-                      margin: const EdgeInsets.only(left: 10),
-                      child: Image.asset(
-                        'assets/images/kora_logo.png',
-                        width: wd(40),
-                        height: ht(40),
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          'assets/images/kora_logo.png',
+                          scale: 22.0,
+                        ),
                       ),
                     ), // Placeholder for backButton space
               Expanded(

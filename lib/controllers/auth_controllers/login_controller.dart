@@ -4,7 +4,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../../globals/database.dart';
 import '../../globals/enum.dart';
@@ -24,16 +26,21 @@ class LoginController extends GetxController {
   TextEditingController controllerPassword = TextEditingController();
 
   FocusNode focusNodeEmail = FocusNode();
+  final GoogleSignIn _googleSignIn = GoogleSignIn.instance;
 
+  @override
+  void onInit() {
+    super.onInit();
+    storeToken();
+  }
 
-  storeToken() async {
+  Future<void> storeToken() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
-    bool? check= sharedPreferences.getBool('notificationStatus')??true;
-    if(check) {
+    bool? check = sharedPreferences.getBool('notificationStatus') ?? true;
+    if (check) {
       token = await FirebaseUtils().getToken();
-    }else{
-      token= '1';
+    } else {
+      token = '1';
     }
   }
 
@@ -43,12 +50,12 @@ class LoginController extends GetxController {
 
   FocusNode focusNodePhone = FocusNode();
 
-  rememberMe(bool value) {
+  void rememberMe(bool value) {
     isRememberMe = value;
     update();
   }
 
-  toggle() {
+  void toggle() {
     obscure = !obscure;
     update();
   }
@@ -56,15 +63,11 @@ class LoginController extends GetxController {
   bool validation() {
     if (!Global.checkNull(controllerEmail.text.toString().trim())) {
       Global.showToastAlert(
-          context: Get.overlayContext!,
-          strTitle: "",
-          strMsg: 'Please enter email',
-          toastType: TOAST_TYPE.toastError);
+          context: Get.overlayContext!, strTitle: "", strMsg: 'Please enter email', toastType: TOAST_TYPE.toastError);
       FocusScope.of(Get.overlayContext!).requestFocus(focusNodeEmail);
       return false;
     }
-    if (!RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+    if (!RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
         .hasMatch(controllerEmail.text.toString().trim())) {
       Global.showToastAlert(
           context: Get.overlayContext!,
@@ -89,7 +92,7 @@ class LoginController extends GetxController {
 
   var isLoading = false;
 
-  forgetPassword() async {
+  Future<void> forgetPassword() async {
     if (!validation()) return;
     try {} catch (e) {}
 
@@ -100,11 +103,8 @@ class LoginController extends GetxController {
     try {
       EasyLoading.show();
       var response = await HttpsServices.userLogin(
-          email: controllerEmail.text.trim(),
-          password: controllerPassword.text.trim(),
-          fcmToken: token ?? '');
+          email: controllerEmail.text.trim(), password: controllerPassword.text.trim(), fcmToken: token ?? '');
       EasyLoading.dismiss();
-
       if (response is UserModel) {
         if (kDebugMode) {
           print('user logged in with token = ${response.token}');
@@ -130,10 +130,7 @@ class LoginController extends GetxController {
             toastType: TOAST_TYPE.toastError);
       } else {
         Global.showToastAlert(
-            context: Get.overlayContext!,
-            strTitle: "Failure",
-            strMsg: response,
-            toastType: TOAST_TYPE.toastError);
+            context: Get.overlayContext!, strTitle: "Failure", strMsg: response, toastType: TOAST_TYPE.toastError);
       }
     } catch (e) {
       EasyLoading.dismiss();
@@ -145,6 +142,90 @@ class LoginController extends GetxController {
           strTitle: "ok",
           strMsg: 'Email or Password are incorrect. Please try again',
           toastType: TOAST_TYPE.toastError);
+    }
+  }
+
+  Future<void> socialLoginApi({required String provider, required String socialToken}) async {
+    try {
+      EasyLoading.show();
+      var response =
+          await HttpsServices.socialLogin(fcmToken: token ?? '', socialToken: socialToken, provider: provider);
+      EasyLoading.dismiss();
+      if (response is UserModel) {
+        debugPrint('user logged in with token = ${response.token}');
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString("userJson", jsonEncode(response));
+
+        Get.offAll(() => const NavBarScreen());
+        var user = Get.put(UserDetail());
+        await user.getUserData();
+        Database().initializeUser();
+        Global.showToastAlert(
+            context: Get.overlayContext!,
+            strTitle: "Success",
+            strMsg: 'User Logged In Successfully',
+            toastType: TOAST_TYPE.toastSuccess);
+      } else if (response == null) {
+        Global.showToastAlert(
+            context: Get.overlayContext!,
+            strTitle: "Failure",
+            strMsg: 'Something went wrong. Please Try Again',
+            toastType: TOAST_TYPE.toastError);
+      } else {
+        Global.showToastAlert(
+            context: Get.overlayContext!, strTitle: "Failure", strMsg: response, toastType: TOAST_TYPE.toastError);
+      }
+    } catch (e) {
+      EasyLoading.dismiss();
+      if (kDebugMode) {
+        print(e);
+      }
+      Global.showToastAlert(
+          context: Get.overlayContext!,
+          strTitle: "ok",
+          strMsg: 'Email or Password are incorrect. Please try again',
+          toastType: TOAST_TYPE.toastError);
+    }
+  }
+
+  Future<void> handleAppleSignIn({required BuildContext context}) async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      if (credential.identityToken != null) {
+        socialLoginApi(provider: "apple", socialToken: credential.identityToken!);
+      }
+    } catch (error) {
+      debugPrint("handleAppleSignIn error -->$error");
+    }
+  }
+
+  Future<void> handleGoogleSignIn({required BuildContext context}) async {
+    try {
+      await _googleSignIn.initialize();
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate(scopeHint: [
+        'email',
+        'profile',
+        'openid',
+      ]);
+      final GoogleSignInClientAuthorization? googleAuth = await googleUser.authorizationClient.authorizationForScopes([
+        'email',
+        'profile',
+        'openid',
+      ]);
+      final GoogleSignInAuthentication googleAuthId = googleUser.authentication;
+
+      if (googleAuth != null) {
+        debugPrint("googleAuthId.idToken -->${googleAuthId.idToken}");
+        socialLoginApi(provider: "google", socialToken: googleAuthId.idToken ?? "");
+      }
+    } catch (e) {
+      debugPrint("handleGoogleSignIn error -->$e");
     }
   }
 }

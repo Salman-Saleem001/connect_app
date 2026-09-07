@@ -1,6 +1,6 @@
+import 'package:connect_app/globals/app_views.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:connect_app/globals/app_views.dart';
 
 class Loader {
   static showLoadingDialogue() {

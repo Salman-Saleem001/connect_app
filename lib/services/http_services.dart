@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:connect_app/models/stories_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -32,8 +34,7 @@ class HttpsServices {
         'Content-Type': 'application/json',
       };
 
-      var request =
-          http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.register));
+      var request = http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.register));
       request.body = json.encode({
         "email": email,
         "password": password,
@@ -58,17 +59,14 @@ class HttpsServices {
             strTitle: "Success",
             strMsg: "User Sign-Up Successful, Please Login and Access Enjoy The Features",
             toastType: TOAST_TYPE.toastSuccess);
-        Get.offAll(()=>const LoginScreen());
+        Get.offAll(() => const LoginScreen());
         return response;
       } else {
         debugPrint("response.reasonPhrase.toString()-->${response.reasonPhrase.toString()}");
         var temp = await response.stream.bytesToString();
         var tempJson = jsonDecode(temp);
         Global.showToastAlert(
-            context: Get.overlayContext!,
-            strTitle: "",
-            strMsg: tempJson['message'],
-            toastType: TOAST_TYPE.toastError);
+            context: Get.overlayContext!, strTitle: "", strMsg: tempJson['message'], toastType: TOAST_TYPE.toastError);
 
         return tempJson['message'];
       }
@@ -83,20 +81,43 @@ class HttpsServices {
     }
   }
 
-  static Future<dynamic> userLogin({
-    required String email,
-    required String password,
-    required String fcmToken
-  }) async {
+  static Future<dynamic> userLogin({required String email, required String password, required String fcmToken}) async {
     try {
       var headers = {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
-        // 'Authorization': 'Bearer 2|78eV3YjxHPBB8MzYPjfbBpwUbHc9hyqObD8p3P2A8ae52ac0'
       };
-      var request =
-          http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.login));
-      request.body = json.encode({"email": email, "password": password,"fcm_token": fcmToken});
+      var request = http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.login));
+      request.body = json.encode({"email": email, "password": password, "fcm_token": fcmToken});
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var temp = await response.stream.bytesToString();
+        var tempJson = jsonDecode(temp);
+        return UserModel.fromJson(tempJson);
+      } else {
+        var temp = await response.stream.bytesToString();
+        var tempJson = jsonDecode(temp);
+        debugPrint(response.reasonPhrase);
+        return tempJson['message'];
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
+  static Future<dynamic> socialLogin(
+      {required String provider, required String socialToken, required String fcmToken}) async {
+    try {
+      var headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+      var request = http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.socialLogin));
+      request.body = json.encode({"provider": provider, "access_token": socialToken, "fcm_token": fcmToken});
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
@@ -122,12 +143,8 @@ class HttpsServices {
     String? type,
   }) async {
     try {
-      var headers = {
-        'Accept': 'application/json',
-        'Authorization': 'Bearer $token'
-      };
-      var request = http.Request(
-          'GET', Uri.parse(AppApis.baseUrl + (type??AppApis.postsTimeLine)));
+      var headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+      var request = http.Request('GET', Uri.parse(AppApis.baseUrl + (type ?? AppApis.postsTimeLine)));
 
       request.headers.addAll(headers);
 
@@ -145,6 +162,55 @@ class HttpsServices {
       debugPrint(e.toString());
       return null;
     }
+  }
+  static Future<dynamic> getStories({
+    required String token,
+    String? type,
+  }) async {
+    try {
+      var headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+      var request = http.Request('GET', Uri.parse(AppApis.stories));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var temp = await response.stream.bytesToString();
+        var tempJson = jsonDecode(temp);
+        return StoriesModel.fromJson(tempJson);
+      } else {
+        return "No Latest Stories Found Around You";
+        // debugPrint(response.reasonPhrase);
+      }
+    } catch (e) {
+      log("Error while getting stories==> $e");
+      return null;
+    }
+  }
+
+  static Future<bool> viewStories({
+    required String token,
+    required int id,
+  }) async {
+    try {
+      var headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+      var request = http.Request('GET', Uri.parse("${AppApis.stories}/$id"));
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var temp = await response.stream.bytesToString();
+        log("Here is my response===> $temp");
+
+        return true;
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+    return false;
   }
 
   static Future<dynamic> userPost(
@@ -165,13 +231,10 @@ class HttpsServices {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token'
       };
-      final request = http.MultipartRequest(
-          'POST', Uri.parse(AppApis.baseUrl + AppApis.posts));
+      final request = http.MultipartRequest('POST', Uri.parse(AppApis.baseUrl + AppApis.posts));
 
       request.headers.addAll(headers);
 
-      // add the text form fields
-      // final formFields = request.fields;
       request.fields['title'] = 'Test';
       request.fields['info'] = info;
       request.fields['lat'] = lat.toString();
@@ -185,8 +248,7 @@ class HttpsServices {
       var file = await http.MultipartFile.fromPath(
         'video', // Field name
         video.path,
-        contentType:
-            MediaType('video', 'mp4'), // Set the content type appropriately
+        contentType: MediaType('video', 'mp4'), // Set the content type appropriately
       );
 
       request.files.add(file);
@@ -209,26 +271,82 @@ class HttpsServices {
     }
   }
 
-
-  static Future<dynamic> updateUser(
-      {
-        required File image,
-        required String firstName,
-        required String lastName,
-        required String email,
-        required String dob,
-        }) async {
+  static Future<dynamic> userStory({required String caption, required File selectedFile, required String token}) async {
     try {
+      var headers = {
+        'Content-Type': 'multipart/form-data',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+      final request = http.MultipartRequest('POST', Uri.parse(AppApis.stories));
 
-      debugPrint("Image===>${image.path}\n firstName===>$firstName\n lastName===>$lastName\n email===>$email\n dob===>$dob\n");
+      //Image (jpg, jpeg, png, gif) or video (mp4, mov, avi, wmv, webm) file
+      MediaType mediaType;
+      final type = selectedFile.path.split('.').last;
+      switch (type) {
+        case 'jpg':
+          mediaType = MediaType('image', 'jpg');
+          break;
+        case 'jpeg':
+          mediaType = MediaType('image', 'jpeg');
+          break;
+        case 'png':
+          mediaType = MediaType('image', 'png');
+          break;
+        case 'gif':
+          mediaType = MediaType('image', 'gif');
+          break;
+        default:
+          mediaType = MediaType('video', 'mp4');
+      }
+
+      request.headers.addAll(headers);
+
+      request.fields['caption'] = caption;
+      // Replace with your actual file path
+      var file = await http.MultipartFile.fromPath(
+        'media', // Field name
+        selectedFile.path,
+        contentType: mediaType, // Set the content type appropriately
+      );
+
+      request.files.add(file);
+
+      // Send the request
+      var response = await request.send();
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        var responseBody = await response.stream.bytesToString();
+        debugPrint('Response body: $responseBody');
+        return responseBody;
+      } else {
+        debugPrint('Request failed with status: ${response.statusCode}');
+        var responseBody = await response.stream.bytesToString();
+        debugPrint('Response body: $responseBody');
+      }
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+      return null;
+    }
+  }
+
+  static Future<dynamic> updateUser({
+    required File image,
+    required String firstName,
+    required String lastName,
+    required String email,
+    required String dob,
+  }) async {
+    try {
+      debugPrint(
+          "Image===>${image.path}\n firstName===>$firstName\n lastName===>$lastName\n email===>$email\n dob===>$dob\n");
 
       var headers = {
         'Content-Type': 'multipart/form-data',
         'Accept': 'application/json',
         'Authorization': 'Bearer ${Get.find<UserDetail>().userData.token.toString()}'
       };
-      final request = http.MultipartRequest(
-          'POST', Uri.parse(AppApis.baseUrl + AppApis.userProfile));
+      final request = http.MultipartRequest('POST', Uri.parse(AppApis.baseUrl + AppApis.userProfile));
 
       request.headers.addAll(headers);
       request.fields['first_name'] = firstName;
@@ -239,8 +357,7 @@ class HttpsServices {
       var file = await http.MultipartFile.fromPath(
         'avatar', // Field name
         image.path,
-        contentType:
-        MediaType('video', 'png'), // Set the content type appropriately
+        contentType: MediaType('video', 'png'), // Set the content type appropriately
       );
 
       request.files.add(file);
@@ -266,12 +383,8 @@ class HttpsServices {
   static Future<dynamic> likeToggle(int id, String token) async {
     try {
       try {
-        var headers = {
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token'
-        };
-        var request = http.Request('POST',
-            Uri.parse(AppApis.baseUrl + AppApis.toggleLikes + id.toString()));
+        var headers = {'Accept': 'application/json', 'Authorization': 'Bearer $token'};
+        var request = http.Request('POST', Uri.parse(AppApis.baseUrl + AppApis.toggleLikes + id.toString()));
         request.headers.addAll(headers);
 
         http.StreamedResponse response = await request.send();
@@ -294,26 +407,22 @@ class HttpsServices {
   }
 
   static Future<dynamic> postApiCall(
-      {required String url,
-        Map<String, dynamic>? body,
-      Map<String, String>? header}) async {
+      {required String url, Map<String, dynamic>? body, Map<String, String>? header}) async {
     try {
       var defaultHeaders = {
         'Accept': 'application/json',
-        'Authorization':
-        'Bearer ${Get.find<UserDetail>().userData.token.toString()}',
+        'Authorization': 'Bearer ${Get.find<UserDetail>().userData.token.toString()}',
         'Content-Type': 'application/json',
       };
-      var request =
-          http.Request('POST', Uri.parse(url));
-      if(body!=null){
+      var request = http.Request('POST', Uri.parse(url));
+      if (body != null) {
         request.body = json.encode(body);
       }
-      request.headers.addAll(header??defaultHeaders);
+      request.headers.addAll(header ?? defaultHeaders);
 
       http.StreamedResponse response = await request.send();
 
-      if (response.statusCode == 201|| response.statusCode==200) {
+      if (response.statusCode == 201 || response.statusCode == 200) {
         debugPrint('A useful message');
         return response;
       } else {
@@ -330,28 +439,26 @@ class HttpsServices {
     String? url,
     Map<String, String>? headers,
   }) async {
-      try {
-        var defaultHeaders = {
-          'Accept': 'application/json',
-          'Authorization':
-              'Bearer ${Get.find<UserDetail>().userData.token.toString()}'
-        };
-        var request = await http.get(Uri.parse(url ?? ''),
-            headers: headers ?? defaultHeaders);
-        // request.headers.addAll(headers??defaultHeaders);
+    try {
+      var defaultHeaders = {
+        'Accept': 'application/json',
+        'Authorization': 'Bearer ${Get.find<UserDetail>().userData.token.toString()}'
+      };
+      var request = await http.get(Uri.parse(url ?? ''), headers: headers ?? defaultHeaders);
+      // request.headers.addAll(headers??defaultHeaders);
 
-        if (request.statusCode == 200) {
-          // debugPrint('Here is the body===>${request.body.toString()}');
-          return request.body;
-        } else {
-          debugPrint(request.statusCode.toString());
-          return null;
-        }
-      } on Exception catch (e) {
-        debugPrint(e.toString());
+      if (request.statusCode == 200) {
+        // debugPrint('Here is the body===>${request.body.toString()}');
+        return request.body;
+      } else {
+        debugPrint(request.statusCode.toString());
         return null;
       }
+    } on Exception catch (e) {
+      debugPrint(e.toString());
+      return null;
     }
+  }
 
   static Future<dynamic> deleteApiCall({
     String? url,
@@ -360,11 +467,9 @@ class HttpsServices {
     try {
       var defaultHeaders = {
         'Accept': 'application/json',
-        'Authorization':
-        'Bearer ${Get.find<UserDetail>().userData.token.toString()}'
+        'Authorization': 'Bearer ${Get.find<UserDetail>().userData.token.toString()}'
       };
-      var request = await http.delete(Uri.parse(url ?? ''),
-          headers: headers ?? defaultHeaders);
+      var request = await http.delete(Uri.parse(url ?? ''), headers: headers ?? defaultHeaders);
       // request.headers.addAll(headers??defaultHeaders);
 
       if (request.statusCode == 200) {
@@ -380,4 +485,3 @@ class HttpsServices {
     }
   }
 }
-

@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Connect App</string>
+	<string>Connect Giant</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -31,6 +31,17 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>CFBundleURLTypes</key>
+    <array>
+    	<dict>
+    		<key>CFBundleTypeRole</key>
+    		<string>Editor</string>
+    		<key>CFBundleURLSchemes</key>
+    		<array>
+    			<string>com.googleusercontent.apps.17932145134-ih7jmrun703p0tqcpujinolf2kq8ijsm</string>
+    		</array>
+    	</dict>
+    </array>
 	<key>NSAppleMusicUsageDescription</key>
 	<string>Allow app to access media library</string>
 	<key>NSCalendarsUsageDescription</key>
@@ -42,19 +53,27 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to know the country from the where the video is being watched for user preference.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow microphone access video recording</string>
+	<string>This app needs access to know the country from the where the video is being watched for user preference.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Allow microphone access video recording</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow gallery access to update your profile and for video editing</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
     <string>Allow gallery access to update your profile and for video editing</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Need this permission to record messages in chat</string>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+      <string>maps</string>
+    </array>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

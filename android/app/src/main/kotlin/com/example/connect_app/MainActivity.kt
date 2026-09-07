@@ -1,4 +1,4 @@
-package com.example.connect_app
+package com.connect_giant.android
 
 import io.flutter.embedding.android.FlutterActivity
 

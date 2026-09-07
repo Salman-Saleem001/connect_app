@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:connect_app/screens/location_permission/location_permission.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:geocoding/geocoding.dart' hide Location;
@@ -11,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../globals/enum.dart';
 import '../../globals/global.dart';
@@ -23,11 +25,11 @@ import '../../services/google_map/google_address_model.dart';
 import '../../services/google_map/map_key.dart';
 import '../../services/http_services.dart';
 import '../../utils/login_details.dart';
+import '../../widgets/take_tour.dart';
 
 class HomeFeedController extends GetxController {
   List<CameraDescription> cameras = <CameraDescription>[];
-  final Completer<GoogleMapController> controller =
-      Completer<GoogleMapController>();
+  final Completer<GoogleMapController> controller = Completer<GoogleMapController>();
   PostModel postModel = PostModel(posts: <Post>[]);
   late PageController pageController;
   List<String>? tags;
@@ -49,7 +51,7 @@ class HomeFeedController extends GetxController {
   List<ContentVideos> addLater = [];
   List<ContentVideos> dynamicVideo = [];
 
-  PostModel recommendedPosts= PostModel(posts: <Post>[]);
+  PostModel recommendedPosts = PostModel(posts: <Post>[]);
   PostModel trendingPosts = PostModel(posts: <Post>[]);
   PostModel featuredPosts = PostModel(posts: <Post>[]);
   // PostModel eventPosts = PostModel(posts: <Post>[]);
@@ -71,23 +73,13 @@ class HomeFeedController extends GetxController {
     getFeaturedContent();
     // getEventContent();
     getCameras();
-    getLocation();
     super.onInit();
   }
 
   bool loading = true;
 
-
-  changeScreen(){
-    loadingNext.value= !loadingNext.value;
-    update();
-  }
-
-  changeLike(int index) {
-    // isLiked[index] = !isLiked[index];
-    // postModel.posts?[index].likesCount = isLiked[index]
-    //     ? (postModel.posts?[index].likesCount ?? 0) + 1
-    //     : (postModel.posts?[index].likesCount ?? 0) - 1;
+  void changeScreen() {
+    loadingNext.value = !loadingNext.value;
     update();
   }
 
@@ -96,8 +88,7 @@ class HomeFeedController extends GetxController {
 
     EasyLoading.show();
     fetchingPosts.value = true;
-    var response = await HttpsServices.getPostsHome(
-        token: Get.find<UserDetail>().userData.token.toString());
+    var response = await HttpsServices.getPostsHome(token: Get.find<UserDetail>().userData.token.toString());
 
     if (response == null) {
       Global.showToastAlert(
@@ -110,10 +101,7 @@ class HomeFeedController extends GetxController {
       debugPrint("Here is my response===> ${response.toJson()}");
     } else {
       Global.showToastAlert(
-          context: Get.overlayContext!,
-          strTitle: "Message",
-          strMsg: response,
-          toastType: TOAST_TYPE.toastError);
+          context: Get.overlayContext!, strTitle: "Message", strMsg: response, toastType: TOAST_TYPE.toastError);
     }
     fetchingPosts.value = false;
     EasyLoading.dismiss();
@@ -125,9 +113,8 @@ class HomeFeedController extends GetxController {
     EasyLoading.show(); // Show loading indicator
 
     var response = await HttpsServices.getPostsHome(
-        token: Get.find<UserDetail>().userData.token.toString(),
-        type: AppApis.getRecommendedPosts);
-
+        token: Get.find<UserDetail>().userData.token.toString(), type: AppApis.getRecommendedPosts);
+    log(response.toString());
     if (response != null && response is PostModel) {
       recommendedPosts = response; // Update the recommended posts
       // debugPrint("Here is my response===> ${recommendedPosts?.toJson().toString()}");
@@ -145,12 +132,10 @@ class HomeFeedController extends GetxController {
   }
 
   Future<void> getTrendingContent() async {
-
     debugPrint("getting trending");
     fetchingTrending.value = true;
     var response = await HttpsServices.getPostsHome(
-        token: Get.find<UserDetail>().userData.token.toString(),
-        type: AppApis.getTrendingPosts);
+        token: Get.find<UserDetail>().userData.token.toString(), type: AppApis.getTrendingPosts);
     if (response != null && response is PostModel) {
       trendingPosts = response;
     }
@@ -159,16 +144,44 @@ class HomeFeedController extends GetxController {
   }
 
   Future<void> getFeaturedContent() async {
-
     debugPrint("Getting featured");
     fetchingFeatured.value = true;
-    var response = await HttpsServices.getPostsHome(
-        token: Get.find<UserDetail>().userData.token.toString());
+    var response = await HttpsServices.getPostsHome(token: Get.find<UserDetail>().userData.token.toString());
     if (response != null && response is PostModel) {
       featuredPosts = response;
     }
     fetchingFeatured.value = false;
     update();
+  }
+
+  Future<bool> reportPost({required int postId, required String reason}) async {
+    try {
+      final response = await HttpsServices.postApiCall(
+        url: '${AppApis.report}$postId',
+        body: {'rating': 0, 'reason': reason},
+      );
+      if (response != null) {
+        log("Response for reporting ====> $response");
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Some thing Went wrong====>$e');
+    }
+    return false;
+  }
+
+  Future<bool> blockUser({required int userId}) async {
+    try {
+      final response = await HttpsServices.postApiCall(
+        url: '${AppApis.block}$userId',
+      );
+      if (response != null) {
+        return true;
+      }
+    } catch (e) {
+      debugPrint('Some thing Went wrong====>$e');
+    }
+    return false;
   }
 
   // Future<void> getEventContent() async {
@@ -184,8 +197,7 @@ class HomeFeedController extends GetxController {
   Future<void> getTags() async {
     EasyLoading.show();
     fetchingTags.value = true;
-    var response =
-        jsonDecode(await HttpsServices.getApiCall(url: AppApis.getTags));
+    var response = jsonDecode(await HttpsServices.getApiCall(url: AppApis.getTags));
 
     if (response == null) {
       Global.showToastAlert(
@@ -195,9 +207,7 @@ class HomeFeedController extends GetxController {
           toastType: TOAST_TYPE.toastError);
       return;
     }
-    tags = response["tags"] == null
-        ? []
-        : List<String>.from(response["tags"]!.map((x) => x["name"]));
+    tags = response["tags"] == null ? [] : List<String>.from(response["tags"]!.map((x) => x["name"]));
     tags?.forEach((val) {
       debugPrint('Here is my Tag===>$val ');
     });
@@ -205,16 +215,15 @@ class HomeFeedController extends GetxController {
     EasyLoading.dismiss();
   }
 
-  toggle(int id) async {
-    var response = await HttpsServices.likeToggle(
-        id, Get.find<UserDetail>().userData.token.toString());
+  Future<void> toggle(int id) async {
+    var response = await HttpsServices.likeToggle(id, Get.find<UserDetail>().userData.token.toString());
 
     if (response != null) {
       debugPrint("Here is the response===> ${response.toString()}");
     }
   }
 
-  postView(int id) async {
+  Future<void> postView(int id) async {
     try {
       debugPrint(
           "Post Viewed===>${AppApis.viewedPostApi}$id?country=${addresses.first.country ?? 'Pakistan'}&ip_address&device&${position?.latitude ?? 0.0}&${position?.longitude ?? 0.0}");
@@ -269,10 +278,7 @@ class HomeFeedController extends GetxController {
       return true;
     } else {
       Global.showToastAlert(
-          context: Get.overlayContext!,
-          strTitle: "Message",
-          strMsg: response,
-          toastType: TOAST_TYPE.toastError);
+          context: Get.overlayContext!, strTitle: "Message", strMsg: response, toastType: TOAST_TYPE.toastError);
     }
 
     EasyLoading.dismiss();
@@ -281,8 +287,7 @@ class HomeFeedController extends GetxController {
 
   Future<bool> sendTags(String val) async {
     try {
-      var response = await HttpsServices.postApiCall(
-          url: AppApis.getTags, body: {"name": val});
+      var response = await HttpsServices.postApiCall(url: AppApis.getTags, body: {"name": val});
 
       if (response != null) {
         return true;
@@ -294,7 +299,7 @@ class HomeFeedController extends GetxController {
     return false;
   }
 
-  changePage(int i) {
+  void changePage(int i) {
     if (i + 2 == videos.length) {
       videos.addAll(addLater);
       update();
@@ -306,28 +311,39 @@ class HomeFeedController extends GetxController {
     log('message');
   }
 
-  getCameras() async {
+  Future<void> getCameras() async {
     cameras = await availableCameras();
   }
 
-  getLocation() async {
-    Permission permission = Permission.location;
-    if (await permission.status.isDenied ||
-        await permission.status.isPermanentlyDenied) {
-      permission.request().then((val) {
-        if (val.isDenied || val.isPermanentlyDenied) {
-          debugPrint("Permission denied");
-        }
-      });
+  Future<void> getLocation([VoidCallback? onComplete]) async {
+    log("Getting Address==> ");
+    try{
+      Permission permission = Permission.locationWhenInUse;
+      if (await permission.status.isDenied || await permission.status.isPermanentlyDenied) {
+        Get.to(() => LocationPermissionScreen())?.whenComplete(() async {
+          if (await permission.status.isGranted) {
+             await setLocation();
+          }
+        });
+      }else{
+        await setLocation();
+      }
+
+      onComplete?.call();
+    }catch(e){
+      log("Error while getting Permission $e");
     }
-    position = await Geolocator.getCurrentPosition(
-        locationSettings: LocationSettings(accuracy: LocationAccuracy.best));
-    debugPrint('location: ${position?.latitude}');
-    var data = await placemarkFromCoordinates(
-        position?.latitude ?? 0.0, position?.longitude ?? 0.0);
-    addresses.value = data;
-    debugPrint(addresses.first.toJson().toString());
+    // debugPrint(addresses.first.toJson().toString());
+
     update();
+  }
+
+  Future<void> setLocation() async{
+    position =
+        await Geolocator.getCurrentPosition(locationSettings: LocationSettings(accuracy: LocationAccuracy.best));
+    debugPrint('location: ${position?.latitude}');
+    var data = await placemarkFromCoordinates(position?.latitude ?? 0.0, position?.longitude ?? 0.0);
+    addresses.value = data;
   }
 
   Future<bool> sendReview(int id) async {
@@ -335,8 +351,7 @@ class HomeFeedController extends GetxController {
     try {
       debugPrint('url ${AppApis.ratePostApi}$id');
       var response = await HttpsServices.postApiCall(
-          url: '${AppApis.ratePostApi}$id',
-          body: {"rating": rating?.toInt(), "comment": reviewDescrioption});
+          url: '${AppApis.ratePostApi}$id', body: {"rating": rating?.toInt(), "comment": reviewDescrioption});
 
       if (response != null) {
         EasyLoading.dismiss();
@@ -349,7 +364,7 @@ class HomeFeedController extends GetxController {
     return false;
   }
 
-  getStats(int id) async {
+  Future<void> getStats(int id) async {
     try {
       dataOfMarker = <Marker>{}.obs;
 
@@ -377,15 +392,10 @@ class HomeFeedController extends GetxController {
           Location? location;
           for (var element in data["stats"]) {
             debugPrint('${element['country']}');
-            if (element['country'] != null &&
-                element['country'].isNotEmpty &&
-                element["total_views"] != null) {
+            if (element['country'] != null && element['country'].isNotEmpty && element["total_views"] != null) {
               location = await getLatLngFromAddress(element['country']);
               debugPrint("lat===> ${location?.lat} and ${location?.lng}");
-              values.add(CountryData(
-                  element['country'] ?? '',
-                  element["total_views"],
-                  (location?.lat ?? 0).toDouble(),
+              values.add(CountryData(element['country'] ?? '', element["total_views"], (location?.lat ?? 0).toDouble(),
                   (location?.lng ?? 0).toDouble()));
             }
           }
@@ -396,8 +406,7 @@ class HomeFeedController extends GetxController {
             dataOfMarker?.add(Marker(
                 markerId: MarkerId(element.name),
                 position: LatLng(element.latitude, element.longitude),
-                infoWindow: InfoWindow(
-                    title: element.name, snippet: '${element.views} Views')));
+                infoWindow: InfoWindow(title: element.name, snippet: '${element.views} Views')));
           }
           values.clear();
           location = null;

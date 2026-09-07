@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'package:connect_app/extensions/string_extensions.dart';
 import 'package:connect_app/utils/app_colors.dart';
-import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter/return_code.dart';
+import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -11,6 +12,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:tapioca_v2/tapioca_v2.dart';
+
 import '../../../controllers/chat/chat_detail_controller.dart';
 import '../../../globals/video_view.dart';
 import '../../../utils/text_styles.dart';
@@ -23,10 +25,16 @@ class VideoEditScreen extends StatefulWidget {
   final String filePath;
   final bool isVideo;
   final bool fromMessage;
-  final Function? onSend;
+  final bool fromStory;
+  final Function(String)? onSend;
 
   const VideoEditScreen(
-      {super.key, required this.filePath, this.isVideo = false, required this.fromMessage, this.onSend});
+      {super.key,
+      required this.filePath,
+      this.isVideo = false,
+      required this.fromMessage,
+      required this.fromStory,
+      this.onSend});
 
   @override
   State<VideoEditScreen> createState() => _VideoEditScreenState();
@@ -78,8 +86,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
   }
 
   void _enableEventReceiver() {
-    _streamSubscription =
-        _channel.receiveBroadcastStream().listen((dynamic event) {
+    _streamSubscription = _channel.receiveBroadcastStream().listen((dynamic event) {
       debugPrint("$event");
       setState(() {
         processPercentage = (event.toDouble() * 100).round();
@@ -111,8 +118,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
 
   Future<void> mergeFiles(String filePath) async {
     final tempDir = await getTemporaryDirectory();
-    String outputUrl =
-        '${tempDir.path}/output_${DateTime.now().millisecondsSinceEpoch}.mp4';
+    String outputUrl = '${tempDir.path}/output_${DateTime.now().millisecondsSinceEpoch}.mp4';
 
     // Delete the output file if it already exists
     if (await File(outputUrl).exists()) {
@@ -122,11 +128,27 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
     // FFmpeg command to merge audio and video while preserving the original audio
     String commandToExecute =
         '-i $filePath -i $audioUrlName -filter_complex "[0:a][1:a]amerge=inputs=2[a]" -map 0:v -map "[a]" -c:v copy -ac 2 $outputUrl';
+    // String commandToExecute =
+    //     '-i $filePath -i $audioUrlName -filter_complex "[0:a][1:a]amix=inputs=2:duration=shortest[a]" -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -shortest $outputUrl';
+
+
 
     // Execute the FFmpeg command
-    FFmpegKit.execute(commandToExecute).then((session) async {
-      final returnCode = await session.getReturnCode();
+    if (!await File(filePath).exists()) {
+      debugPrint("Video file not found: $filePath");
+      return;
+    }
 
+    if (!await File(audioUrlName!).exists()) {
+      debugPrint("Audio file not found: $audioUrlName");
+      return;
+    }
+
+    log("file path $filePath and output url $audioUrlName");
+
+    await FFmpegKit.execute(commandToExecute).then((session) async {
+      final returnCode = await session.getReturnCode();
+      final logs= await session.getLogs();
       if (ReturnCode.isSuccess(returnCode)) {
         setState(() {
           outputUrlName = outputUrl;
@@ -135,7 +157,11 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
       } else if (ReturnCode.isCancel(returnCode)) {
         debugPrint("Merge canceled");
       } else {
-        debugPrint("Merge failed with return code: $returnCode");
+        for (var log1 in logs) {
+          log("Log: ${log1.getMessage()}");
+        }
+
+        log("Merge failed with return code:  $returnCode");
       }
     }).catchError((error) {
       debugPrint("Error during merge: $error");
@@ -174,14 +200,17 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
       body: Stack(
         children: [
           widget.isVideo
-              ? SizedBox.expand(child: EditVideoView( url: widget.filePath,fit: BoxFit.none,))
+              ? SizedBox.expand(
+                  child: EditVideoView(
+                  url: widget.filePath,
+                  fit: BoxFit.none,
+                ))
               : Image.file(
                   File(widget.filePath),
                 ),
           if (filterColor != null)
             Positioned.fill(
-              child: ColoredBox(
-                  color: (filterColor ?? Colors.transparent).withValues(alpha: .4)),
+              child: ColoredBox(color: (filterColor ?? Colors.transparent).withValues(alpha: .4)),
             ),
           showTextField
               ? Center(
@@ -203,14 +232,14 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                   ),
                 )
               : Center(
-                child: Text(
+                  child: Text(
                     values ?? '',
                     textAlign: TextAlign.center,
                     style: regularText(size: 24).copyWith(
                       color: Colors.white,
                     ),
                   ),
-              ),
+                ),
           Positioned(
               right: 40,
               top: height / 3,
@@ -242,8 +271,7 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                             context: context,
                             builder: (_) {
                               ValueNotifier<int> onClicked = ValueNotifier(-1);
-                              ValueNotifier<String> selected =
-                              ValueNotifier('');
+                              ValueNotifier<String> selected = ValueNotifier('');
                               return PopScope(
                                 onPopInvokedWithResult: (val, results) {
                                   audioPlayer.stop();
@@ -259,110 +287,63 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                                   alignment: Alignment.bottomRight,
                                   children: [
                                     ListView.separated(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 20, horizontal: 30),
+                                        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                                         itemBuilder: (_, index) {
                                           return ValueListenableBuilder(
                                             valueListenable: selected,
-                                            builder: (BuildContext context,
-                                                String value, Widget? child) {
+                                            builder: (BuildContext context, String value, Widget? child) {
                                               return GestureDetector(
-                                                behavior:
-                                                HitTestBehavior.opaque,
+                                                behavior: HitTestBehavior.opaque,
                                                 onTap: () {
-                                                  selectedAudio =
-                                                  audios?[index];
-                                                  selected.value =
-                                                      audios?[index] ?? '';
-                                                  debugPrint(
-                                                      "WORKING===> & assets/audio/$selectedAudio.mp3");
+                                                  selectedAudio = audios?[index];
+                                                  selected.value = audios?[index] ?? '';
+                                                  debugPrint("WORKING===> & assets/audio/$selectedAudio.mp3");
                                                 },
                                                 child: ClipRRect(
-                                                  borderRadius:
-                                                  BorderRadius.circular(10),
+                                                  borderRadius: BorderRadius.circular(10),
                                                   child: ColoredBox(
-                                                    color: selected.value ==
-                                                        audios?[index]
+                                                    color: selected.value == audios?[index]
                                                         ? Colors.white
                                                         : Colors.transparent,
                                                     child: Padding(
-                                                      padding:
-                                                      const EdgeInsets.all(
-                                                          8.0),
+                                                      padding: const EdgeInsets.all(8.0),
                                                       child: Row(
-                                                        mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
+                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
                                                           Text(
-                                                            audios?[index]
-                                                                .capitalizeText() ??
-                                                                '',
+                                                            audios?[index].capitalizeText() ?? '',
                                                             style: regularText(size: 24).copyWith(
-                                                                color: selected
-                                                                    .value ==
-                                                                    audios?[
-                                                                    index]
-                                                                    ? Colors
-                                                                    .black
-                                                                    : Colors
-                                                                    .white),
+                                                                color: selected.value == audios?[index]
+                                                                    ? Colors.black
+                                                                    : Colors.white),
                                                           ),
                                                           ValueListenableBuilder(
-                                                            valueListenable:
-                                                            onClicked,
-                                                            builder:
-                                                                (BuildContext
-                                                            context,
-                                                                int value,
-                                                                Widget?
-                                                                child) {
+                                                            valueListenable: onClicked,
+                                                            builder: (BuildContext context, int value, Widget? child) {
                                                               return GestureDetector(
-                                                                behavior:
-                                                                HitTestBehavior
-                                                                    .opaque,
-                                                                onTap:
-                                                                    () async {
-                                                                  audioClicked =
-                                                                  !audioClicked;
+                                                                behavior: HitTestBehavior.opaque,
+                                                                onTap: () async {
+                                                                  audioClicked = !audioClicked;
                                                                   if (audioClicked) {
-                                                                    debugPrint(
-                                                                        "$value");
-                                                                    audioPlayer
-                                                                        .stop();
+                                                                    debugPrint("$value");
+                                                                    audioPlayer.stop();
                                                                   } else {
-                                                                    audioPlayer.setAudioSource(
-                                                                        AudioSource.asset(
-                                                                            'assets/audio/${audios?[index]}.mp3'));
-                                                                    audioPlayer
-                                                                        .play();
+                                                                    audioPlayer.setAudioSource(AudioSource.asset(
+                                                                        'assets/audio/${audios?[index]}.mp3'));
+                                                                    audioPlayer.play();
                                                                   }
-                                                                  if (onClicked
-                                                                      .value ==
-                                                                      index) {
-                                                                    onClicked
-                                                                        .value = -1;
+                                                                  if (onClicked.value == index) {
+                                                                    onClicked.value = -1;
                                                                   } else {
-                                                                    onClicked
-                                                                        .value =
-                                                                        index;
+                                                                    onClicked.value = index;
                                                                   }
                                                                 },
                                                                 child: Icon(
-                                                                  value == index
-                                                                      ? Icons
-                                                                      .pause
-                                                                      : Icons
-                                                                      .play_arrow,
+                                                                  value == index ? Icons.pause : Icons.play_arrow,
                                                                   size: 24,
-                                                                  color: selected
-                                                                      .value ==
-                                                                      audios?[
-                                                                      index]
-                                                                      ? Colors
-                                                                      .black
-                                                                      : Colors
-                                                                      .white,
+                                                                  color: selected.value == audios?[index]
+                                                                      ? Colors.black
+                                                                      : Colors.white,
                                                                 ),
                                                               );
                                                             },
@@ -386,25 +367,27 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                                       right: 20,
                                       child: ValueListenableBuilder(
                                         valueListenable: selected,
-                                        builder: (BuildContext context,String value, Widget? child) {
-                                          if(value.isNotEmpty){
+                                        builder: (BuildContext context, String value, Widget? child) {
+                                          if (value.isNotEmpty) {
                                             return GestureDetector(
-                                              onTap: (){
+                                              onTap: () {
                                                 Get.back();
                                               },
                                               child: const DecoratedBox(
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   shape: BoxShape.circle,
-
                                                 ),
                                                 child: Padding(
                                                   padding: EdgeInsets.all(10.0),
-                                                  child: Icon(Icons.check,color: Colors.black,),
+                                                  child: Icon(
+                                                    Icons.check,
+                                                    color: Colors.black,
+                                                  ),
                                                 ),
                                               ),
                                             );
-                                          }else{
+                                          } else {
                                             return const SizedBox.shrink();
                                           }
                                         },
@@ -472,114 +455,133 @@ class _VideoEditScreenState extends State<VideoEditScreen> {
                 backButton: true,
                 title: 'Edit ${widget.isVideo ? 'Video' : 'Image'} ',
                 marginTop: 25,
-                onTap: !widget.fromMessage? (){
-                  Get.off(()=> NavBarScreen());
-                }: null
-            ),
+                onTap: !widget.fromMessage
+                    ? () {
+                        Get.off(() => NavBarScreen());
+                      }
+                    : null),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
-                color: Colors.white,
-                padding:
-                     EdgeInsets.symmetric(horizontal: !isLoading? 30: width/2.18, vertical: 20),
-                width: double.infinity,
-                child: !isLoading? PrimaryButton(
-                    label: 'Save Changes',
-                    onPress: () async {
-                      // debugPrint("clicked!");
-                      setState(() {
-                        isLoading = true;
-                      });
-                      List<TapiocaBall> tapiocaBalls = [];
-                      if (filterColor != null) {
-                        tapiocaBalls.add(
-                            TapiocaBall.filterFromColor(filterColor!, 0.4));
-                      }
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(horizontal: !isLoading ? 30 : width / 2.18, vertical: 20),
+              width: double.infinity,
+              child: !isLoading
+                  ? PrimaryButton(
+                      label: 'Save Changes',
+                      onPress: () async {
+                        // debugPrint("clicked!");
+                        setState(() {
+                          isLoading = true;
+                        });
+                        List<TapiocaBall> tapiocaBalls = [];
+                        if (filterColor != null) {
+                          tapiocaBalls.add(TapiocaBall.filterFromColor(filterColor!, 0.4));
+                        }
 
-                      if (values != null && values?.isNotEmpty == true) {
-                        TextPainter textPainter = TextPainter(
-                          text: TextSpan(
-                            text: values,
-                            style: const TextStyle(fontSize: 32),
-                          ),
-                          textDirection: TextDirection.ltr,
-                        );
-                        textPainter.layout();
-                        int textWidth = textPainter.width.toInt();
-                        int textHeight = textPainter.height.toInt();
+                        if (values != null && values?.isNotEmpty == true) {
+                          TextPainter textPainter = TextPainter(
+                            text: TextSpan(
+                              text: values,
+                              style: const TextStyle(fontSize: 32),
+                            ),
+                            textDirection: TextDirection.ltr,
+                          );
+                          textPainter.layout();
+                          int textWidth = textPainter.width.toInt();
+                          int textHeight = textPainter.height.toInt();
 
-                        int xPosition = (width / 2).toInt() - (textWidth ~/ 2);
-                        int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
-                        tapiocaBalls.add(
-                          TapiocaBall.textOverlay(values ?? '', xPosition,
-                              yPosition+100, 28,  Colors.white),
-                        );
-                      }
-                      if (tapiocaBalls.isNotEmpty) {
-                        try {
-                          var tempDir = await getTemporaryDirectory();
-                          final path =
-                              '${tempDir.path}/result_${DateTime.now().millisecondsSinceEpoch}.mp4';
-                          debugPrint(
-                              "will start in Path==>${outputUrlName ?? widget.filePath}");
-                          final cup =
-                              Cup(Content(widget.filePath), tapiocaBalls);
-                          await cup.suckUp(path).then((_) async {
-                            setState(() {
-                              processPercentage = 0;
+                          int xPosition = (width / 2).toInt() - (textWidth ~/ 2);
+                          int yPosition = (height / 2).toInt() - (textHeight ~/ 2);
+                          tapiocaBalls.add(
+                            TapiocaBall.textOverlay(values ?? '', xPosition, yPosition + 100, 28, Colors.white),
+                          );
+                        }
+                        if (tapiocaBalls.isNotEmpty) {
+                          try {
+                            var tempDir = await getTemporaryDirectory();
+                            final path = '${tempDir.path}/result_${DateTime.now().millisecondsSinceEpoch}.mp4';
+                            debugPrint("will start in Path==>${outputUrlName ?? widget.filePath}");
+                            final cup = Cup(Content(widget.filePath), tapiocaBalls);
+                            await cup.suckUp(path).then((_) async {
+                              setState(() {
+                                processPercentage = 0;
+                              });
+                              if (selectedAudio != null) {
+                                await audioFilePick(path);
+                              }
+                              if (widget.fromMessage) {
+                                if (widget.fromStory) {
+                                  await widget.onSend?.call(outputUrlName ?? path);
+                                } else {
+                                  await chatController
+                                      .uploadToStorage(File(outputUrlName ?? path))
+                                      .then((val) async {
+                                    if (val) {
+                                      await widget.onSend?.call(outputUrlName ?? path);
+                                      Get
+                                        ..back()
+                                        ..back(result: val);
+                                    }
+                                  });
+                                }
+                              } else {
+                                Get
+                                  ..back()
+                                  ..off(() => CreatePostScreen(
+                                        filePath: outputUrlName != null ? outputUrlName ?? '' : path,
+                                        isVideo: widget.isVideo,
+                                        fromMessage: widget.fromMessage,
+                                      ));
+                              }
+                              setState(() {
+                                isLoading = false;
+                              });
+                            }).catchError((e) {
+                              debugPrint('Got error: $e');
                             });
-                            if (selectedAudio != null) {
-                              await audioFilePick(path);
-                            }
-                            if(widget.fromMessage){
-                              await chatController.uploadToStorage(File(
-                                   outputUrlName ?? widget.filePath)).then((val)async{
-                                if(val){
-                                  await widget.onSend!();
-                                  Get..back()..back(result: val);
+                          } on PlatformException {
+                            debugPrint("error!!!!");
+                          }
+                        } else {
+                          if (selectedAudio != null) {
+                            await audioFilePick(widget.filePath);
+                          }
+                          if (widget.fromMessage) {
+                            if (widget.fromStory) {
+                              await widget.onSend?.call(outputUrlName ?? widget.filePath);
+                            } else {
+                              await chatController
+                                  .uploadToStorage(File(
+                                outputUrlName ?? widget.filePath,
+                              ))
+                                  .then((val) async {
+                                if (val) {
+                                  await widget.onSend?.call(outputUrlName ?? widget.filePath);
+                                  Get
+                                    ..back()
+                                    ..back(result: val);
                                 }
                               });
-
-                            }else{
-                              Get..back()..off(() => CreatePostScreen(
-                                filePath: outputUrlName != null
-                                    ? outputUrlName ?? ''
-                                    : path,
-                                isVideo: widget.isVideo, fromMessage: widget.fromMessage,
-                              ));
                             }
-                            setState(() {
-                              isLoading = false;
-                            });
-                          }).catchError((e) {
-                            debugPrint('Got error: $e');
-                          });
-                        } on PlatformException {
-                          debugPrint("error!!!!");
+                          } else {
+                            Get
+                              ..back()
+                              ..off(() => CreatePostScreen(
+                                    filePath: outputUrlName ?? widget.filePath,
+                                    isVideo: true,
+                                    fromMessage: widget.fromMessage,
+                                  ));
+                          }
                         }
-                      } else {
-                        if (selectedAudio != null) {
-                          await audioFilePick(widget.filePath);
-                        }
-                        if(widget.fromMessage){
-                          await chatController.uploadToStorage(File(outputUrlName ?? widget.filePath,)).then((val)async{
-                            if(val){
-                              await widget.onSend!();
-                              Get..back()..back(result: val);
-                            }
-                          });
-
-                        }else{
-                          Get..back()..off(() => CreatePostScreen(
-                            filePath: outputUrlName ?? widget.filePath,
-                            isVideo: true, fromMessage: widget.fromMessage,
-                          ));
-                        }
-                      }
-                      filterColor=null;
-                      values= null;
-                    }): const CircularProgressIndicator(color: Colors.red,),),
+                        filterColor = null;
+                        values = null;
+                      })
+                  : const CircularProgressIndicator(
+                      color: Colors.red,
+                    ),
+            ),
           ),
         ],
       ),

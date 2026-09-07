@@ -1,6 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:connect_app/controllers/mainScreen_controllers/home_page_cont.dart';
 import 'package:connect_app/controllers/searchScreen_controller.dart';
 import 'package:connect_app/globals/enum.dart';
@@ -10,6 +8,8 @@ import 'package:connect_app/utils/app_colors.dart';
 import 'package:connect_app/utils/login_details.dart';
 import 'package:connect_app/utils/text_styles.dart';
 import 'package:connect_app/widgets/appbars.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../controllers/mainScreen_controllers/navbar_controller.dart';
 import '../../globals/network_image.dart';
@@ -135,7 +135,7 @@ class SearchScreen extends StatelessWidget {
                                 index: index,
                                 onTap: () {
                                   homeController.selectedCategory.value='Recommended';
-                                  homeController.recommendedPosts?.posts?.clear();
+                                  homeController.recommendedPosts.posts?.clear();
                                   homeController.recommendedPosts= searchController.recommendedPosts.value;
                                   navBar.changeTab(0);
                                   homeController.pageController.animateToPage(

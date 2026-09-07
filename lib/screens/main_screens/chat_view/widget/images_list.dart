@@ -7,7 +7,7 @@ import 'image_view.dart';
 
 class ImagesList extends StatelessWidget {
   final List<dynamic> images;
-  ImagesList({required this.images});
+  const ImagesList({super.key, required this.images});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
