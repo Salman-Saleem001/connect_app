@@ -1,3 +1,8 @@
+# Expo / React Native
+connect_expo/node_modules/
+connect_expo/.expo/
+connect_expo/dist/
+
 # Miscellaneous
 *.class
 *.log

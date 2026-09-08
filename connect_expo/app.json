@@ -1,0 +1,117 @@
+{
+  "expo": {
+    "name": "Connect Giant",
+    "slug": "connect_expo",
+    "version": "1.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "connectgiant",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ios.connectApp",
+      "buildNumber": "9",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyC9FPLBwpCIQIRVERrlmHv94qv4u9zmILw"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#EF274D",
+        "foregroundImage": "./assets/images/android-icon-foreground.png",
+        "backgroundImage": "./assets/images/android-icon-background.png"
+      },
+      "package": "com.connectgiant.app",
+      "versionCode": 9,
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC9FPLBwpCIQIRVERrlmHv94qv4u9zmILw"
+        }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.CAMERA",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#EF274D"
+        }
+      ],
+      "expo-sharing",
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow Connect Giant to access your camera to record video replies.",
+          "microphonePermission": "Allow Connect Giant to access your microphone for video replies."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Connect Giant to access your camera.",
+          "microphonePermission": "Allow Connect Giant to access your microphone.",
+          "recordAudioAndroid": true
+        }
+      ],
+      "expo-audio",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow Connect Giant to share your location in chat."
+        }
+      ],
+      "expo-document-picker",
+      [
+        "react-native-maps",
+        {
+          "iosGoogleMapsApiKey": "AIzaSyC9FPLBwpCIQIRVERrlmHv94qv4u9zmILw",
+          "androidGoogleMapsApiKey": "AIzaSyC9FPLBwpCIQIRVERrlmHv94qv4u9zmILw"
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#EF274D",
+          "defaultChannel": "important"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e2661d90-c4b7-416b-a840-265ab0e889cd"
+      }
+    },
+    "owner": "shahid01"
+  }
+}
